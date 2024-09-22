@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Member.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
-import com.kotlin.sns.domain.Post.entity.Post
+import com.kotlin.sns.domain.Post.entity.Posting
 import jakarta.persistence.*
 
 
@@ -33,7 +33,7 @@ data class Member (
 
     val profileImageUrl : String? = null,
 
-    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val posts : List<Post> = mutableListOf()
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
+    val postings : List<Posting> = mutableListOf()
 ) : BaseEntity()
 

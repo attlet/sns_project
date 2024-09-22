@@ -22,8 +22,8 @@ updated_at: 포스팅 수정 일시
 
 */
 @Entity
-@Table(name = "post")
-data class Post(
+@Table(name = "posting")
+data class Posting(
     @Column(nullable = false, columnDefinition = "TEXT")
     val content : String,
 

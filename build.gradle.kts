@@ -19,6 +19,8 @@ repositories {
 	mavenCentral()
 }
 
+val queryDslVersion = "5.1.0" //querydsl 버전
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -28,6 +30,11 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	//querydsl 설정
+	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
+//	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+
 }
 
 kotlin {
@@ -35,6 +42,8 @@ kotlin {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
 	}
 }
+
+val querydslDir = "${layout.buildDirectory}/generated/querydsl"
 
 tasks.withType<Test> {
 	useJUnitPlatform()
