@@ -19,7 +19,8 @@ class MemberServiceImpl(private val memberRepository: MemberRepository) : Member
     }
 
     override fun createMember(requestCreateMemberDto: RequestCreateMemberDto) {
-
+        val savedMember = requestCreateMemberDto
+        val member = memberRepository.save()
     }
 
     override fun updateMember() {
