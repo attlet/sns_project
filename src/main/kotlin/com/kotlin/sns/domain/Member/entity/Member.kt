@@ -42,6 +42,11 @@ data class Member (
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
     val postings : List<Posting> = mutableListOf()
 ) : BaseEntity() {
-
+//    fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto) {
+//        this.name = requestUpdateMemberDto.name
+//        this.email = requestUpdateMemberDto.email
+//        this.password = requestUpdateMemberDto.password
+//        this.
+//    }
 }
 

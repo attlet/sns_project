@@ -1,7 +1,9 @@
 package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
+import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseFindMemberDto
+import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
@@ -55,11 +57,16 @@ class MemberServiceImpl(
         return memberMapper.toDto(member);
     }
 
-    override fun updateMember() {
-        TODO("Not yet implemented")
+    override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
+        val memberId = requestUpdateMemberDto.memberId
+        val member = memberRepository.findById(memberId)
+            .orElseThrow {IllegalArgumentException("invalid member id : $memberId") }
+
+        return memberMapper.toDto(member)
+
     }
 
-    override fun deleteMember() {
+    override fun deleteMember(memberId: Long) {
         TODO("Not yet implemented")
     }
 }
