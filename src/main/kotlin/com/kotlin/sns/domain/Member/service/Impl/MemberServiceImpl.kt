@@ -10,6 +10,8 @@ import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.valueParameters
 
 /**
  * MemberService
@@ -51,7 +53,7 @@ class MemberServiceImpl(
      * @param requestCreateMemberDto
      * @return
      */
-    override fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseFindMemberDto{
+    override fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto{
         val savedMember = memberMapper.toEntity(requestCreateMemberDto)
         val member = memberRepository.save(savedMember)
         return memberMapper.toDto(member);
@@ -62,8 +64,23 @@ class MemberServiceImpl(
         val member = memberRepository.findById(memberId)
             .orElseThrow {IllegalArgumentException("invalid member id : $memberId") }
 
-        return memberMapper.toDto(member)
+        val fields = member::class.memberProperties  //dto가 가진 필드들 가져옴
 
+        //dto의 필드들을 loop로 순회
+        for (field in fields) {
+            val fieldName = field.name  //필드의 이름
+            val fieldValue = field.getter.call(requestUpdateMemberDto)//필드가 가진 value
+
+            if(fieldValue != null){  //만약 업데이트 안 하려는 필드라면 null로 입력됨 -> 로직 동작x
+                when(fieldName){
+                    "name" -> member.name = fieldValue as String
+                    "profileImageUrl" -> member.profileImageUrl = fieldValue as String?
+                }
+            }
+
+        }
+
+        return memberMapper.toDto(member)
     }
 
     override fun deleteMember(memberId: Long) {

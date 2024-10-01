@@ -3,6 +3,7 @@ package com.kotlin.sns.domain.Member.mapper
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseFindMemberDto
+import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import org.mapstruct.Mapper
 
@@ -15,6 +16,5 @@ interface MemberMapper {
 
     fun toEntity(dto : RequestCreateMemberDto) : Member
     fun toEntity(dto : RequestUpdateMemberDto) : Member
-    fun toDto(entity : Member) : ResponseFindMemberDto
-
+    fun toDto(entity : Member) : ResponseMemberDto
 }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 interface MemberService {
     fun findMemberById(memberId : Long):Member
     fun findMemberByEmail(email : String):Member
-    fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseFindMemberDto
+    fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto
     fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto) : ResponseMemberDto
     fun deleteMember(memberId: Long)
 }
