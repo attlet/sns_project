@@ -20,3 +20,7 @@
 
 - plugin Kdoc 검색해서 설치
 - /** + enter로 클래스/메서드의 설명 생성
+
+4. kotlin의 data class
+
+- data 클래스에서 제공하는 copy메서드가 존재

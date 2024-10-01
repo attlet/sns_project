@@ -29,18 +29,18 @@ import jakarta.persistence.*
 @Table(name = "member")
 data class Member (
     @Column(nullable = false, unique = true)
-    val name : String,
+    var name : String,
 
     @Column(nullable = false, unique = true)
-    val email : String,
+    var email : String,
 
     @Column(nullable = false, unique = true)
-    val password : String,
+    var password : String,
 
-    val profileImageUrl : String? = null,
+    var profileImageUrl : String? = null,
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
-    val postings : List<Posting> = mutableListOf()
+    var postings : List<Posting> = mutableListOf()
 ) : BaseEntity() {
 
 }
