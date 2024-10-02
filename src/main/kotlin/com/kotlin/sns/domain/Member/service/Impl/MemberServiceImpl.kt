@@ -48,7 +48,7 @@ class MemberServiceImpl(
     }
 
     /**
-     * TODO
+     * member 생성
      *
      * @param requestCreateMemberDto
      * @return
@@ -59,6 +59,12 @@ class MemberServiceImpl(
         return memberMapper.toDto(member);
     }
 
+    /**
+     * 사용자 정보 업데이트
+     *
+     * @param requestUpdateMemberDto
+     * @return
+     */
     override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
         val memberId = requestUpdateMemberDto.memberId
         val member = memberRepository.findById(memberId)
@@ -77,13 +83,17 @@ class MemberServiceImpl(
                     "profileImageUrl" -> member.profileImageUrl = fieldValue as String?
                 }
             }
-
         }
 
         return memberMapper.toDto(member)
     }
 
+    /**
+     * member 삭제
+     *
+     * @param memberId
+     */
     override fun deleteMember(memberId: Long) {
-        TODO("Not yet implemented")
+        memberRepository.deleteById(memberId);
     }
 }
