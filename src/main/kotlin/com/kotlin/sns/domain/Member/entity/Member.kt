@@ -1,8 +1,7 @@
 package com.kotlin.sns.domain.Member.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
-import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.Post.entity.Posting
+import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
 
 
