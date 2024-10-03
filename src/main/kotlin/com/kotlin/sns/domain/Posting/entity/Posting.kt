@@ -27,11 +27,11 @@ import jakarta.persistence.Table
 @Table(name = "posting")
 data class Posting(
     @Column(nullable = false, columnDefinition = "TEXT")
-    val content : String,
+    var content : String,
 
-    val imageUrl : String? = null,
+    var imageUrl : String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writerId")
-    val member : Member
+    var member : Member
 ) : BaseEntity()

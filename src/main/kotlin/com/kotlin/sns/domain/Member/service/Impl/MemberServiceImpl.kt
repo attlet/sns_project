@@ -14,7 +14,6 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.valueParameters
 
 /**
- * MemberService
  * member의 비즈니스 로직 처리
  *
  * @property memberRepository
