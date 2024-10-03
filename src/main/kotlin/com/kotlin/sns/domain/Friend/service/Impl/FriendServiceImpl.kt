@@ -1,10 +1,18 @@
 package com.kotlin.sns.domain.Friend.service.Impl
 
+import com.kotlin.sns.domain.Friend.repository.friendRepository
 import com.kotlin.sns.domain.Friend.service.FriendService
 import org.springframework.stereotype.Service
 
+/**
+ * friend 비즈니스 로직 처리
+ *
+ * @property friendRepository
+ */
 @Service
-class FriendServiceImpl : FriendService{
+class FriendServiceImpl(
+    private val friendRepository: friendRepository
+) : FriendService{
     override fun findFriendById() {
         TODO("Not yet implemented")
     }
