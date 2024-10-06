@@ -1,4 +1,8 @@
 package com.kotlin.sns.domain.Posting.dto.request
 
-class RequestCreaetePostingDto {
+data class RequestCreaetePostingDto (
+    val content : String,
+    val imageUrl : String? = null,
+
+){
 }

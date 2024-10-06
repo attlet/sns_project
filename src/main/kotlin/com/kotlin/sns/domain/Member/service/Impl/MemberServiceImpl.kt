@@ -30,9 +30,11 @@ class MemberServiceImpl(
      * @param memberId
      * @return
      */
-    override fun findMemberById(memberId: Long): Member {
-        return memberRepository.findById(memberId)
+    override fun findMemberById(memberId: Long): ResponseMemberDto {
+        val member = memberRepository.findById(memberId)
             .orElseThrow{IllegalArgumentException("invalid member id : $memberId")}
+
+        return memberMapper.toDto(member)
     }
 
     /**
@@ -41,9 +43,11 @@ class MemberServiceImpl(
      * @param email
      * @return
      */
-    override fun findMemberByEmail(email: String): Member {
-        return memberRepository.findByEmail(email)
+    override fun findMemberByEmail(email: String): ResponseMemberDto {
+        val member = memberRepository.findByEmail(email)
             .orElseThrow{IllegalArgumentException("invalid member email : $email")}
+
+        return memberMapper.toDto(member)
     }
 
     /**
