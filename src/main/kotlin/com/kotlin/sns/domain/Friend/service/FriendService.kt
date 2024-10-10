@@ -7,7 +7,7 @@ import org.apache.coyote.Response
 
 interface FriendService {
     fun findFriendById(friendId : Long) : ResponseFriendDto
-    fun createFriend(requestCreateFriendDto: RequestCreateFriendDto) : ResponseFriendDto
+    fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto) : ResponseFriendDto
     fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto) : ResponseFriendDto
     fun deleteFriend(friendId: Long)
 }

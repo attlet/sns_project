@@ -1,4 +1,10 @@
 package com.kotlin.sns.domain.Friend.dto.request
 
-class RequestUpdateFriendDto {
+import com.kotlin.sns.domain.Friend.const.friendApplyStatusEnum
+
+class RequestUpdateFriendDto(
+    val senderId : Long,
+    val receiverId : Long,
+    val status : friendApplyStatusEnum
+) {
 }

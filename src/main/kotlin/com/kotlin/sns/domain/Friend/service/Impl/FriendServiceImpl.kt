@@ -25,11 +25,13 @@ class FriendServiceImpl(
         val friend = friendRepository.findById(friendId)
             .orElseThrow { IllegalArgumentException("invalid friend id : $friendId") }
 
-        return ResponseFriendDto(senderId = friend.sender.id, receiverId = friend.receiver.id)
+        return ResponseFriendDto(senderId = friend.sender.id, receiverId = friend.receiver.id, status = friend.status)
     }
-    override fun createFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
+
+    override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
         val receiverId = requestCreateFriendDto.receiverId
+        val status = friendApplyStatusEnum.PENDING
 
         val sender = memberRepository.findById(senderId)
             .orElseThrow { IllegalArgumentException("invalid member id : $senderId") }
@@ -39,20 +41,37 @@ class FriendServiceImpl(
         val friend = Friend(
             sender = sender,
             receiver = receiver,
-            status = friendApplyStatusEnum.PENDING
+            status = status
         )
 
         val savedFriend = friendRepository.save(friend)
 
-        return ResponseFriendDto(senderId = friend.sender.id, receiverId = friend.receiver.id)
+        return ResponseFriendDto(senderId = savedFriend.sender.id, receiverId = savedFriend.receiver.id, status = savedFriend.status)
     }
 
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
+        val senderId = requestUpdateFriendDto.senderId
+        val receiverId = requestUpdateFriendDto.receiverId
+        val status = requestUpdateFriendDto.status
 
+        val sender = memberRepository.findById(senderId)
+            .orElseThrow { IllegalArgumentException("invalid member id : $senderId") }
+        val receiver = memberRepository.findById(receiverId)
+            .orElseThrow{ IllegalArgumentException("invalid member id : $receiverId")}
+
+        val friend = Friend(
+            sender = sender,
+            receiver = receiver,
+            status = status
+        )
+
+        val updatedFriend = friendRepository.save(friend)
+
+        return ResponseFriendDto(senderId = updatedFriend.sender.id, receiverId = updatedFriend.receiver.id, status = status)
     }
 
     override fun deleteFriend(friendId: Long) {
-        TODO("Not yet implemented")
+        friendRepository.deleteById(friendId)
     }
 
 
