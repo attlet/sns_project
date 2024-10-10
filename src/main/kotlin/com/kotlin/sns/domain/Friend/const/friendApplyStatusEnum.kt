@@ -12,4 +12,6 @@ enum class friendApplyStatusEnum {
     ACCEPT,
     BLOCKED,
     PENDING
+
+
 }
