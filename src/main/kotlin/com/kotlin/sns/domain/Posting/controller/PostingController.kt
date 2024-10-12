@@ -4,6 +4,7 @@ import com.kotlin.sns.domain.Posting.dto.request.RequestCreaetePostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.service.PostingService
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/postings")
+@Tag(name = "posting", description = "posting 관련 api")
 class PostingController (
     private val postingService: PostingService
 ){
