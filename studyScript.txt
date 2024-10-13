@@ -21,6 +21,8 @@
 - plugin Kdoc 검색해서 설치
 - /** + enter로 클래스/메서드의 설명 생성
 
-4. kotlin의 data class
+4. 현재 시간 가져오는 Instant
 
-- data 클래스에서 제공하는 copy메서드가 존재
+- Instant의 경우 LocalDateTime과 달리 전 세계 동기화된 시간을 가져옴
+- 전 세계적으로 동일한 시점을 가져오는 것.
+
