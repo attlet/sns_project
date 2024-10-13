@@ -4,6 +4,7 @@ import com.kotlin.sns.domain.Friend.dto.request.RequestCreateFriendDto
 import com.kotlin.sns.domain.Friend.dto.request.RequestUpdateFriendDto
 import com.kotlin.sns.domain.Friend.dto.response.ResponseFriendDto
 import com.kotlin.sns.domain.Friend.service.FriendService
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/friends")
+@Tag(name = "friend", description = "친구 신청 관련 api")
 class FriendController(
     private val friendService: FriendService
 ) {
