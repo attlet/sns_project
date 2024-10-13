@@ -3,6 +3,8 @@ package com.kotlin.sns.domain.Member.entity
 import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 
 
 /**
@@ -26,21 +28,47 @@ import jakarta.persistence.*
  */
 @Entity
 @Table(name = "member")
-data class Member (
+data class Member(
     @Column(nullable = false, unique = true)
-    var name : String,
+    var name: String,
 
     @Column(nullable = false, unique = true)
-    var email : String,
+    var email: String,
 
     @Column(nullable = false, unique = true)
-    var password : String,
+    var password: String,
 
-    var profileImageUrl : String? = null,
+    var profileImageUrl: String? = null,
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
-    var postings : List<Posting> = mutableListOf()
-) : BaseEntity() {
+    var postings: List<Posting> = mutableListOf()
+) : BaseEntity(), UserDetails {
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        TODO("Not yet implemented")
+    }
 
+    override fun getPassword(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun getUsername(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun isAccountNonExpired(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun isAccountNonLocked(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun isCredentialsNonExpired(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun isEnabled(): Boolean {
+        TODO("Not yet implemented")
+    }
 }
 

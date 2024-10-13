@@ -2,16 +2,14 @@ package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.Member.dto.response.ResponseFindMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.valueParameters
 
 /**
  * member의 비즈니스 로직 처리
@@ -22,7 +20,7 @@ import kotlin.reflect.full.valueParameters
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
-    private val memberMapper: MemberMapper) : MemberService{
+    private val memberMapper: MemberMapper) : MemberService, UserDetailsService{
 
     /**
      * uuid 기반으로 member 반환
@@ -98,5 +96,10 @@ class MemberServiceImpl(
      */
     override fun deleteMember(memberId: Long) {
         memberRepository.deleteById(memberId);
+    }
+
+    override fun loadUserByUsername(username: String): UserDetails {
+        return memberRepository.findByUsername(username)
+            .orElseThrow { IllegalArgumentException("invalid user name : $username") }
     }
 }

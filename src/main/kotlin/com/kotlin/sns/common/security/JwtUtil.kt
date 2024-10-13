@@ -50,4 +50,15 @@ class JwtUtil {
     fun resolveToken(request: HttpServletRequest) : String{
         return request.getHeader("auth_token")
     }
+
+    fun resolveUsername(token : String) : String{
+        val subject = Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
+            .build()
+            .parseClaimsJws(token)
+            .body
+            .subject
+
+        return subject
+    }
 }
