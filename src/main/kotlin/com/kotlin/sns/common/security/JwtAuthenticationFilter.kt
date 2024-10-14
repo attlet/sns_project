@@ -9,6 +9,13 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
+/**
+ * 사용자 request 요청 선 처리하는 filter
+ * 토큰 검증 진행
+ *
+ * @property jwtUtil
+ * @property userServiceDetails
+ */
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
