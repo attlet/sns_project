@@ -10,6 +10,10 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * jwt 토큰 생성, 유효성 검증 관련 로직 작성
+ *
+ */
 @Component
 class JwtUtil {
 
