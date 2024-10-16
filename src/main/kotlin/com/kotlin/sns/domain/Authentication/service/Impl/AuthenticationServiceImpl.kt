@@ -26,6 +26,7 @@ class AuthenticationServiceImpl(
     /**
      * 회원 가입 메서드
      * 아이디, 이메일 중복 검사
+     * 권한은 컨트롤러에서 구분해서 넘겨주도록 함
      *
      * @param requestSignUpDto
      * @return
@@ -35,6 +36,7 @@ class AuthenticationServiceImpl(
         val name = requestSignUpDto.name
         val password = requestSignUpDto.password
         val email = requestSignUpDto.email
+        val roles = requestSignUpDto.roles
 
         if(memberRepository.findByUserId(id).isPresent){
             throw RuntimeException("dup id")
@@ -48,7 +50,8 @@ class AuthenticationServiceImpl(
             userId = id,
             name = name,
             password = passwordEncoder.encode(password),
-            email = email
+            email = email,
+            roles = listOf(roles)
         )
 
         val savedMember = memberRepository.save(member)

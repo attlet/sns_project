@@ -44,7 +44,10 @@ data class Member(
     var profileImageUrl: String? = null,
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
-    var postings: List<Posting> = mutableListOf()
+    var postings: List<Posting> = mutableListOf(),
+
+    @ElementCollection
+    var roles: List<String>
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         TODO("Not yet implemented")

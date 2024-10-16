@@ -4,6 +4,7 @@ data class RequestSignUpDto (
     val id : String,
     val name: String,
     val password : String,
-    val email : String
+    val email : String,
+    val roles : String
 ){
 }
