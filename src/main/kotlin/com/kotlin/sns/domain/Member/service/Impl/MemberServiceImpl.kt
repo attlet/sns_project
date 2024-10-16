@@ -99,7 +99,7 @@ class MemberServiceImpl(
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
-        return memberRepository.findByUsername(username)
+        return memberRepository.findByUserId(username)
             .orElseThrow { IllegalArgumentException("invalid user name : $username") }
     }
 }

@@ -30,6 +30,9 @@ import org.springframework.security.core.userdetails.UserDetails
 @Table(name = "member")
 data class Member(
     @Column(nullable = false, unique = true)
+    var userId : String,
+
+    @Column(nullable = false, unique = true)
     var name: String,
 
     @Column(nullable = false, unique = true)
