@@ -3,6 +3,7 @@ package com.kotlin.sns.common.security
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import jakarta.annotation.PostConstruct
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -23,6 +24,10 @@ class JwtUtil {
     @Value("\${jwt.secret}")
     private lateinit var secret: String
 
+    /**
+     * 애플리케이션 시작 시 한 번만 실행해서 초기화하는 메서드
+     */
+    @PostConstruct
     fun jwtInit() {
         secret = Base64.getEncoder().encodeToString(secret.toByteArray())
     }

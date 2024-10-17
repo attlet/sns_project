@@ -4,6 +4,7 @@ import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
@@ -50,7 +51,7 @@ data class Member(
     var roles: List<String>
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        TODO("Not yet implemented")
+        return roles.map { SimpleGrantedAuthority(it) }.toMutableList()
     }
 
     override fun getPassword(): String {

@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component
 class SecurityConfig (
     private val jwtAuthenticationFilter: JwtAuthenticationFilter
 ){
-
+    val permitUrlList = listOf<String>()
     @Bean
     fun filterChain(httpSecurity : HttpSecurity) : SecurityFilterChain {
         httpSecurity
