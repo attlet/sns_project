@@ -4,6 +4,7 @@ import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
@@ -22,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails
  *
  * @property name
  * @property email
- * @property password
+ * @property pw
  * @property profileImageUrl
  * @property postings
  */
@@ -30,21 +31,27 @@ import org.springframework.security.core.userdetails.UserDetails
 @Table(name = "member")
 data class Member(
     @Column(nullable = false, unique = true)
+    var userId : String,
+
+    @Column(nullable = false, unique = true)
     var name: String,
 
     @Column(nullable = false, unique = true)
     var email: String,
 
     @Column(nullable = false, unique = true)
-    var password: String,
+    var pw: String,
 
     var profileImageUrl: String? = null,
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
-    var postings: List<Posting> = mutableListOf()
+    var postings: List<Posting> = mutableListOf(),
+
+    @ElementCollection
+    var roles: List<String>
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        TODO("Not yet implemented")
+        return roles.map { SimpleGrantedAuthority(it) }.toMutableList()
     }
 
     override fun getPassword(): String {

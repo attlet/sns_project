@@ -41,7 +41,7 @@ class JwtAuthenticationFilter(
             val username = jwtUtil.resolveUsername(token) //토큰으로부터 사용자 username 추출
             val userDetails = userServiceDetails.loadUserByUsername(username)  //토큰 등록을 위한 userDetail객체 반환
 
-            val authToken = UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+            val authToken = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
             SecurityContextHolder.getContext().authentication = authToken //security context에 사용자 등록, 접속 허용
         }
 
