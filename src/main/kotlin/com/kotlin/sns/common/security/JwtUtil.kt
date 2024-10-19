@@ -37,13 +37,12 @@ class JwtUtil {
         claim.put("roles", roles)
         val now = Date()
 
-        return Jwts.builder()
+        return "Bearer : " + Jwts.builder()
             .setClaims(claim)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + jwtExpiration))
             .signWith(Keys.hmacShaKeyFor(secret.toByteArray()), SignatureAlgorithm.HS256)
             .compact()
-
     }
 
     fun validateToken(token : String) : Boolean {
@@ -56,8 +55,13 @@ class JwtUtil {
         return !claim.expiration.before(Date())
     }
 
-    fun resolveToken(request: HttpServletRequest) : String{
-        return request.getHeader("auth_token")
+    fun resolveToken(request: HttpServletRequest) : String?{
+        val header = request.getHeader("auth_token")
+        return if (header != null && header.startsWith("Bearer ")) {
+            header.substringAfter("Bearer ")
+        } else {
+            null
+        }
     }
 
     fun resolveUsername(token : String) : String{

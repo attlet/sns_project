@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails
  *
  * @property name
  * @property email
- * @property password
+ * @property pw
  * @property profileImageUrl
  * @property postings
  */
@@ -40,7 +40,7 @@ data class Member(
     var email: String,
 
     @Column(nullable = false, unique = true)
-    var password: String,
+    var pw: String,
 
     var profileImageUrl: String? = null,
 

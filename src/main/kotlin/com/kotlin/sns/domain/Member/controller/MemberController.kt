@@ -4,6 +4,8 @@ import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.service.MemberService
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,6 +30,7 @@ class MemberController(
 ) {
 
     @GetMapping()
+    @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
     fun getMemberById(@RequestParam("memberId") memberId : Long) : ResponseMemberDto {
         return memberService.findMemberById(memberId)
     }

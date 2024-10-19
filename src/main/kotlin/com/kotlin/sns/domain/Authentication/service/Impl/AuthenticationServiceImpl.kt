@@ -51,7 +51,7 @@ class AuthenticationServiceImpl(
         val member = Member(
             userId = id,
             name = name,
-            password = passwordEncoder.encode(password),
+            pw = passwordEncoder.encode(password),
             email = email,
             roles = listOf(roles)
         )
@@ -68,7 +68,7 @@ class AuthenticationServiceImpl(
         val member = memberRepository.findByUserId(id)
             .orElseThrow { IllegalArgumentException("invalid user id : $id") }
 
-        if(!passwordEncoder.matches(password, member.password)){
+        if(!passwordEncoder.matches(password, member.pw)){
             throw IllegalArgumentException("invalid password")
         }
 
