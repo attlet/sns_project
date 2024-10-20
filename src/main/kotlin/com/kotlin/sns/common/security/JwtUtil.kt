@@ -37,7 +37,7 @@ class JwtUtil {
         claim.put("roles", roles)
         val now = Date()
 
-        return "Bearer : " + Jwts.builder()
+        return "Bearer " + Jwts.builder()
             .setClaims(claim)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + jwtExpiration))
