@@ -1,5 +1,7 @@
 package com.kotlin.sns.domain.Authentication.service.Impl
 
+import com.kotlin.sns.common.exception.CustomException
+import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignInDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
@@ -9,6 +11,7 @@ import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
+import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -40,12 +43,22 @@ class AuthenticationServiceImpl(
         val email = requestSignUpDto.email
         val roles = requestSignUpDto.roles
 
-        if(memberRepository.findByUserId(id).isPresent){
-            throw RuntimeException("dup id")
+        // 아이디 중복 체크
+        if (memberRepository.findByUserId(id).isPresent) {
+            throw CustomException(
+                ExceptionConst.MEMBER,
+                HttpStatus.CONFLICT,
+                "User ID $id already exists"
+            )
         }
 
-        if(memberRepository.findByEmail(email).isPresent){
-            throw RuntimeException("dup email")
+        // 이메일 중복 체크
+        if (memberRepository.findByEmail(email).isPresent) {
+            throw CustomException(
+                ExceptionConst.MEMBER,
+                HttpStatus.CONFLICT,
+                "Email $email already exists"
+            )
         }
 
         val member = Member(
@@ -61,15 +74,32 @@ class AuthenticationServiceImpl(
         return memberMapper.toDto(savedMember)
     }
 
-    override fun signIn(requestSignInDto: RequestSignInDto) : ResponseSignInDto{
+    /**
+     * 로그인 처리 메서드
+     *
+     * @param requestSignInDto
+     * @return
+     */
+    override fun signIn(requestSignInDto: RequestSignInDto): ResponseSignInDto {
         val id = requestSignInDto.id
         val password = requestSignInDto.password
 
         val member = memberRepository.findByUserId(id)
-            .orElseThrow { IllegalArgumentException("invalid user id : $id") }
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "User ID $id not found"
+                )
+            }
 
-        if(!passwordEncoder.matches(password, member.pw)){
-            throw IllegalArgumentException("invalid password")
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(password, member.pw)) {
+            throw CustomException(
+                ExceptionConst.AUTH,
+                HttpStatus.UNAUTHORIZED,
+                "Invalid password"
+            )
         }
 
         val token = jwtUtil.createToken(id, member.roles)

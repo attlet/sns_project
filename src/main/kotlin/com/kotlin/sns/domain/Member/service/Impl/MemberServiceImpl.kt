@@ -1,11 +1,14 @@
 package com.kotlin.sns.domain.Member.service.Impl
 
+import com.kotlin.sns.common.exception.CustomException
+import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
@@ -20,7 +23,8 @@ import kotlin.reflect.full.memberProperties
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
-    private val memberMapper: MemberMapper) : MemberService, UserDetailsService{
+    private val memberMapper: MemberMapper
+) : MemberService, UserDetailsService {
 
     /**
      * uuid 기반으로 member 반환
@@ -30,7 +34,13 @@ class MemberServiceImpl(
      */
     override fun findMemberById(memberId: Long): ResponseMemberDto {
         val member = memberRepository.findById(memberId)
-            .orElseThrow{IllegalArgumentException("invalid member id : $memberId")}
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "Member with id $memberId not found"
+                )
+            }
 
         return memberMapper.toDto(member)
     }
@@ -43,7 +53,13 @@ class MemberServiceImpl(
      */
     override fun findMemberByEmail(email: String): ResponseMemberDto {
         val member = memberRepository.findByEmail(email)
-            .orElseThrow{IllegalArgumentException("invalid member email : $email")}
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "Member with email $email not found"
+                )
+            }
 
         return memberMapper.toDto(member)
     }
@@ -54,10 +70,10 @@ class MemberServiceImpl(
      * @param requestCreateMemberDto
      * @return
      */
-    override fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto{
+    override fun createMember(requestCreateMemberDto: RequestCreateMemberDto): ResponseMemberDto {
         val savedMember = memberMapper.toEntity(requestCreateMemberDto)
         val member = memberRepository.save(savedMember)
-        return memberMapper.toDto(member);
+        return memberMapper.toDto(member)
     }
 
     /**
@@ -69,17 +85,23 @@ class MemberServiceImpl(
     override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
         val memberId = requestUpdateMemberDto.memberId
         val member = memberRepository.findById(memberId)
-            .orElseThrow {IllegalArgumentException("invalid member id : $memberId") }
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "Member with id $memberId not found"
+                )
+            }
 
-        val fields = member::class.memberProperties  //dto가 가진 필드들 가져옴
+        val fields = member::class.memberProperties // dto가 가진 필드들 가져옴
 
-        //dto의 필드들을 loop로 순회
+        // dto의 필드들을 loop로 순회
         for (field in fields) {
-            val fieldName = field.name  //필드의 이름
-            val fieldValue = field.getter.call(requestUpdateMemberDto)//필드가 가진 value
+            val fieldName = field.name // 필드의 이름
+            val fieldValue = field.getter.call(requestUpdateMemberDto) // 필드가 가진 value
 
-            if(fieldValue != null){  //만약 업데이트 안 하려는 필드라면 null로 입력됨 -> 로직 동작x
-                when(fieldName){
+            if (fieldValue != null) { // 만약 업데이트 안 하려는 필드라면 null로 입력됨 -> 로직 동작x
+                when (fieldName) {
                     "name" -> member.name = fieldValue as String
                     "profileImageUrl" -> member.profileImageUrl = fieldValue as String?
                 }
@@ -95,11 +117,24 @@ class MemberServiceImpl(
      * @param memberId
      */
     override fun deleteMember(memberId: Long) {
-        memberRepository.deleteById(memberId);
+        if (!memberRepository.existsById(memberId)) {
+            throw CustomException(
+                ExceptionConst.MEMBER,
+                HttpStatus.NOT_FOUND,
+                "Member with id $memberId not found"
+            )
+        }
+        memberRepository.deleteById(memberId)
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
         return memberRepository.findByUserId(username)
-            .orElseThrow { IllegalArgumentException("invalid user name : $username") }
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "User with username $username not found"
+                )
+            }
     }
 }
