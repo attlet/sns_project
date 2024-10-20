@@ -55,27 +55,27 @@ data class Member(
     }
 
     override fun getPassword(): String {
-        TODO("Not yet implemented")
+        return pw
     }
 
     override fun getUsername(): String {
-        TODO("Not yet implemented")
+        return userId
     }
 
     override fun isAccountNonExpired(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun isAccountNonLocked(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun isCredentialsNonExpired(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun isEnabled(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 }
 
