@@ -2,7 +2,9 @@ package com.kotlin.sns.domain.Notification.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.Notification.dto.response.ResponseNotificationDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
@@ -18,23 +20,27 @@ class NotificationService(
 
     // 알림 생성
 
-    override fun createNotification(receiverId: Long, senderId: Long?, type: NotificationType, message: String) {
-        val receiver = memberRepository.findById(receiverId)
-            .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Receiver not found") }
+    override fun createNotification(receiversId: List<Long>, senderId: Long?, type: NotificationType, message: String) {
 
         val sender = senderId?.let {
             memberRepository.findById(it)
                 .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Sender not found") }
         }
 
-        val notification = Notification(
-            receiver = receiver,
-            sender = sender,
-            type = type,
-            message = message
-        )
+        val receivers = memberRepository.findAllById(receiversId)
 
-        notificationRepository.save(notification)
+        val notifications = mutableListOf<Notification>()
+
+        for (receiver in receivers) {
+            notifications.add(Notification(
+                receiver = receiver,
+                sender = sender,
+                type = type,
+                message = message
+            ))
+        }
+
+        notificationRepository.saveAll(notifications)
     }
 
     // 특정 사용자의 알림 목록 조회
