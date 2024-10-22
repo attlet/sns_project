@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Posting.controller
 
-import com.kotlin.sns.domain.Posting.dto.request.RequestCreaetePostingDto
+
+import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.service.PostingService
@@ -34,8 +35,8 @@ class PostingController (
     }
     @PostMapping
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
-    fun createPosting(@RequestBody requestCreaetePostingDto: RequestCreaetePostingDto) : ResponsePostingDto{
-        return postingService.createPosting(requestCreaetePostingDto)
+    fun createPosting(@RequestBody requestCreatePostingDto: RequestCreatePostingDto) : ResponsePostingDto{
+        return postingService.createPosting(requestCreatePostingDto)
     }
     @PutMapping
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
