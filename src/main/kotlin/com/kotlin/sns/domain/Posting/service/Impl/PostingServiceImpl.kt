@@ -2,7 +2,12 @@ package com.kotlin.sns.domain.Posting.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Posting.dto.request.RequestCreaetePostingDto
+import com.kotlin.sns.domain.Friend.service.FriendService
+import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.entity.NotificationType
+import com.kotlin.sns.domain.Notification.service.NotificationService
+import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
@@ -21,7 +26,10 @@ import kotlin.reflect.full.memberProperties
 @Service
 class PostingServiceImpl(
     private val postingRepository: PostingRepository,
-    private val postingMapper: PostingMapper
+    private val memberRepository: MemberRepository,
+    private val postingMapper: PostingMapper,
+    private val friendService: FriendService,
+    private val notificationService: NotificationService
 ) : PostingService {
 
     /**
@@ -49,9 +57,13 @@ class PostingServiceImpl(
      * @param requestCreaetePostingDto
      * @return
      */
-    override fun createPosting(requestCreaetePostingDto: RequestCreaetePostingDto): ResponsePostingDto {
-        val savedPosting = postingMapper.toEntity(requestCreaetePostingDto)
+    override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
+
+        val savedPosting = postingMapper.toEntity(requestCreatePostingDto)
         val posting = postingRepository.save(savedPosting)
+
+        notifyToFriend(requestCreatePostingDto)  //친구들에게 알림 전송
+
         return postingMapper.toDto(posting)
     }
 
@@ -103,5 +115,25 @@ class PostingServiceImpl(
             )
         }
         postingRepository.deleteById(postingId)
+    }
+
+    /**
+     * 친구에게 알림 보내는 로직 처리하는 함수를 따로 분리해서 작성
+     *
+     * @param requestCreatePostingDto
+     */
+    fun notifyToFriend(requestCreatePostingDto: RequestCreatePostingDto){
+        val senderId = requestCreatePostingDto.writerId
+        val receiversId = memberRepository.findFriendsId(senderId)
+
+        notificationService.createNotification(
+            RequestCreateNotificationDto(
+                receiverId = receiversId,
+                senderId = senderId,
+                type = NotificationType.NEW_POST,
+                message = "친구가 포스팅을 게시했습니다."
+            )
+        )
+
     }
 }

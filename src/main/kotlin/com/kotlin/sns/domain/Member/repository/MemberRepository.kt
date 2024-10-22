@@ -8,7 +8,7 @@ import java.util.*
  * MemberRepository
  * member의 db 상호작용을 위한 repository
  */
-interface MemberRepository : JpaRepository<Member, Long>{
+interface MemberRepository : JpaRepository<Member, Long>, MemberRepositoryCustom{
     fun findByEmail(email : String) : Optional<Member>
 //    fun findByUsername(username : String) : Optional<Member>
     fun findByUserId(userId : String) : Optional<Member>
