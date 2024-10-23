@@ -10,8 +10,12 @@ import com.kotlin.sns.domain.Friend.entity.Friend
 import com.kotlin.sns.domain.Friend.repository.friendRepository
 import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.entity.NotificationType
+import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * friend 비즈니스 로직 처리
@@ -21,9 +25,11 @@ import org.springframework.stereotype.Service
 @Service
 class FriendServiceImpl(
     private val friendRepository: friendRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val notificationService: NotificationService
 ) : FriendService {
 
+    @Transactional(readOnly = true)
     override fun findFriendById(friendId: Long): ResponseFriendDto {
         val friend = friendRepository.findById(friendId)
             .orElseThrow {
@@ -40,7 +46,7 @@ class FriendServiceImpl(
             status = friend.status
         )
     }
-
+    @Transactional
     override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
         val receiverId = requestCreateFriendDto.receiverId
@@ -71,13 +77,23 @@ class FriendServiceImpl(
 
         val savedFriend = friendRepository.save(friend)
 
+        //친구 요청 알림 생성
+        notificationService.createNotification(
+            requestCreateNotificationDto = RequestCreateNotificationDto(
+                receiverId = listOf(receiver.id),
+                senderId = sender.id,
+                type = NotificationType.FRIEND_REQUEST,
+                message = "${sender.name} has sent you a friend request."
+            )
+        )
+
         return ResponseFriendDto(
             senderId = savedFriend.sender.id,
             receiverId = savedFriend.receiver.id,
             status = savedFriend.status
         )
     }
-
+    @Transactional
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
         val senderId = requestUpdateFriendDto.senderId
         val receiverId = requestUpdateFriendDto.receiverId
@@ -114,7 +130,7 @@ class FriendServiceImpl(
             status = status
         )
     }
-
+    @Transactional
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
             throw CustomException(

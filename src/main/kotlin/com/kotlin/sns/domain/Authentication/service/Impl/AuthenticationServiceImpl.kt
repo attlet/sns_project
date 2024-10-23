@@ -14,6 +14,7 @@ import com.kotlin.sns.domain.Member.repository.MemberRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * 인증/인가 관련 로직 처리
@@ -36,6 +37,7 @@ class AuthenticationServiceImpl(
      * @param requestSignUpDto
      * @return
      */
+    @Transactional
     override fun signUp(requestSignUpDto: RequestSignUpDto): ResponseMemberDto {
         val id = requestSignUpDto.id
         val name = requestSignUpDto.name
@@ -80,6 +82,7 @@ class AuthenticationServiceImpl(
      * @param requestSignInDto
      * @return
      */
+    @Transactional(readOnly = true)
     override fun signIn(requestSignInDto: RequestSignInDto): ResponseSignInDto {
         val id = requestSignInDto.id
         val password = requestSignInDto.password

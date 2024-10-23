@@ -23,7 +23,6 @@ data class Notification(
 
     val read: Boolean = false, // 알림을 읽었는지 여부
 
-    val createdAt: LocalDateTime = LocalDateTime.now()
 ) : BaseEntity()
 
 enum class NotificationType {
