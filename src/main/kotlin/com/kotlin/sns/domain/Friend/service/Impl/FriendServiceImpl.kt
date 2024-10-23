@@ -15,6 +15,7 @@ import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * friend 비즈니스 로직 처리
@@ -28,6 +29,7 @@ class FriendServiceImpl(
     private val notificationService: NotificationService
 ) : FriendService {
 
+    @Transactional(readOnly = true)
     override fun findFriendById(friendId: Long): ResponseFriendDto {
         val friend = friendRepository.findById(friendId)
             .orElseThrow {
@@ -44,7 +46,7 @@ class FriendServiceImpl(
             status = friend.status
         )
     }
-
+    @Transactional
     override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
         val receiverId = requestCreateFriendDto.receiverId
@@ -91,7 +93,7 @@ class FriendServiceImpl(
             status = savedFriend.status
         )
     }
-
+    @Transactional
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
         val senderId = requestUpdateFriendDto.senderId
         val receiverId = requestUpdateFriendDto.receiverId
@@ -128,7 +130,7 @@ class FriendServiceImpl(
             status = status
         )
     }
-
+    @Transactional
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
             throw CustomException(

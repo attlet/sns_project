@@ -12,6 +12,7 @@ import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * 알림 로직
@@ -34,7 +35,7 @@ class NotificationService(
      * @param type
      * @param message
      */
-
+    @Transactional
     override fun createNotification(requestCreateNotificationDto: RequestCreateNotificationDto) {
         val receiversId = requestCreateNotificationDto.receiverId
         val senderId = requestCreateNotificationDto.senderId
@@ -63,7 +64,7 @@ class NotificationService(
     }
 
     // 특정 사용자의 알림 목록 조회
-
+    @Transactional(readOnly = true)
     override fun getNotificationsForUser(receiverId: Long): List<Notification> {
         val receiver = memberRepository.findById(receiverId)
             .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Receiver not found") }

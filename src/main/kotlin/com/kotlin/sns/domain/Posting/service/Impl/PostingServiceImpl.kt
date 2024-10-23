@@ -15,6 +15,7 @@ import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -38,6 +39,7 @@ class PostingServiceImpl(
      * @param postingId
      * @return
      */
+    @Transactional(readOnly = true)
     override fun findPostingById(postingId: Long): ResponsePostingDto {
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
@@ -57,6 +59,7 @@ class PostingServiceImpl(
      * @param requestCreaetePostingDto
      * @return
      */
+    @Transactional
     override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
 
         val savedPosting = postingMapper.toEntity(requestCreatePostingDto)
@@ -73,6 +76,7 @@ class PostingServiceImpl(
      * @param requestUpdatePostingDto
      * @return
      */
+    @Transactional
     override fun updatePosting(requestUpdatePostingDto: RequestUpdatePostingDto): ResponsePostingDto {
         val postingId = requestUpdatePostingDto.postingId
         val posting = postingRepository.findById(postingId)
@@ -106,6 +110,7 @@ class PostingServiceImpl(
      *
      * @param postingId
      */
+    @Transactional
     override fun deletePosting(postingId: Long) {
         if (!postingRepository.existsById(postingId)) {
             throw CustomException(
