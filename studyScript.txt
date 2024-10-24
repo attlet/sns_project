@@ -29,3 +29,11 @@
 
 5. 코틀린에서 Integer.toString -> 그냥 int 타입이 갖는 함수 toString으로 동일한 기능 수행 가능
 
+6. 코틀린의 엘비스 연산자 ?는 왼쪽값이 null이면 오른쪽 문법을 실행하는 연산자.
+ ex ) val emitter = map[userId] ?: return  이 구문에서 userId를 key로 갖는 value가 없다면 null을 반환. 그러면 return 실행
+
+ 변수 선언 시 ? 이용해 null허용함을 선언하는 것과는 다름. val name : String? = null 은 name 변수에 null을 허용하고, null값을 할당한 것.
+
+6. sse(service-sent-events)는 기본적으로 spring mvc에서 제공, spring web 의존성이 필요.
+
+
