@@ -2,17 +2,17 @@ package com.kotlin.sns.domain.Notification.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
-import com.kotlin.sns.domain.Notification.dto.response.ResponseNotificationDto
 import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
+import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 알림 로직
@@ -25,6 +25,12 @@ class NotificationService(
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository
 )  : NotificationService {
+
+    /**
+     * 연결된 클라이언트들을 저장하는 자료구조
+     * 추후 고도화 필요
+     */
+    private val emittersMap = ConcurrentHashMap<Long, SseEmitter>()
 
     /**
      * 알림 생성 메서드
@@ -70,5 +76,42 @@ class NotificationService(
             .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Receiver not found") }
 
         return notificationRepository.findAllByReceiver(receiver)
+    }
+
+    /**
+     * sse 구독 신청
+     *
+     * @param userId
+     * @return
+     */
+    override fun subscribe(userId : Long) : SseEmitter{
+        val emitter = SseEmitter(60 * 1000L)  //60초 연결
+
+        emittersMap[userId] = emitter
+
+        emitter.onCompletion { emittersMap.remove(userId)}
+        emitter.onTimeout{ emittersMap.remove(userId)}
+        emitter.onError { emittersMap.remove(userId) }
+
+        return emitter
+    }
+
+    /**
+     * userId를 가진 member에게 notification 전송하는 메서드
+     *
+     * @param userId
+     * @param notification
+     */
+    override fun sendNotificationToClient(userId: Long, notification: Notification) {
+        val emitter = emittersMap[userId] ?: return  //추후 처리하는 로직 작성 필요
+
+        try{
+            emitter.send(SseEmitter
+                .event()
+                .name("notification")
+                .data(notification))
+        } catch (e : IOException){
+            emittersMap.remove(userId)   //추후 체크 필요
+        }
     }
 }
