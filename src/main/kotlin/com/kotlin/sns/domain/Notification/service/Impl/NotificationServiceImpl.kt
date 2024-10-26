@@ -34,6 +34,7 @@ class NotificationService(
 
     /**
      * 알림 생성 메서드
+     * db에 알림 내용 저장 후 sse 알림 발송
      * findAllById를 통해 db 한 번만 접근
      *
      * @param receiversId
@@ -48,14 +49,14 @@ class NotificationService(
         val type = requestCreateNotificationDto.type
         val message = requestCreateNotificationDto.message
 
+        val notifications = mutableListOf<Notification>()
+
         val sender = senderId?.let {
             memberRepository.findById(it)
                 .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Sender not found") }
         }
 
         val receivers = memberRepository.findAllById(receiversId)
-
-        val notifications = mutableListOf<Notification>()
 
         for (receiver in receivers) {
             notifications.add(Notification(
@@ -67,6 +68,12 @@ class NotificationService(
         }
 
         notificationRepository.saveAll(notifications)
+
+        //알림 받는 사람들에게 sse 알림 발송
+        for(notification in notifications) {
+            sendNotificationToClient(notification.receiver.id, notification)
+        }
+
     }
 
     // 특정 사용자의 알림 목록 조회
@@ -97,7 +104,7 @@ class NotificationService(
     }
 
     /**
-     * userId를 가진 member에게 notification 전송하는 메서드
+     * parameter로 받은 userId를 가진 member에게 notification 전송하는 메서드
      *
      * @param userId
      * @param notification
