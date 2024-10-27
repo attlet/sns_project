@@ -11,6 +11,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+logging:
+  level:
+    org:
+      springframework.security: DEBUG
+      hibernate:
+        SQL : DEBUG
+        type:
+          descriptor:
+            sql: trace
 
 jwt:
   secret: secretKey-for-authorization-jwtToken
