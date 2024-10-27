@@ -21,7 +21,7 @@ data class Notification(
 
     val message: String, // 알림 메시지
 
-    val read: Boolean = false, // 알림을 읽었는지 여부
+    val isRead: Boolean = false, // 알림을 읽었는지 여부
 
 ) : BaseEntity()
 
