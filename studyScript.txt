@@ -34,6 +34,9 @@
 
  변수 선언 시 ? 이용해 null허용함을 선언하는 것과는 다름. val name : String? = null 은 name 변수에 null을 허용하고, null값을 할당한 것.
 
-6. sse(service-sent-events)는 기본적으로 spring mvc에서 제공, spring web 의존성이 필요.
+
+7. lateinit을 통해 변수 선언시 초기값을 할당하지 않아도 됨을 알림. var로 선언해야함.
+
+8. 테이블 컬럼 이름을 read로 지으니 문제 발생했음.
 
 
