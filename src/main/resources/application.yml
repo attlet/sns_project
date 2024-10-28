@@ -11,6 +11,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  #thymeleaf 인식
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    mvc:
+      view:
+        prefix: /templates/
+        suffix: .html
 logging:
   level:
     org:
