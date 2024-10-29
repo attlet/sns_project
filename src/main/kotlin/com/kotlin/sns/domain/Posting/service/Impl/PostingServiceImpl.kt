@@ -13,6 +13,7 @@ import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -54,9 +55,26 @@ class PostingServiceImpl(
     }
 
     /**
+     * posting 페이징을 통해 리스트 반환
+     *
+     * @param pageable
+     * @return
+     */
+    override fun findPostingList(pageable: Pageable): List<ResponsePostingDto> {
+        val postingList = postingRepository.getPostingList(pageable)
+        val responseList = mutableListOf<ResponsePostingDto>()
+
+        for (posting in postingList) {
+            responseList.add(postingMapper.toDto(posting))
+        }
+
+        return responseList
+    }
+
+    /**
      * posting 생성
      *
-     * @param requestCreaetePostingDto
+     * @param requestCreatePostingDto
      * @return
      */
     @Transactional
