@@ -22,6 +22,11 @@ logging:
           descriptor:
             sql: trace
 
+#로컬에 이미지 저장
+file:
+  storage-type: local
+  upload-dir: ./uploads/profile_images
+
 jwt:
   secret: secretKey-for-authorization-jwtToken
   expiration: 3600000  #60 * 60 * 1000 ms

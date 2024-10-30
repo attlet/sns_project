@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.domain.Image.ProfileImage.service.ProfileImageService
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -23,7 +25,8 @@ import kotlin.reflect.full.memberProperties
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
-    private val memberMapper: MemberMapper
+    private val memberMapper: MemberMapper,
+    private val profileImageService: ProfileImageService
 ) : MemberService, UserDetailsService {
 
     /**
@@ -70,6 +73,7 @@ class MemberServiceImpl(
      * @param requestCreateMemberDto
      * @return
      */
+    @Transactional
     override fun createMember(requestCreateMemberDto: RequestCreateMemberDto): ResponseMemberDto {
         val savedMember = memberMapper.toEntity(requestCreateMemberDto)
         val member = memberRepository.save(savedMember)
@@ -82,6 +86,7 @@ class MemberServiceImpl(
      * @param requestUpdateMemberDto
      * @return
      */
+    @Transactional
     override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
         val memberId = requestUpdateMemberDto.memberId
         val member = memberRepository.findById(memberId)
@@ -112,10 +117,32 @@ class MemberServiceImpl(
     }
 
     /**
+     * profile 이미지 업데이트
+     *
+     * @param memberId
+     * @param imageUrl
+     */
+    @Transactional
+    override fun updateProfileImage(memberId: Long, imageUrl: String) {
+        val member = memberRepository.findById(memberId)
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "Member with id $memberId not found"
+                )
+            }
+
+        member.profileImageUrl = imageUrl
+        memberRepository.save(member)
+    }
+
+    /**
      * member 삭제
      *
      * @param memberId
      */
+    @Transactional
     override fun deleteMember(memberId: Long) {
         if (!memberRepository.existsById(memberId)) {
             throw CustomException(
