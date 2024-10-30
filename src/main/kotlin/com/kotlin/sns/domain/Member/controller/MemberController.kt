@@ -1,5 +1,6 @@
 package com.kotlin.sns.domain.Member.controller
 
+import com.kotlin.sns.domain.Image.ProfileImage.service.ProfileImageService
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 
 /**
@@ -26,7 +28,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/members")
 @Tag(name = "member", description = "member 관련 api")
 class MemberController(
-    private val memberService: MemberService
+    private val memberService: MemberService,
+    private val profileImageService: ProfileImageService
 ) {
 
     @GetMapping()
@@ -47,5 +50,15 @@ class MemberController(
     @DeleteMapping
     fun deleteMember(@RequestParam("memberId") memberId : Long){
         return memberService.deleteMember(memberId)
+    }
+
+    @PostMapping()
+    fun updateProfileImage(@RequestParam("memberId") memberId: Long,
+        @RequestParam("file") file : MultipartFile) : String{
+
+        val profileImageUrl = profileImageService.uploadImage(file)
+        memberService.updateProfileImage(memberId, profileImageUrl)
+
+        return profileImageUrl
     }
 }

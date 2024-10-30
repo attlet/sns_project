@@ -8,6 +8,7 @@ import com.kotlin.sns.domain.Posting.service.PostingService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,9 +30,14 @@ class PostingController (
     private val postingService: PostingService
 ){
     @GetMapping()
-    @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
     fun getPostingById(@RequestParam("postingId") postingId : Long) : ResponsePostingDto{
         return postingService.findPostingById(postingId)
+    }
+
+    @GetMapping("/postingList")
+    fun getPostingList(@RequestParam("page") page : Int = 1,
+                       @RequestParam("size") size : Int = 15) : List<ResponsePostingDto> {
+        return postingService.findPostingList(PageRequest.of(page, size))
     }
     @PostMapping
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)

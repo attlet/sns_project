@@ -54,6 +54,12 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
+	//logging
+	implementation("io.github.oshai:kotlin-logging-jvm:5.1.1")
+
+	//aws s3
+	implementation("software.amazon.awssdk:s3")
+
 }
 
 kotlin {

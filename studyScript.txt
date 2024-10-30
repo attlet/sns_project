@@ -39,4 +39,5 @@
 
 8. 테이블 컬럼 이름을 read로 지으니 문제 발생했음.
 
+9. response.contentType -> response?.contentType 으로 변경해야했음. HttpServletResponse가 null로 들어올 수 있도록 되어있었음.
 

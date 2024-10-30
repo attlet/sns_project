@@ -8,7 +8,7 @@ class MemberRepositoryCustomImpl(
     private val jpaQueryFactory: JPAQueryFactory
 ) : MemberRepositoryCustom {
 
-    val qFriend = QFriend.friend
+    private val qFriend = QFriend.friend
 
     /**
      * sender와 친구관계인 member들의 id값 조회
