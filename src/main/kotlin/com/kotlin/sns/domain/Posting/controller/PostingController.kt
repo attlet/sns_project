@@ -34,7 +34,7 @@ class PostingController (
         return postingService.findPostingById(postingId)
     }
 
-    @GetMapping()
+    @GetMapping("/postingList")
     fun getPostingList(@RequestParam("page") page : Int = 1,
                        @RequestParam("size") size : Int = 15) : List<ResponsePostingDto> {
         return postingService.findPostingList(PageRequest.of(page, size))

@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3307/sns_project
+    username: root
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org:
+      springframework.security: DEBUG
+      hibernate:
+        SQL : DEBUG
+        type:
+          descriptor:
+            sql: trace
+
+jwt:
+  secret: secretKey-for-authorization-jwtToken
+  expiration: 3600000  #60 * 60 * 1000 ms
