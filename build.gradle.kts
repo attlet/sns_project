@@ -58,6 +58,7 @@ dependencies {
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.1")
 
 	//aws s3
+	implementation(platform("software.amazon.awssdk:bom:2.20.50"))
 	implementation("software.amazon.awssdk:s3")
 
 }

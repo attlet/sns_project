@@ -29,7 +29,8 @@ class SecurityConfig (
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-resources/**",
-        "/auth/**",)
+        "/auth/**",
+        "/members/profileImage**")
     @Bean
     fun filterChain(httpSecurity : HttpSecurity) : SecurityFilterChain {
         httpSecurity
