@@ -42,9 +42,11 @@ class CommentServiceImpl (
         val commentList = posting.comment
         val responseCommentDtoList = commentList.stream()
             .map { comment -> ResponseCommentDto(
-            content = comment.content,
-            createAt = comment.createdDt,
-            updateAt = comment.updateDt
+                writerId = comment.member.id,
+                writerName = comment.member.name,
+                content = comment.content,
+                createAt = comment.createdDt,
+                updateAt = comment.updateDt
         ) }
             .toList()
 
