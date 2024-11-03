@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Posting.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
@@ -65,7 +66,26 @@ class PostingServiceImpl(
         val responseList = mutableListOf<ResponsePostingDto>()
 
         for (posting in postingList) {
-            responseList.add(postingMapper.toDto(posting))
+            val commentList = posting.comment
+            val responseCommentList = commentList.stream()
+                .map {it ->
+                    ResponseCommentDto(
+                        writerId = it.member.id,
+                        writerName = it.member.name,
+                        content = it.content,
+                        createAt = it.createdDt,
+                        updateAt = it.updateDt
+                    )
+                }
+                .toList()
+
+
+            responseList.add(ResponsePostingDto(
+                writerId = posting.member.id,
+                writerName = posting.member.name,
+                content = posting.content,
+                commentList = responseCommentList
+            ))
         }
 
         return responseList

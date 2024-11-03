@@ -38,3 +38,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### 사진 저장 위치 ###
+/uploads/profile_images/

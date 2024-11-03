@@ -52,7 +52,7 @@ class MemberController(
         return memberService.deleteMember(memberId)
     }
 
-    @PostMapping()
+    @PostMapping("/profileImage")
     fun updateProfileImage(@RequestParam("memberId") memberId: Long,
         @RequestParam("file") file : MultipartFile) : String{
 

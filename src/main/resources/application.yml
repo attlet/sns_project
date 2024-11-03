@@ -1,5 +1,5 @@
 spring:
-  profile:
-    activate: local  #local/dev/prod
+  profiles:
+    active: local  #local/dev/prod
 
 

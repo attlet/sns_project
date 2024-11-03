@@ -41,3 +41,6 @@
 
 9. response.contentType -> response?.contentType 으로 변경해야했음. HttpServletResponse가 null로 들어올 수 있도록 되어있었음.
 
+10. kotlin에서는 stream().map()을 통해 리스트마다 어떤 동작을 적용하고자 할 때, 결과에 collect(Collection.toList) 를 사용할 필요가 없음
+ toList만으로 java의 collection.toList와 동일한 동작을 수행
+
