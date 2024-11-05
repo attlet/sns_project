@@ -6,6 +6,7 @@ import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
+import com.kotlin.sns.domain.Notification.repository.SseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -23,14 +24,10 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class NotificationService(
     private val notificationRepository: NotificationRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val sseRepository: SseRepository
 )  : NotificationService {
 
-    /**
-     * 연결된 클라이언트들을 저장하는 자료구조
-     * 추후 고도화 필요
-     */
-    private val emittersMap = ConcurrentHashMap<Long, SseEmitter>()
 
     /**
      * 알림 생성 메서드
@@ -87,11 +84,11 @@ class NotificationService(
     override fun subscribe(userId : Long) : SseEmitter{
         val emitter = SseEmitter(60 * 1000L)  //60초 연결
 
-        emittersMap[userId] = emitter
+        sseRepository.save(userId, emitter)
 
-        emitter.onCompletion { emittersMap.remove(userId)}
-        emitter.onTimeout{ emittersMap.remove(userId)}
-        emitter.onError { emittersMap.remove(userId) }
+        emitter.onCompletion { sseRepository.remove(userId)}
+        emitter.onTimeout{ sseRepository.remove(userId)}
+        emitter.onError { sseRepository.remove(userId) }
 
         return emitter
     }
@@ -103,15 +100,20 @@ class NotificationService(
      * @param notification
      */
     override fun sendNotificationToClient(userId: Long, notification: Notification) {
-        val emitter = emittersMap[userId] ?: return  //추후 처리하는 로직 작성 필요
+        val emitter = sseRepository.get(userId)             //추후 처리하는 로직 작성 필요
 
-        try{
-            emitter.send(SseEmitter
-                .event()
-                .name("notification")
-                .data(notification))
-        } catch (e : IOException){
-            emittersMap.remove(userId)   //추후 체크 필요
+        if(emitter != null){
+            try{
+                emitter.send(SseEmitter
+                    .event()
+                    .name("notification")
+                    .data(notification))
+            } catch (e : IOException){
+                sseRepository.remove(userId)   //추후 체크 필요
+            }
+        } else {
+            // null 처리
         }
+
     }
 }
