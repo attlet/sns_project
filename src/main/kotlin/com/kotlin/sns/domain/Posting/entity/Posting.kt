@@ -33,12 +33,12 @@ data class Posting(
     @Column(nullable = false, columnDefinition = "TEXT")
     var content : String,
 
-    var imageUrl : String? = null,
+    var imageUrl : List<String>? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writerId")
     var member : Member,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    val comment: List<Comment>
+    var comment: List<Comment>
 ) : BaseEntity()

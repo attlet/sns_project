@@ -25,7 +25,8 @@ logging:
 #로컬에 이미지 저장
 file:
   storage-type: local
-  upload-dir: ./uploads/profile_images
+  profile-images-dir: ./uploads/profile_images
+  posting-images-dir: ./uploads/posting_images
 
 jwt:
   secret: secretKey-for-authorization-jwtToken
