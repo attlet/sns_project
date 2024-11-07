@@ -2,7 +2,7 @@ package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Image.ProfileImage.service.ProfileImageService
+import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -26,7 +26,7 @@ import kotlin.reflect.full.memberProperties
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
     private val memberMapper: MemberMapper,
-    private val profileImageService: ProfileImageService
+    private val imageService: ImageService
 ) : MemberService, UserDetailsService {
 
     /**
