@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Posting.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Comment.entity.Comment
+import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Member.entity.Member
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -40,5 +41,9 @@ data class Posting(
     var member : Member,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var comment: List<Comment>
+    var comment: List<Comment>,
+
+    @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
+    var imageInPosting : Image? = null
+
 ) : BaseEntity()

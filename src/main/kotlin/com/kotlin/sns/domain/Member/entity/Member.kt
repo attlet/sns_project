@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Member.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
+import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
@@ -42,10 +43,11 @@ data class Member(
     @Column(nullable = false, unique = true)
     var pw: String,
 
-    var profileImageUrl: String? = null,
-
-    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var postings: List<Posting> = mutableListOf(),
+
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
+    var profileImageUrl: Image? = null,
 
     @ElementCollection
     var roles: List<String>
