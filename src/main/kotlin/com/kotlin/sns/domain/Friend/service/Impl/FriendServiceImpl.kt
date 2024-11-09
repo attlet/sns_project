@@ -11,6 +11,7 @@ import com.kotlin.sns.domain.Friend.repository.friendRepository
 import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
