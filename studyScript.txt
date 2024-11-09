@@ -37,7 +37,7 @@
 
 7. lateinit을 통해 변수 선언시 초기값을 할당하지 않아도 됨을 알림. var로 선언해야함.
 
-8. 테이블 컬럼 이름을 read로 지으니 문제 발생했음.
+8. 테이블 컬럼 이름을 read로 지으니 문제 발생했음. -> 다른 이름으로 변경. mariaDB의 경우 read는 예약어이다.
 
 9. response.contentType -> response?.contentType 으로 변경해야했음. HttpServletResponse가 null로 들어올 수 있도록 되어있었음.
 

@@ -4,6 +4,7 @@ import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Friend.service.FriendService
+import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.entity.NotificationType
@@ -32,7 +33,8 @@ class PostingServiceImpl(
     private val memberRepository: MemberRepository,
     private val postingMapper: PostingMapper,
     private val friendService: FriendService,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val imageService: ImageService
 ) : PostingService {
 
     /**
@@ -99,9 +101,24 @@ class PostingServiceImpl(
      */
     @Transactional
     override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
+        val writerId = requestCreatePostingDto.writerId
 
-        val savedPosting = postingMapper.toEntity(requestCreatePostingDto)
+        val member = memberRepository.findById(writerId)
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.MEMBER,
+                    HttpStatus.NOT_FOUND,
+                    "writer with id $writerId not found"
+                )
+            }
+
+        val images = requestCreatePostingDto.imageUrl
+
+        val savedPosting = postingMapper.toEntity(requestCreatePostingDto, member)
         val posting = postingRepository.save(savedPosting)
+
+        val imagesUrl = imageService.updatePostingImageList(images)   //포스팅 첨부된 이미지 저장
+
 
         notifyToFriend(requestCreatePostingDto)  //친구들에게 알림 전송
 

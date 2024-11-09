@@ -40,9 +40,7 @@ class NotificationController(
     }
 
     @GetMapping("/connect", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun sseConnect(@RequestParam("userId") userId : Long) : SseEmitter{
+    fun SseConnect(@RequestParam("userId") userId: Long) : SseEmitter{
         return notificationService.subscribe(userId)
     }
-
-
 }
