@@ -44,3 +44,12 @@
 10. kotlin에서는 stream().map()을 통해 리스트마다 어떤 동작을 적용하고자 할 때, 결과에 collect(Collection.toList) 를 사용할 필요가 없음
  toList만으로 java의 collection.toList와 동일한 동작을 수행
 
+
+11. 코틀린의 safe call 방법인 ?. 을 사용할 수 있음.
+
+ex ) 다음 두 연산은 동일한 연산을 수행
+
+     s?.toUpperCase()
+     if (s != null) s.toUpperCase() else null
+
+?를 통해 s가 null이면 toUpperCase를 호출하지 않고, null이 아닐때만 호출하도록 함. null safe 보장

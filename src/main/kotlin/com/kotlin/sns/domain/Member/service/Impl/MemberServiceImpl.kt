@@ -2,6 +2,8 @@ package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.domain.Image.entity.Image
+import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
@@ -88,17 +90,17 @@ class MemberServiceImpl(
      */
     @Transactional
     override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
-        val memberId = requestUpdateMemberDto.memberId
-        val member = memberRepository.findById(memberId)
+        val updateId = requestUpdateMemberDto.memberId
+        val updateMember = memberRepository.findById(updateId)
             .orElseThrow {
                 CustomException(
                     ExceptionConst.MEMBER,
                     HttpStatus.NOT_FOUND,
-                    "Member with id $memberId not found"
+                    "Member with id $updateId not found"
                 )
             }
 
-        val fields = member::class.memberProperties // dto가 가진 필드들 가져옴
+        val fields = updateMember::class.memberProperties // dto가 가진 필드들 가져옴
 
         // dto의 필드들을 loop로 순회
         for (field in fields) {
@@ -107,13 +109,12 @@ class MemberServiceImpl(
 
             if (fieldValue != null) { // 만약 업데이트 안 하려는 필드라면 null로 입력됨 -> 로직 동작x
                 when (fieldName) {
-                    "name" -> member.name = fieldValue as String
-                    "profileImageUrl" -> member.profileImageUrl = fieldValue as String?
+                    "name" -> updateMember.name = fieldValue as String
                 }
             }
         }
 
-        return memberMapper.toDto(member)
+        return memberMapper.toDto(updateMember)
     }
 
     /**
@@ -133,7 +134,12 @@ class MemberServiceImpl(
                 )
             }
 
-        member.profileImageUrl = imageUrl
+        member.profileImageUrl = Image(
+            imageUrl = imageUrl,
+            imageType = ImageType.PROFILE,
+            member = member
+        )
+
         memberRepository.save(member)
     }
 
