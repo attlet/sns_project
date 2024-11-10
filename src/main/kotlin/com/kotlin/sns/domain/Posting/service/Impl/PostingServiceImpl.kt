@@ -4,6 +4,8 @@ import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Friend.service.FriendService
+import com.kotlin.sns.domain.Image.entity.Image
+import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.full.memberProperties
+import kotlin.streams.toList
 
 /**
  * posting 관련 비즈니스 로직
@@ -103,7 +106,7 @@ class PostingServiceImpl(
     override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
         val writerId = requestCreatePostingDto.writerId
 
-        val member = memberRepository.findById(writerId)
+        val writer = memberRepository.findById(writerId)
             .orElseThrow {
                 CustomException(
                     ExceptionConst.MEMBER,
@@ -112,13 +115,25 @@ class PostingServiceImpl(
                 )
             }
 
-        val images = requestCreatePostingDto.imageUrl
+        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
+        val savedPosting = postingRepository.save(posting)
 
-        val savedPosting = postingMapper.toEntity(requestCreatePostingDto, member)
-        val posting = postingRepository.save(savedPosting)
+        //포스팅에 첨부된 이미지 업로드 후, 결과 이미지 url 반환
+        val uploadedImages = imageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
 
-        val imagesUrl = imageService.updatePostingImageList(images)   //포스팅 첨부된 이미지 저장
+        if(uploadedImages != null){
+            val images = uploadedImages.stream()
+                .map { url -> Image(
+                    imageUrl = url,
+                    imageType = ImageType.IN_POSTING,
+                    posting = savedPosting
+                ) }
+                .toList()
 
+            imageService.createImage(images)
+            savedPosting.imageInPosting?.addAll(images)   //imageInPosting이 null이면 addAll 호출하지 않도록 함
+            postingRepository.save(savedPosting)
+        }
 
         notifyToFriend(requestCreatePostingDto)  //친구들에게 알림 전송
 
@@ -152,7 +167,7 @@ class PostingServiceImpl(
             if (fieldValue != null) {
                 when (fieldName) {
                     "content" -> posting.content = fieldValue as String
-                    "imageUrl" -> posting.imageUrl = fieldValue as String?
+                    //이미지 수정 추가 필요
                 }
             }
         }

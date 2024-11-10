@@ -1,5 +1,7 @@
 package com.kotlin.sns.domain.Image.service.Impl
 
+import com.kotlin.sns.domain.Image.entity.Image
+import com.kotlin.sns.domain.Image.repository.ImageRepository
 import com.kotlin.sns.domain.Image.service.ImageService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
@@ -19,7 +21,8 @@ import java.nio.file.StandardCopyOption
 @Service
 class LocalImagaServiceImpl(
     @Value("\${file.profile-images-dir}") private val profileDir : String,
-    @Value("\${file.posting-images-dir}") private val postingDir : String
+    @Value("\${file.posting-images-dir}") private val postingDir : String,
+    private val imageRepository: ImageRepository
 ) : ImageService {
 
     override fun uploadProfileImage(file: MultipartFile) : String{
@@ -37,7 +40,7 @@ class LocalImagaServiceImpl(
         return filePath.toUri().toString()
     }
 
-    override fun updatePostingImageList(files: List<MultipartFile>?): List<String>? {
+    override fun uploadPostingImageList(files: List<MultipartFile>?): List<String>? {
         if(files == null) return null
 
         val urlList = ArrayList<String>()
@@ -53,5 +56,9 @@ class LocalImagaServiceImpl(
         }
 
         return urlList
+    }
+
+    override fun createImage(imageUrls: List<Image>) {
+        imageRepository.saveAll(imageUrls)
     }
 }

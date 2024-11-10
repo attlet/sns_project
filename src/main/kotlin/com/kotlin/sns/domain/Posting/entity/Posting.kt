@@ -34,16 +34,14 @@ data class Posting(
     @Column(nullable = false, columnDefinition = "TEXT")
     var content : String,
 
-    var imageUrl : List<String>? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writerId")
     var member : Member,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var comment: List<Comment>,
+    var comment: MutableList<Comment>,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var imageInPosting : Image? = null
+    var imageInPosting : MutableList<Image>? = null
 
 ) : BaseEntity()
