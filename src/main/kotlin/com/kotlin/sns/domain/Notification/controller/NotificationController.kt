@@ -43,5 +43,4 @@ class NotificationController(
     fun SseConnect(@RequestParam("userId") userId: Long) : SseEmitter{
         return notificationService.subscribe(userId)
     }
-
 }
