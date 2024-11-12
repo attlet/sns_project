@@ -71,8 +71,7 @@ class PostingServiceImpl(
         val responseList = mutableListOf<ResponsePostingDto>()
 
         for (posting in postingList) {
-            val commentList = posting.comment
-            val responseCommentList = commentList.stream()
+            val responseCommentList = posting.comment
                 .map {it ->
                     ResponseCommentDto(
                         writerId = it.member.id,
@@ -83,7 +82,6 @@ class PostingServiceImpl(
                     )
                 }
                 .toList()
-
 
             responseList.add(ResponsePostingDto(
                 writerId = posting.member.id,
@@ -122,20 +120,27 @@ class PostingServiceImpl(
         val uploadedImages = imageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
 
         if(uploadedImages != null){
-            val images = uploadedImages.stream()
-                .map { url -> Image(
+            val images =uploadedImages.map {
+                url -> Image(
                     imageUrl = url,
                     imageType = ImageType.IN_POSTING,
                     posting = savedPosting
-                ) }
-                .toList()
+                )
+            }
 
             imageService.createImage(images)
             savedPosting.imageInPosting?.addAll(images)   //imageInPosting이 null이면 addAll 호출하지 않도록 함
             postingRepository.save(savedPosting)
         }
 
-        notifyToFriend(requestCreatePostingDto)  //친구들에게 알림 전송
+        notificationService.createNotification(
+            RequestCreateNotificationDto(
+                receiverId = memberRepository.findFriendsId(writerId),
+                senderId = writerId,
+                type = NotificationType.NEW_POST,
+                message = "친구가 포스팅을 게시했습니다."
+             )
+        )
 
         return postingMapper.toDto(posting)
     }
@@ -190,25 +195,5 @@ class PostingServiceImpl(
             )
         }
         postingRepository.deleteById(postingId)
-    }
-
-    /**
-     * 친구에게 알림 보내는 로직 처리하는 함수를 따로 분리해서 작성
-     *
-     * @param requestCreatePostingDto
-     */
-    fun notifyToFriend(requestCreatePostingDto: RequestCreatePostingDto){
-        val senderId = requestCreatePostingDto.writerId
-        val receiversId = memberRepository.findFriendsId(senderId)
-
-        notificationService.createNotification(
-            RequestCreateNotificationDto(
-                receiverId = receiversId,
-                senderId = senderId,
-                type = NotificationType.NEW_POST,
-                message = "친구가 포스팅을 게시했습니다."
-            )
-        )
-
     }
 }
