@@ -7,6 +7,7 @@ import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.ImageService
+import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.entity.NotificationType
@@ -14,6 +15,7 @@ import com.kotlin.sns.domain.Notification.service.NotificationService
 import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
+import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
@@ -22,7 +24,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.full.memberProperties
-import kotlin.streams.toList
 
 /**
  * posting 관련 비즈니스 로직
@@ -68,11 +69,10 @@ class PostingServiceImpl(
      */
     override fun findPostingList(pageable: Pageable): List<ResponsePostingDto> {
         val postingList = postingRepository.getPostingList(pageable)
-        val responseList = mutableListOf<ResponsePostingDto>()
+        val responsePostingList = mutableListOf<ResponsePostingDto>()
 
         for (posting in postingList) {
-            val commentList = posting.comment
-            val responseCommentList = commentList.stream()
+            val responseCommentList = posting.comment
                 .map {it ->
                     ResponseCommentDto(
                         writerId = it.member.id,
@@ -84,8 +84,7 @@ class PostingServiceImpl(
                 }
                 .toList()
 
-
-            responseList.add(ResponsePostingDto(
+            responsePostingList.add(ResponsePostingDto(
                 writerId = posting.member.id,
                 writerName = posting.member.name,
                 content = posting.content,
@@ -93,7 +92,7 @@ class PostingServiceImpl(
             ))
         }
 
-        return responseList
+        return responsePostingList
     }
 
     /**
@@ -114,30 +113,11 @@ class PostingServiceImpl(
                     "writer with id $writerId not found"
                 )
             }
+        val savedPosting = savePosting(requestCreatePostingDto, writer)
+        val imageEntities = uploadProfileImage(requestCreatePostingDto, savedPosting)
+        notifyForNewPosting(writerId)
 
-        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
-        val savedPosting = postingRepository.save(posting)
-
-        //포스팅에 첨부된 이미지 업로드 후, 결과 이미지 url 반환
-        val uploadedImages = imageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
-
-        if(uploadedImages != null){
-            val images = uploadedImages.stream()
-                .map { url -> Image(
-                    imageUrl = url,
-                    imageType = ImageType.IN_POSTING,
-                    posting = savedPosting
-                ) }
-                .toList()
-
-            imageService.createImage(images)
-            savedPosting.imageInPosting?.addAll(images)   //imageInPosting이 null이면 addAll 호출하지 않도록 함
-            postingRepository.save(savedPosting)
-        }
-
-        notifyToFriend(requestCreatePostingDto)  //친구들에게 알림 전송
-
-        return postingMapper.toDto(posting)
+        return postingMapper.toDto(savedPosting)
     }
 
     /**
@@ -192,23 +172,67 @@ class PostingServiceImpl(
         postingRepository.deleteById(postingId)
     }
 
+
+
     /**
-     * 친구에게 알림 보내는 로직 처리하는 함수를 따로 분리해서 작성
+     * posting 엔티티 저장 메서드
      *
      * @param requestCreatePostingDto
+     * @param writer
+     * @return
      */
-    fun notifyToFriend(requestCreatePostingDto: RequestCreatePostingDto){
-        val senderId = requestCreatePostingDto.writerId
-        val receiversId = memberRepository.findFriendsId(senderId)
+    private fun savePosting(requestCreatePostingDto: RequestCreatePostingDto, writer: Member) : Posting {
+        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
+        return postingRepository.save(posting)
+    }
+
+    /**
+     * 이미지 업로드, 엔티티 저장 메서드
+     *
+     * @param requestCreatePostingDto
+     * @param savedPosting
+     * @return
+     */
+    private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<Image>{
+        val uploadedImages = imageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
+
+        if(uploadedImages != null){
+
+            val imageEntities = uploadedImages.map {
+                    url -> Image(
+                imageUrl = url,
+                imageType = ImageType.IN_POSTING,
+                posting = savedPosting
+            )
+            }
+
+            imageService.createImage(imageEntities)
+            savedPosting.imageInPosting?.addAll(imageEntities)   //imageInPosting이 null이면 addAll 호출하지 않도록 함
+            postingRepository.save(savedPosting)
+            return imageEntities
+        }
+
+        return emptyList()
+    }
+
+    /**
+     * 새 포스팅 등록 알림 메서드
+     *
+     * @param writerId
+     */
+    private fun notifyForNewPosting(writerId : Long){
+        val friends = memberRepository.findFriendsId(writerId)
 
         notificationService.createNotification(
             RequestCreateNotificationDto(
-                receiverId = receiversId,
-                senderId = senderId,
+                receiverId = friends,
+                senderId = writerId,
                 type = NotificationType.NEW_POST,
                 message = "친구가 포스팅을 게시했습니다."
             )
         )
 
     }
+
+
 }
