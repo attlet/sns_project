@@ -42,18 +42,10 @@ class CommentServiceImpl (
             }
 
         val commentList = posting.comment
-        val responseCommentDtoList = commentList.stream()
-            .map { comment -> ResponseCommentDto(
-                writerId = comment.member.id,
-                writerName = comment.member.name,
-                content = comment.content,
-                createDt = comment.createdDt,
-                updateDt = comment.updateDt
-        ) }
-            .toList()
 
-        return responseCommentDtoList
+        return makeResponseCommentDtoList(commentList)
     }
+
     @Transactional
     override fun createComment(requestCommentDto: RequestCommentDto) : ResponseCommentDto {
         val writerId = requestCommentDto.writerId
@@ -85,7 +77,6 @@ class CommentServiceImpl (
 
         return commentMapper.toDto(savedComment)
     }
-
     @Transactional
     override fun updateComment(requestUpdateCommentDto: RequestUpdateCommentDto) : ResponseCommentDto {
         val commentId = requestUpdateCommentDto.commentId
@@ -108,5 +99,25 @@ class CommentServiceImpl (
     @Transactional
     override fun deleteComment(commentId: Long) {
         commentRepository.deleteById(commentId)
+    }
+
+    /**
+     * ResponseCommentDtoList를 생성하기 위한 메서드
+     *
+     * @param commentList
+     * @return
+     */
+    private fun makeResponseCommentDtoList(commentList : List<Comment>) : List<ResponseCommentDto>{
+        val responseCommentDtoList = commentList.stream()
+            .map { comment -> ResponseCommentDto(
+                writerId = comment.member.id,
+                writerName = comment.member.name,
+                content = comment.content,
+                createDt = comment.createdDt,
+                updateDt = comment.updateDt
+            ) }
+            .toList()
+
+        return responseCommentDtoList
     }
 }
