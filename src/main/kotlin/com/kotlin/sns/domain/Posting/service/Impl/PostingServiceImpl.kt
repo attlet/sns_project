@@ -78,8 +78,8 @@ class PostingServiceImpl(
                         writerId = it.member.id,
                         writerName = it.member.name,
                         content = it.content,
-                        createAt = it.createdDt,
-                        updateAt = it.updateDt
+                        createDt = it.createdDt,
+                        updateDt = it.updateDt
                     )
                 }
                 .toList()

@@ -2,10 +2,11 @@ package com.kotlin.sns.domain.Comment.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Comment.dto.request.ReqeustUpdateCommentDto
+import com.kotlin.sns.domain.Comment.dto.request.RequestUpdateCommentDto
 import com.kotlin.sns.domain.Comment.dto.request.RequestCommentDto
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Comment.entity.Comment
+import com.kotlin.sns.domain.Comment.mapper.CommentMapper
 import com.kotlin.sns.domain.Comment.repository.CommentRepository
 import com.kotlin.sns.domain.Comment.service.CommentService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Service
 class CommentServiceImpl (
     private val commentRepository: CommentRepository,
     private val postingRepository: PostingRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val commentMapper: CommentMapper
 ) : CommentService{
 
     /**
@@ -45,15 +47,15 @@ class CommentServiceImpl (
                 writerId = comment.member.id,
                 writerName = comment.member.name,
                 content = comment.content,
-                createAt = comment.createdDt,
-                updateAt = comment.updateDt
+                createDt = comment.createdDt,
+                updateDt = comment.updateDt
         ) }
             .toList()
 
         return responseCommentDtoList
     }
     @Transactional
-    override fun createComment(requestCommentDto: RequestCommentDto) {
+    override fun createComment(requestCommentDto: RequestCommentDto) : ResponseCommentDto {
         val writerId = requestCommentDto.writerId
         val postingId = requestCommentDto.postingId
 
@@ -75,15 +77,17 @@ class CommentServiceImpl (
                 )
             }
 
-        commentRepository.save(Comment(
+        val savedComment = commentRepository.save(Comment(
             content = requestCommentDto.content,
             member = member,
             posting = posting
         ))
+
+        return commentMapper.toDto(savedComment)
     }
 
     @Transactional
-    override fun updateComment(requestUpdateCommentDto: ReqeustUpdateCommentDto) {
+    override fun updateComment(requestUpdateCommentDto: RequestUpdateCommentDto) : ResponseCommentDto {
         val commentId = requestUpdateCommentDto.commentId
         val comment = commentRepository.findById(commentId)
             .orElseThrow {
@@ -96,7 +100,9 @@ class CommentServiceImpl (
 
         comment.content = requestUpdateCommentDto.content
 
-        commentRepository.save(comment)
+        val savedComment = commentRepository.save(comment)
+
+        return commentMapper.toDto(savedComment)
     }
 
     @Transactional
