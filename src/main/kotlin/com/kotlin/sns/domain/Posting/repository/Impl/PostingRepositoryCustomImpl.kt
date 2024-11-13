@@ -5,7 +5,6 @@ import com.kotlin.sns.domain.Member.entity.QMember
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.kotlin.sns.domain.Posting.repository.PostingRepositoryCustom
-import com.querydsl.core.BooleanBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
 
@@ -16,7 +15,7 @@ class PostingRepositoryCustomImpl(
     private val qPosting = QPosting.posting
     private val qComment = QComment.comment
     private val qMember = QMember.member
-    override fun getPostingList(pageable: Pageable): List<Posting> {
+    override fun getPostingListWithComment(pageable: Pageable): List<Posting> {
         return jpaQueryFactory
             .selectFrom(qPosting)
             .join(qPosting.comment, qComment).fetchJoin()

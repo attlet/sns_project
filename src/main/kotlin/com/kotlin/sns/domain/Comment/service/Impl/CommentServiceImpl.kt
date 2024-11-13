@@ -29,7 +29,7 @@ class CommentServiceImpl (
      * @param postingId
      * @return
      */
-    override fun findCommentInPosting(postingId: Long): List<ResponseCommentDto> {
+    override fun reloadCommentInPosting(postingId: Long): List<ResponseCommentDto> {
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
                 CustomException(
