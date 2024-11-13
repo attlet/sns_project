@@ -6,7 +6,7 @@ data class ResponseCommentDto(
     val writerId : Long,
     val writerName : String,
     val content : String,
-    val createAt : Instant,
-    val updateAt : Instant
+    val createDt : Instant,
+    val updateDt : Instant
 ) {
 }

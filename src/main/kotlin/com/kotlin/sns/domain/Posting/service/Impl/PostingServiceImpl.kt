@@ -68,7 +68,7 @@ class PostingServiceImpl(
      * @return
      */
     override fun findPostingList(pageable: Pageable): List<ResponsePostingDto> {
-        val postingList = postingRepository.getPostingList(pageable)
+        val postingList = postingRepository.getPostingListWithComment(pageable)
         val responsePostingList = mutableListOf<ResponsePostingDto>()
 
         for (posting in postingList) {
@@ -78,8 +78,8 @@ class PostingServiceImpl(
                         writerId = it.member.id,
                         writerName = it.member.name,
                         content = it.content,
-                        createAt = it.createdDt,
-                        updateAt = it.updateDt
+                        createDt = it.createdDt,
+                        updateDt = it.updateDt
                     )
                 }
                 .toList()
