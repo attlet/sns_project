@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Comment.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.request.RequestUpdateCommentDto
 import com.kotlin.sns.domain.Comment.dto.request.RequestCommentDto
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
@@ -20,7 +21,8 @@ class CommentServiceImpl (
     private val commentRepository: CommentRepository,
     private val postingRepository: PostingRepository,
     private val memberRepository: MemberRepository,
-    private val commentMapper: CommentMapper
+    private val commentMapper: CommentMapper,
+    private val jwtUtil: JwtUtil
 ) : CommentService{
 
     /**
@@ -89,6 +91,8 @@ class CommentServiceImpl (
                 )
             }
 
+        jwtUtil.checkPermission(commentId)
+
         comment.content = requestUpdateCommentDto.content
 
         val savedComment = commentRepository.save(comment)
@@ -98,6 +102,7 @@ class CommentServiceImpl (
 
     @Transactional
     override fun deleteComment(commentId: Long) {
+        jwtUtil.checkPermission(commentId)
         commentRepository.deleteById(commentId)
     }
 

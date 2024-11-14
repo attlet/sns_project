@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Posting.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Image.entity.Image
@@ -21,6 +22,7 @@ import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.full.memberProperties
@@ -36,9 +38,9 @@ class PostingServiceImpl(
     private val postingRepository: PostingRepository,
     private val memberRepository: MemberRepository,
     private val postingMapper: PostingMapper,
-    private val friendService: FriendService,
     private val notificationService: NotificationService,
-    private val imageService: ImageService
+    private val imageService: ImageService,
+    private val jwtUtil: JwtUtil
 ) : PostingService {
 
     /**
@@ -95,6 +97,8 @@ class PostingServiceImpl(
         return responsePostingList
     }
 
+
+
     /**
      * posting 생성
      *
@@ -113,6 +117,7 @@ class PostingServiceImpl(
                     "writer with id $writerId not found"
                 )
             }
+
         val savedPosting = savePosting(requestCreatePostingDto, writer)
         val imageEntities = uploadProfileImage(requestCreatePostingDto, savedPosting)
         notifyForNewPosting(writerId)
@@ -138,6 +143,8 @@ class PostingServiceImpl(
                 )
             }
 
+        jwtUtil.checkPermission(postingId)
+
         val fields = requestUpdatePostingDto::class.memberProperties
 
         for (field in fields) {
@@ -152,8 +159,11 @@ class PostingServiceImpl(
             }
         }
 
+
+
         return postingMapper.toDto(posting)
     }
+
 
     /**
      * posting 삭제
@@ -162,13 +172,7 @@ class PostingServiceImpl(
      */
     @Transactional
     override fun deletePosting(postingId: Long) {
-        if (!postingRepository.existsById(postingId)) {
-            throw CustomException(
-                ExceptionConst.POSTING,
-                HttpStatus.NOT_FOUND,
-                "Posting with id $postingId not found"
-            )
-        }
+        jwtUtil.checkPermission(postingId)
         postingRepository.deleteById(postingId)
     }
 
@@ -233,6 +237,8 @@ class PostingServiceImpl(
         )
 
     }
+
+
 
 
 }
