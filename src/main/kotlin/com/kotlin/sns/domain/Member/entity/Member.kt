@@ -47,7 +47,7 @@ data class Member(
     var postings: List<Posting> = mutableListOf(),
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
-    var profileImageUrl: Image? = null,
+    var profileImageUrl: List<Image>? = mutableListOf(),
 
     @ElementCollection
     var roles: List<String>

@@ -116,32 +116,26 @@ class MemberServiceImpl(
 
         return memberMapper.toDto(updateMember)
     }
-
-    /**
-     * profile 이미지 업데이트
-     *
-     * @param memberId
-     * @param imageUrl
-     */
-    @Transactional
-    override fun updateProfileImage(memberId: Long, imageUrl: String) {
-        val member = memberRepository.findById(memberId)
-            .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $memberId not found"
-                )
-            }
-
-        member.profileImageUrl = Image(
-            imageUrl = imageUrl,
-            imageType = ImageType.PROFILE,
-            member = member
-        )
-
-        memberRepository.save(member)
-    }
+//
+//    /**
+//     * profile 이미지 업데이트
+//     *
+//     * @param memberId
+//     * @param imageUrl
+//     */
+//    @Transactional
+//    override fun updateProfileImage(memberId: Long, imageUrl: String) {
+//        val member = memberRepository.findById(memberId)
+//            .orElseThrow {
+//                CustomException(
+//                    ExceptionConst.MEMBER,
+//                    HttpStatus.NOT_FOUND,
+//                    "Member with id $memberId not found"
+//                )
+//            }
+//
+//        memberRepository.save(member)
+//    }
 
     /**
      * member 삭제

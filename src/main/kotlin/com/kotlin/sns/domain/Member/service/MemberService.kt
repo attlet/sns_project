@@ -11,7 +11,6 @@ interface MemberService {
     fun findMemberByEmail(email : String):ResponseMemberDto
     fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto
     fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto) : ResponseMemberDto
-    fun updateProfileImage(memberId: Long, imageUrl : String)
     fun deleteMember(memberId: Long)
 }
 

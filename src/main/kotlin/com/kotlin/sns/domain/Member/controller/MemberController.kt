@@ -57,7 +57,6 @@ class MemberController(
         @RequestParam("file") file : MultipartFile) : String{
 
         val profileImageUrl = imageService.uploadProfileImage(file)
-        memberService.updateProfileImage(memberId, profileImageUrl)
 
         return profileImageUrl
     }
