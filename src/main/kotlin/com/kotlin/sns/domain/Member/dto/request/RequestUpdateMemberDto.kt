@@ -9,9 +9,9 @@ package com.kotlin.sns.domain.Member.dto.request
  */
 data class RequestUpdateMemberDto(
     val memberId : Long,
-    val name : String,
-    val email : String,           //mail기반으로 member 조회해야해서 필수로 입력 필요
-    val pw : String
+    val name : String? = null,
+    val email : String? = null,
+    val pw : String? = null
 ) {
 
 }
