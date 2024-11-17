@@ -1,6 +1,6 @@
 package com.kotlin.sns.domain.Member.controller
 
-import com.kotlin.sns.domain.Image.service.ImageService
+import com.kotlin.sns.domain.Image.service.FileStorageService
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile
 @Tag(name = "member", description = "member 관련 api")
 class MemberController(
     private val memberService: MemberService,
-    private val imageService: ImageService
+    private val fileStorageService: FileStorageService
 ) {
 
     @GetMapping()
@@ -56,8 +56,7 @@ class MemberController(
     fun updateProfileImage(@RequestParam("memberId") memberId: Long,
         @RequestParam("file") file : MultipartFile) : String{
 
-        val profileImageUrl = imageService.uploadProfileImage(file)
-        memberService.updateProfileImage(memberId, profileImageUrl)
+        val profileImageUrl = fileStorageService.uploadProfileImage(file)
 
         return profileImageUrl
     }

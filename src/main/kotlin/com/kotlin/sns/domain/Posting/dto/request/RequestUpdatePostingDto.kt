@@ -4,7 +4,7 @@ import org.springframework.web.multipart.MultipartFile
 
 data class RequestUpdatePostingDto(
     var postingId : Long,
-    var content: String,
+    var content: String? = null,
     var imageUrl : List<MultipartFile>? = null
 ) {
 }

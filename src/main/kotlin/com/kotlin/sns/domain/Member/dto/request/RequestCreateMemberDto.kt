@@ -11,8 +11,7 @@ package com.kotlin.sns.domain.Member.dto.request
 data class RequestCreateMemberDto(
     val name : String,
     val email : String,
-    val password : String,
-    val profileImageUrl : String? = null
+    val pw : String
 )
 {
 

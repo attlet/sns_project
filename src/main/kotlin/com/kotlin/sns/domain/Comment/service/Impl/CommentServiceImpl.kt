@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Comment.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.request.RequestUpdateCommentDto
 import com.kotlin.sns.domain.Comment.dto.request.RequestCommentDto
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
@@ -20,7 +21,8 @@ class CommentServiceImpl (
     private val commentRepository: CommentRepository,
     private val postingRepository: PostingRepository,
     private val memberRepository: MemberRepository,
-    private val commentMapper: CommentMapper
+    private val commentMapper: CommentMapper,
+    private val jwtUtil: JwtUtil
 ) : CommentService{
 
     /**
@@ -42,18 +44,10 @@ class CommentServiceImpl (
             }
 
         val commentList = posting.comment
-        val responseCommentDtoList = commentList.stream()
-            .map { comment -> ResponseCommentDto(
-                writerId = comment.member.id,
-                writerName = comment.member.name,
-                content = comment.content,
-                createDt = comment.createdDt,
-                updateDt = comment.updateDt
-        ) }
-            .toList()
 
-        return responseCommentDtoList
+        return makeResponseCommentDtoList(commentList)
     }
+
     @Transactional
     override fun createComment(requestCommentDto: RequestCommentDto) : ResponseCommentDto {
         val writerId = requestCommentDto.writerId
@@ -85,7 +79,6 @@ class CommentServiceImpl (
 
         return commentMapper.toDto(savedComment)
     }
-
     @Transactional
     override fun updateComment(requestUpdateCommentDto: RequestUpdateCommentDto) : ResponseCommentDto {
         val commentId = requestUpdateCommentDto.commentId
@@ -98,6 +91,8 @@ class CommentServiceImpl (
                 )
             }
 
+        jwtUtil.checkPermission(commentId)
+
         comment.content = requestUpdateCommentDto.content
 
         val savedComment = commentRepository.save(comment)
@@ -107,6 +102,27 @@ class CommentServiceImpl (
 
     @Transactional
     override fun deleteComment(commentId: Long) {
+        jwtUtil.checkPermission(commentId)
         commentRepository.deleteById(commentId)
+    }
+
+    /**
+     * ResponseCommentDtoList를 생성하기 위한 메서드
+     *
+     * @param commentList
+     * @return
+     */
+    private fun makeResponseCommentDtoList(commentList : List<Comment>) : List<ResponseCommentDto>{
+        val responseCommentDtoList = commentList.stream()
+            .map { comment -> ResponseCommentDto(
+                writerId = comment.member.id,
+                writerName = comment.member.name,
+                content = comment.content,
+                createDt = comment.createdDt,
+                updateDt = comment.updateDt
+            ) }
+            .toList()
+
+        return responseCommentDtoList
     }
 }

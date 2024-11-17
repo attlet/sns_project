@@ -2,10 +2,11 @@ package com.kotlin.sns.domain.Posting.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
-import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.entity.ImageType
+import com.kotlin.sns.domain.Image.service.FileStorageService
 import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
@@ -36,9 +37,10 @@ class PostingServiceImpl(
     private val postingRepository: PostingRepository,
     private val memberRepository: MemberRepository,
     private val postingMapper: PostingMapper,
-    private val friendService: FriendService,
     private val notificationService: NotificationService,
-    private val imageService: ImageService
+    private val fileStorageService: FileStorageService,
+    private val imageService: ImageService,
+    private val jwtUtil: JwtUtil
 ) : PostingService {
 
     /**
@@ -95,6 +97,8 @@ class PostingServiceImpl(
         return responsePostingList
     }
 
+
+
     /**
      * posting 생성
      *
@@ -113,6 +117,7 @@ class PostingServiceImpl(
                     "writer with id $writerId not found"
                 )
             }
+
         val savedPosting = savePosting(requestCreatePostingDto, writer)
         val imageEntities = uploadProfileImage(requestCreatePostingDto, savedPosting)
         notifyForNewPosting(writerId)
@@ -129,6 +134,8 @@ class PostingServiceImpl(
     @Transactional
     override fun updatePosting(requestUpdatePostingDto: RequestUpdatePostingDto): ResponsePostingDto {
         val postingId = requestUpdatePostingDto.postingId
+
+        // 1. 수정할 posting 조회
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
                 CustomException(
@@ -138,22 +145,22 @@ class PostingServiceImpl(
                 )
             }
 
-        val fields = requestUpdatePostingDto::class.memberProperties
+        // 2. 해당 posting 을 수정할 권한이 있는지 체크
+        jwtUtil.checkPermission(postingId)
 
-        for (field in fields) {
-            val fieldName = field.name  // 필드의 이름
-            val fieldValue = field.getter.call(requestUpdatePostingDto)  // 필드의 값
+        // 3. content 내용 업데이트
+        requestUpdatePostingDto.content?.let { posting.content = it }
 
-            if (fieldValue != null) {
-                when (fieldName) {
-                    "content" -> posting.content = fieldValue as String
-                    //이미지 수정 추가 필요
-                }
-            }
+        //4. 첨부 이미지 변경있다면, 업데이트
+        if(!requestUpdatePostingDto.imageUrl.isNullOrEmpty()){
+            posting.imageInPosting?.clear()
+            imageService.deleteAllByPostingId(postingId)
+            fileStorageService.deleteImagesByPostingId(postingId)
         }
 
         return postingMapper.toDto(posting)
     }
+
 
     /**
      * posting 삭제
@@ -162,13 +169,7 @@ class PostingServiceImpl(
      */
     @Transactional
     override fun deletePosting(postingId: Long) {
-        if (!postingRepository.existsById(postingId)) {
-            throw CustomException(
-                ExceptionConst.POSTING,
-                HttpStatus.NOT_FOUND,
-                "Posting with id $postingId not found"
-            )
-        }
+        jwtUtil.checkPermission(postingId)
         postingRepository.deleteById(postingId)
     }
 
@@ -194,7 +195,7 @@ class PostingServiceImpl(
      * @return
      */
     private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<Image>{
-        val uploadedImages = imageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
+        val uploadedImages = fileStorageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
 
         if(uploadedImages != null){
 
@@ -233,6 +234,8 @@ class PostingServiceImpl(
         )
 
     }
+
+
 
 
 }

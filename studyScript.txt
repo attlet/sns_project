@@ -58,3 +58,9 @@ ex ) 다음 두 연산은 동일한 연산을 수행
 
 
 12. kotlin.collection에서 emptyList()를 지원. 빈 리스트를 나타낸다. 이를 통해 null같은 상황 발생 시 빈 리스트 반환 가능
+
+13. as 는 kotlin 에서 타입 캐스팅을 수행하는 키워드이다. 만약 캐스팅이 불가능할 경우 (String -> Int 같이) ClassCastException이 발생한다.
+
+만약 exception을 발생시키기 싫다면, as?를 통해 실패 시 null을 넣도록 할 수 있다.
+
+14. kotlin은 자바와 달리 throws를 통해 해당 메서드가 어떤 예외를 반환한는지 명시할 필요가 없다.
