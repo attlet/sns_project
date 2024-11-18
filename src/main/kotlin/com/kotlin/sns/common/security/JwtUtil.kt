@@ -3,7 +3,6 @@ package com.kotlin.sns.common.security
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.entity.Member
-import com.kotlin.sns.domain.Posting.entity.Posting
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -11,10 +10,11 @@ import jakarta.annotation.PostConstruct
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -22,7 +22,10 @@ import java.util.*
  *
  */
 @Component
-class JwtUtil {
+class JwtUtil(
+    private val userServiceDetails: UserDetailsService
+)
+{
 
     @Value("\${jwt.expiration}")
     private var jwtExpiration: Long = 0
@@ -36,6 +39,11 @@ class JwtUtil {
     @PostConstruct
     fun jwtInit() {
         secret = Base64.getEncoder().encodeToString(secret.toByteArray())
+    }
+
+    fun getAuthentication(username : String) : Authentication{
+        val userDetails = userServiceDetails.loadUserByUsername(username)
+        return UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
     }
 
     fun createToken(username : String, roles : List<String>) : String{
@@ -80,7 +88,6 @@ class JwtUtil {
 
         return subject
     }
-
 
     /**
      * 포스팅 수정, 삭제 권한을 가진 사용자인지 체크
