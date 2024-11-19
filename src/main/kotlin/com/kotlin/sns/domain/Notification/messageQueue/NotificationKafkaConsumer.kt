@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.Notification.kafka
+package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.repository.SseRepository

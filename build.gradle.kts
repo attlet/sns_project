@@ -64,6 +64,9 @@ dependencies {
 	//kafka
 	implementation("org.springframework.kafka:spring-kafka")
 
+	//rabbitMQ
+	implementation("org.springframework.boot:spring-boot-starter-amqp")
+
 }
 
 kotlin {

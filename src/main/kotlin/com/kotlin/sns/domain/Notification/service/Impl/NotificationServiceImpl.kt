@@ -5,6 +5,7 @@ import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.entity.Notification
+import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.repository.SseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @Service
 class NotificationService(
+    private val notificationProducer: NotificationProducer,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
     private val sseRepository: SseRepository
@@ -68,7 +70,8 @@ class NotificationService(
 
         //알림 받는 사람들에게 sse 알림 발송
         for(notification in notifications) {
-            sendNotificationToClient(notification.receiver.id, notification)
+//            sendNotificationToClient(notification.receiver.id, notification)
+            notificationProducer.sendNotification(notification)
         }
 
     }
