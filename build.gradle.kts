@@ -61,6 +61,12 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.20.50"))
 	implementation("software.amazon.awssdk:s3")
 
+	//kafka
+	implementation("org.springframework.kafka:spring-kafka")
+
+	//rabbitMQ
+	implementation("org.springframework.boot:spring-boot-starter-amqp")
+
 }
 
 kotlin {

@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -24,8 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
-    private val memberMapper: MemberMapper,
-    private val passwordEncoder: PasswordEncoder,
+    private val memberMapper: MemberMapper
 ) : MemberService, UserDetailsService {
 
     /**
@@ -99,7 +99,7 @@ class MemberServiceImpl(
 
         requestUpdateMemberDto.name?.let { updateMember.name = it }
         requestUpdateMemberDto.email?.let { updateMember.email = it }
-        requestUpdateMemberDto.pw?.let { updateMember.pw = passwordEncoder.encode(it) }
+//        requestUpdateMemberDto.pw?.let { updateMember.pw = it }
 
         return memberMapper.toDto(updateMember)
     }

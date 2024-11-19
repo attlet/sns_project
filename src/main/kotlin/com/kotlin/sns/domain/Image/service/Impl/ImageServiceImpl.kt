@@ -2,10 +2,10 @@ package com.kotlin.sns.domain.Image.service.Impl
 
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.repository.ImageRepository
-import com.kotlin.sns.domain.Image.repository.ImageRepositoryCustom
 import com.kotlin.sns.domain.Image.service.ImageService
-import org.springframework.web.multipart.MultipartFile
+import org.springframework.stereotype.Service
 
+@Service
 class ImageServiceImpl(
     private val imageRepository : ImageRepository
 ) : ImageService{
