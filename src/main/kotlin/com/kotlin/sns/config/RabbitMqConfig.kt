@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.amqp.core.BindingBuilder
+import org.springframework.amqp.core.Exchange
 
 @Configuration
 class RabbitMqConfig {
@@ -26,7 +27,7 @@ class RabbitMqConfig {
      * @return
      */
     @Bean
-    fun exchange() : DirectExchange{
+    fun exchange() : Exchange{
         return DirectExchange(exchangeName)
     }
 

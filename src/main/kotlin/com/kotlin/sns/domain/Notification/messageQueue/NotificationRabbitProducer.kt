@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.entity.Notification
+import org.springframework.amqp.core.Exchange
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Value
 
@@ -18,16 +19,15 @@ import org.springframework.beans.factory.annotation.Value
  * @property rabbitTemplate
  */
 class NotificationRabbitProducer(
-    private val rabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate,
+    private val exchange : Exchange
 ) : NotificationProducer{
 
-    @Value("\${spring.rabbitmq.exchange}")
-    private lateinit var exchange: String
 
     @Value("\${spring.rabbitmq.routing-key}")
     private lateinit var routingKey: String
 
     override fun sendNotification(notification: Notification) {
-        rabbitTemplate.convertAndSend(exchange, routingKey, notification)
+        rabbitTemplate.convertAndSend(exchange.name, routingKey, notification)
     }
 }
