@@ -17,7 +17,10 @@ spring:
     port: 5672
     username: guest
     password: guest
-    queue: my_queue
+    queue: notification_queue
+    exchange: notification_exchange
+    routing_key: notification_key
+
   notification:
     broker: rabbitmq
 

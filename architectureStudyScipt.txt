@@ -1,0 +1,6 @@
+- RabbitMq
+
+1. rabbitmq로 전달된 메시지는 바로 메시지 큐로 들어가지 않고, exchange라는 곳을 거친다. exchange에 정의된 알고리즘 type과 binding 규칙을 토대로 어느 큐에 보낼 지 정해진다.
+
+2. exchange type 의 경우 4가지가 존재한다.
+
