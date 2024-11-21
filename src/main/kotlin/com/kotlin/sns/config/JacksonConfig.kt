@@ -16,6 +16,4 @@ class JacksonConfig {
     fun objectMapper(): ObjectMapper {
         return ObjectMapper().findAndRegisterModules()
     }
-
-
 }

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kotlin.sns.domain.Notification.entity.Notification
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.listener.ChannelTopic
+import org.springframework.stereotype.Component
 
+@Component
 class NotificationRedisProducer(
     private val objectMapper: ObjectMapper,
     private val redisTemplate: RedisTemplate<String, String>,
