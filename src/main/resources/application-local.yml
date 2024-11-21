@@ -24,6 +24,10 @@ spring:
   notification:
     broker: rabbitmq
 
+  redis:
+    host: localhost
+    port: 6379
+
 #  kafka:
 #    bootstrap-servers: localhost:9092  # Kafka 브로커 주소
 #    consumer:

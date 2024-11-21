@@ -61,6 +61,9 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.20.50"))
 	implementation("software.amazon.awssdk:s3")
 
+	//redis
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
 	//kafka
 	implementation("org.springframework.kafka:spring-kafka")
 
