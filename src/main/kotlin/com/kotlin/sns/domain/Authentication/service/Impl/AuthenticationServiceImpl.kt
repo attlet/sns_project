@@ -11,6 +11,7 @@ import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -26,8 +27,10 @@ class AuthenticationServiceImpl(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtUtil: JwtUtil,
-    private val memberMapper: MemberMapper
+    private val memberMapper: MemberMapper,
 ) : AuthenticationService {
+
+    private val logging = KotlinLogging.logger {}
 
     /**
      * 회원 가입 메서드
@@ -39,6 +42,7 @@ class AuthenticationServiceImpl(
      */
     @Transactional
     override fun signUp(requestSignUpDto: RequestSignUpDto): ResponseMemberDto {
+        logging.info { "AuthenticationService signUp " }
         val id = requestSignUpDto.id
         val name = requestSignUpDto.name
         val password = requestSignUpDto.password
@@ -63,6 +67,8 @@ class AuthenticationServiceImpl(
             )
         }
 
+        logging.debug { "user id : $id , email : $email" }
+
         val member = Member(
             userId = id,
             name = name,
@@ -84,6 +90,8 @@ class AuthenticationServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun signIn(requestSignInDto: RequestSignInDto): ResponseSignInDto {
+        logging.info { "Authentication signIn" }
+
         val id = requestSignInDto.id
         val password = requestSignInDto.password
 
@@ -105,12 +113,13 @@ class AuthenticationServiceImpl(
             )
         }
 
+        logging.debug { "user id : $id , password : $password" }
         val token = jwtUtil.createToken(id, member.roles)
 
         return ResponseSignInDto(token = token)
     }
 
     override fun logout() {
-        TODO("Not yet implemented")
+
     }
 }

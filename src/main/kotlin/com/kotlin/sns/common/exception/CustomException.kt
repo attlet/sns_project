@@ -7,6 +7,6 @@ class CustomException(
     val exception: ExceptionConst,
     val status : HttpStatus,
     message : String
-) : RuntimeException("${exception.exceptionDesc}"){
+) : RuntimeException(message){
 
 }
