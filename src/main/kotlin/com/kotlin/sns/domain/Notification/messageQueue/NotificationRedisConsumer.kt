@@ -3,12 +3,14 @@ package com.kotlin.sns.domain.Notification.messageQueue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.repository.SseRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.connection.Message
 import org.springframework.data.redis.connection.MessageListener
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 
+@Profile("local")
 @Component
 class NotificationRedisConsumer(
     private val sseRepository: SseRepository,

@@ -3,10 +3,12 @@ package com.kotlin.sns.domain.Notification.messageQueue
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.kotlin.sns.domain.Notification.entity.Notification
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.listener.ChannelTopic
 import org.springframework.stereotype.Component
 
+@Profile("local")
 @Component
 class NotificationRedisProducer(
     private val objectMapper: ObjectMapper,
