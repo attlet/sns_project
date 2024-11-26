@@ -9,14 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.PageRequest
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.*
 
 /**
  * posting controller
@@ -39,9 +33,9 @@ class PostingController (
                        @RequestParam("size") size : Int = 10) : List<ResponsePostingDto> {
         return postingService.findPostingList(PageRequest.of(page, size))
     }
-    @PostMapping
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
-    fun createPosting(@RequestBody requestCreatePostingDto: RequestCreatePostingDto) : ResponsePostingDto{
+    fun createPosting(@ModelAttribute requestCreatePostingDto: RequestCreatePostingDto) : ResponsePostingDto{
         return postingService.createPosting(requestCreatePostingDto)
     }
     @PutMapping

@@ -212,7 +212,7 @@ class PostingServiceImpl(
             }
 
             imageService.createImage(imageEntities)
-            savedPosting.imageInPosting?.addAll(imageEntities)   //imageInPosting이 null이면 addAll 호출하지 않도록 함
+            savedPosting.imageInPosting?.addAll(imageEntities)     //수정 필요. null일 때 채워넣어야 한다..
             postingRepository.save(savedPosting)
             return imageEntities
         }

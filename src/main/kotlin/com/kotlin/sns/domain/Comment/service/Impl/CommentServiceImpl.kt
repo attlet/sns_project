@@ -33,7 +33,7 @@ class CommentServiceImpl (
      * @param postingId
      * @return
      */
-    override fun reloadCommentInPosting(postingId: Long): List<ResponseCommentDto> {
+    override fun reloadCommentInPosting(postingId: Long): List<ResponseCommentDto>? {
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
                 CustomException(
@@ -112,16 +112,16 @@ class CommentServiceImpl (
      * @param commentList
      * @return
      */
-    private fun makeResponseCommentDtoList(commentList : List<Comment>) : List<ResponseCommentDto>{
-        val responseCommentDtoList = commentList.stream()
-            .map { comment -> ResponseCommentDto(
+    private fun makeResponseCommentDtoList(commentList : List<Comment>?) : List<ResponseCommentDto>?{
+        val responseCommentDtoList = commentList?.stream()
+            ?.map { comment -> ResponseCommentDto(
                 writerId = comment.member.id,
                 writerName = comment.member.name,
                 content = comment.content,
                 createDt = comment.createdDt,
                 updateDt = comment.updateDt
             ) }
-            .toList()
+            ?.toList()
 
         return responseCommentDtoList
     }
