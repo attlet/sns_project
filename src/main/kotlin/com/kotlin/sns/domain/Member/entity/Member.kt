@@ -49,7 +49,7 @@ data class Member(
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var profileImageUrl: List<Image>? = mutableListOf(),
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     var roles: List<String>
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
