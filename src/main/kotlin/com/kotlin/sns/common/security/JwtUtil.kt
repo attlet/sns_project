@@ -3,6 +3,7 @@ package com.kotlin.sns.common.security
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.entity.Member
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -33,12 +34,16 @@ class JwtUtil(
     @Value("\${jwt.secret}")
     private lateinit var secret: String
 
+    private val logger = KotlinLogging.logger{}
+
     /**
      * 애플리케이션 시작 시 한 번만 실행해서 초기화하는 메서드
      */
     @PostConstruct
     fun jwtInit() {
         secret = Base64.getEncoder().encodeToString(secret.toByteArray())
+        logger.debug { "secret code value : $secret" }
+        logger.debug { "jwt expire time : $jwtExpiration" }
     }
 
     fun getAuthentication(username : String) : Authentication{
@@ -60,6 +65,8 @@ class JwtUtil(
     }
 
     fun validateToken(token : String) : Boolean {
+
+        logger.debug { "token value : $token" }
         val claim = Jwts.parserBuilder()
             .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
             .build()

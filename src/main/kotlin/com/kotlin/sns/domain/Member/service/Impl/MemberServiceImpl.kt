@@ -9,6 +9,7 @@ import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -28,6 +29,8 @@ class MemberServiceImpl(
     private val memberMapper: MemberMapper
 ) : MemberService, UserDetailsService {
 
+    private val logging = KotlinLogging.logger{}
+
     /**
      * uuid 기반으로 member 반환
      *
@@ -35,6 +38,7 @@ class MemberServiceImpl(
      * @return
      */
     override fun findMemberById(memberId: Long): ResponseMemberDto {
+        logging.info { "memberService findByMemberId" }
         val member = memberRepository.findById(memberId)
             .orElseThrow {
                 CustomException(
@@ -54,6 +58,7 @@ class MemberServiceImpl(
      * @return
      */
     override fun findMemberByEmail(email: String): ResponseMemberDto {
+        logging.info{"memberService findMemberByEmail"}
         val member = memberRepository.findByEmail(email)
             .orElseThrow {
                 CustomException(
@@ -74,6 +79,7 @@ class MemberServiceImpl(
      */
     @Transactional
     override fun createMember(requestCreateMemberDto: RequestCreateMemberDto): ResponseMemberDto {
+        logging.info{"memberService createMember"}
         val savedMember = memberMapper.toEntity(requestCreateMemberDto)
         val member = memberRepository.save(savedMember)
         return memberMapper.toDto(member)
@@ -87,6 +93,7 @@ class MemberServiceImpl(
      */
     @Transactional
     override fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto): ResponseMemberDto {
+        logging.info{"memberService updateMember"}
         val updateId = requestUpdateMemberDto.memberId
         val updateMember = memberRepository.findById(updateId)
             .orElseThrow {
@@ -131,6 +138,7 @@ class MemberServiceImpl(
      */
     @Transactional
     override fun deleteMember(memberId: Long) {
+        logging.info{"memberService deleteMember"}
         if (!memberRepository.existsById(memberId)) {
             throw CustomException(
                 ExceptionConst.MEMBER,
@@ -142,6 +150,7 @@ class MemberServiceImpl(
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
+        logging.info{"userDetailService loadUserByUsername"}
         return memberRepository.findByUserId(username)
             .orElseThrow {
                 CustomException(

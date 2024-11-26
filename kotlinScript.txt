@@ -66,3 +66,7 @@ ex ) 다음 두 연산은 동일한 연산을 수행
 14. kotlin은 자바와 달리 throws를 통해 해당 메서드가 어떤 예외를 반환한는지 명시할 필요가 없다.
 
 15. companion object를 이용해 java의 static처럼 컴파일 시점에 초기화를 할 수 있다. 객체 생성 하지 않고 메서드, 필드를 사용할 수 있다.
+
+16. 상속한 클래스에 매개변수를 작성하면, 자바에서 super를 사용하는 것과 동일하게 부모 클래스의 생성자를 호출하는 효과.
+
+ex ) class customException() : RuntimeExcetpion(message)   --> RuntimeException 생성자를 message를 담아서 호출
