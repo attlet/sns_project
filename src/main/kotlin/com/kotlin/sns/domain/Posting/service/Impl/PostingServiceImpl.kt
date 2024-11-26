@@ -75,16 +75,16 @@ class PostingServiceImpl(
 
         for (posting in postingList) {
             val responseCommentList = posting.comment
-                .map {it ->
+                ?.map {comment ->
                     ResponseCommentDto(
-                        writerId = it.member.id,
-                        writerName = it.member.name,
-                        content = it.content,
-                        createDt = it.createdDt,
-                        updateDt = it.updateDt
+                        writerId = comment.member.id,
+                        writerName = comment.member.name,
+                        content = comment.content,
+                        createDt = comment.createdDt,
+                        updateDt = comment.updateDt
                     )
                 }
-                .toList()
+                ?.toList()
 
             responsePostingList.add(ResponsePostingDto(
                 writerId = posting.member.id,
@@ -183,7 +183,11 @@ class PostingServiceImpl(
      * @return
      */
     private fun savePosting(requestCreatePostingDto: RequestCreatePostingDto, writer: Member) : Posting {
-        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
+        val posting = Posting(
+            content = requestCreatePostingDto.content,
+            member = writer
+        )
+//        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
         return postingRepository.save(posting)
     }
 
