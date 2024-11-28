@@ -1,5 +1,7 @@
 package com.kotlin.sns.config
 
+import com.kotlin.sns.common.security.CustomAccessDeniedHandler
+import com.kotlin.sns.common.security.CustomAuthenticationEntryPoint
 import com.kotlin.sns.common.security.JwtAuthenticationFilter
 import org.mapstruct.BeanMapping
 import org.springframework.context.annotation.Bean
@@ -23,7 +25,9 @@ import org.springframework.stereotype.Component
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 class SecurityConfig (
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler
 ){
     val permitUrlList = mutableListOf<String>(
         "/v3/api-docs/**",
@@ -47,6 +51,14 @@ class SecurityConfig (
                 .anyRequest().authenticated()                                            //나머지는 인증 필요한 url
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .exceptionHandling{
+                    exception ->
+                    exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+
+
+            }
 
         return httpSecurity.build()
     }
