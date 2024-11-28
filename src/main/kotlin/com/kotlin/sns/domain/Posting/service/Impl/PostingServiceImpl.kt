@@ -153,7 +153,7 @@ class PostingServiceImpl(
 
         //4. 첨부 이미지 변경있다면, 업데이트
         if(!requestUpdatePostingDto.imageUrl.isNullOrEmpty()){
-            posting.imageInPosting?.clear()
+            posting.imageInPosting.clear()
             imageService.deleteAllByPostingId(postingId)
             fileStorageService.deleteImagesByPostingId(postingId)
         }
@@ -212,7 +212,7 @@ class PostingServiceImpl(
             }
 
             imageService.createImage(imageEntities)
-            savedPosting.imageInPosting?.addAll(imageEntities)     //수정 필요. null일 때 채워넣어야 한다..
+            savedPosting.imageInPosting.addAll(imageEntities)     //수정 필요. null일 때 채워넣어야 한다..
             postingRepository.save(savedPosting)
             return imageEntities
         }

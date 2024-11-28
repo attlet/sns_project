@@ -108,7 +108,9 @@ class JwtUtil(
          * spring security는 securityContext를 thread local에 저장한다
          */
         val currentUser = SecurityContextHolder.getContext().authentication.principal as Member
+        logger.debug { "user id : ${currentUser.userId}" }
         if (makerId != currentUser.id) {
+            logger.debug { "jwtUtil checkPermission : cannot modify or delete" }
             throw CustomException(
                 ExceptionConst.AUTH,
                 HttpStatus.FORBIDDEN,

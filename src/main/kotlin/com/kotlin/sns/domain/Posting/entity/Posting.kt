@@ -42,6 +42,6 @@ data class Posting(
     var comment: MutableList<Comment>? = null,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var imageInPosting : MutableList<Image>? = null
+    var imageInPosting : MutableList<Image> = mutableListOf()
 
 ) : BaseEntity()

@@ -56,6 +56,7 @@ dependencies {
 
 	//logging
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.1")
+	implementation("ch.qos.logback:logback-classic:1.4.11")
 
 	//aws s3
 	implementation(platform("software.amazon.awssdk:bom:2.20.50"))
