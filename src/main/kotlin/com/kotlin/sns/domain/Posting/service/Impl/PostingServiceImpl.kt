@@ -169,7 +169,20 @@ class PostingServiceImpl(
      */
     @Transactional
     override fun deletePosting(postingId: Long) {
-        jwtUtil.checkPermission(postingId)
+        val posting = postingRepository.findById(postingId)
+            .orElseThrow {
+                CustomException(
+                    ExceptionConst.POSTING,
+                    HttpStatus.NOT_FOUND,
+                    "Posting with id $postingId not found"
+                )
+            }
+
+        if(!posting.imageInPosting.isNullOrEmpty()){
+            imageService.deleteAllByPostingId(postingId)
+        }
+
+        jwtUtil.checkPermission(posting.member.id)
         postingRepository.deleteById(postingId)
     }
 

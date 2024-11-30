@@ -6,6 +6,7 @@ import com.kotlin.sns.common.security.JwtAuthenticationFilter
 import org.mapstruct.BeanMapping
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -48,6 +49,7 @@ class SecurityConfig (
             }
             .authorizeHttpRequests{
                 auth -> auth.requestMatchers(*permitUrlList.toTypedArray()).permitAll()  //인증 없이 접속 가능한 url
+                .requestMatchers(HttpMethod.GET, "/postings/**").permitAll()                //posting 을 get하는 api들은 인증 없이 사용 가능
                 .anyRequest().authenticated()                                            //나머지는 인증 필요한 url
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
