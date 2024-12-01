@@ -38,7 +38,7 @@ class LocalImagaServiceImpl(
          */
 
         Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
-        return filePath.toUri().toString()
+        return filePath.toString()
     }
 
     override fun uploadPostingImageList(files: List<MultipartFile>?): List<String>? {
@@ -53,7 +53,7 @@ class LocalImagaServiceImpl(
             Files.createDirectories(filePath.parent)
             Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
 
-            urlList.add(filePath.toUri().toString())
+            urlList.add(filePath.toString())
         }
         return urlList
     }

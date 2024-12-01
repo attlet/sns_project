@@ -20,11 +20,11 @@ import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.reflect.full.memberProperties
 
 /**
  * posting 관련 비즈니스 로직
@@ -42,6 +42,8 @@ class PostingServiceImpl(
     private val imageService: ImageService,
     private val jwtUtil: JwtUtil
 ) : PostingService {
+
+    private val logger = KotlinLogging.logger{}
 
     /**
      * uuid 기반으로 posting 반환
@@ -98,7 +100,6 @@ class PostingServiceImpl(
     }
 
 
-
     /**
      * posting 생성
      *
@@ -119,10 +120,17 @@ class PostingServiceImpl(
             }
 
         val savedPosting = savePosting(requestCreatePostingDto, writer)
-        val imageEntities = uploadProfileImage(requestCreatePostingDto, savedPosting)
+        val imageUrlList = uploadProfileImage(requestCreatePostingDto, savedPosting)
         notifyForNewPosting(writerId)
 
-        return postingMapper.toDto(savedPosting)
+        logger.debug { "imageUrlList : $imageUrlList" }
+        return ResponsePostingDto(
+            writerId = writerId,
+            writerName = writer.name,
+            content = savedPosting.content,
+            commentList = null,
+            imageUrl = imageUrlList
+        )
     }
 
     /**
@@ -178,12 +186,14 @@ class PostingServiceImpl(
                 )
             }
 
-        if(!posting.imageInPosting.isNullOrEmpty()){
-            imageService.deleteAllByPostingId(postingId)
+        jwtUtil.checkPermission(posting.member.id)               //1. 글 삭제할 권한 체크
+
+        if(!posting.imageInPosting.isNullOrEmpty()){             //2. 서버에 저장된 이미지 삭제
+            logger.debug { "imageInPosting delete start" }
+            fileStorageService.deleteImagesByPostingId(postingId)
         }
 
-        jwtUtil.checkPermission(posting.member.id)
-        postingRepository.deleteById(postingId)
+        postingRepository.deleteById(postingId)                 //3. posting 삭제
     }
 
 
@@ -211,23 +221,28 @@ class PostingServiceImpl(
      * @param savedPosting
      * @return
      */
-    private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<Image>{
+    private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<String>{
         val uploadedImages = fileStorageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
 
+        logger.debug { "uploadedImages : $uploadedImages" }
         if(uploadedImages != null){
-
+            val imageUrlList = mutableListOf<String>()
             val imageEntities = uploadedImages.map {
-                    url -> Image(
-                imageUrl = url,
-                imageType = ImageType.IN_POSTING,
-                posting = savedPosting
-            )
+                    url ->
+                    logger.debug { "url : $url" }
+                    imageUrlList.add(url)
+                    Image(
+                        imageUrl = url,
+                        imageType = ImageType.IN_POSTING,
+                        posting = savedPosting
+                    )
             }
 
-            imageService.createImage(imageEntities)
-            savedPosting.imageInPosting.addAll(imageEntities)     //수정 필요. null일 때 채워넣어야 한다..
+            imageService.createImage(imageEntities)             //image 엔티티 저장
+            savedPosting.imageInPosting.addAll(imageEntities)   //posting에 image 연관관계 설정
             postingRepository.save(savedPosting)
-            return imageEntities
+
+            return imageUrlList
         }
 
         return emptyList()
