@@ -20,11 +20,12 @@ import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.reflect.full.memberProperties
+import org.springframework.web.multipart.MultipartFile
 
 /**
  * posting 관련 비즈니스 로직
@@ -43,6 +44,8 @@ class PostingServiceImpl(
     private val jwtUtil: JwtUtil
 ) : PostingService {
 
+    private val logger = KotlinLogging.logger{}
+
     /**
      * uuid 기반으로 posting 반환
      *
@@ -51,16 +54,27 @@ class PostingServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun findPostingById(postingId: Long): ResponsePostingDto {
-        val posting = postingRepository.findById(postingId)
-            .orElseThrow {
-                CustomException(
-                    ExceptionConst.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
-            }
+        val posting = postingRepository.findByIdForDetail(postingId)
+            .orElseThrow { CustomException(
+                ExceptionConst.POSTING,
+                HttpStatus.NOT_FOUND,
+                "Posting with id $postingId not found"
+            ) }
 
-        return postingMapper.toDto(posting)
+        val imageUrlList = posting.imageInPosting.map { url -> url.imageUrl }
+
+        val responseCommentDtoList = posting.comment.map {
+            comment ->
+                ResponseCommentDto(
+                    writerId = comment.member.id,
+                    writerName = comment.member.name,
+                    content = comment.content,
+                    createDt = comment.createdDt,
+                    updateDt = comment.updateDt
+                )
+        }
+
+        return createResponsePostingDto(posting, imageUrlList, responseCommentDtoList)
     }
 
     /**
@@ -98,7 +112,6 @@ class PostingServiceImpl(
     }
 
 
-
     /**
      * posting 생성
      *
@@ -119,10 +132,17 @@ class PostingServiceImpl(
             }
 
         val savedPosting = savePosting(requestCreatePostingDto, writer)
-        val imageEntities = uploadProfileImage(requestCreatePostingDto, savedPosting)
+        val imageUrlList = uploadProfileImage(requestCreatePostingDto.imageUrl, savedPosting)
         notifyForNewPosting(writerId)
 
-        return postingMapper.toDto(savedPosting)
+        logger.debug { "imageUrlList : $imageUrlList" }
+        return ResponsePostingDto(
+            writerId = writerId,
+            writerName = writer.name,
+            content = savedPosting.content,
+            commentList = null,
+            imageUrl = imageUrlList
+        )
     }
 
     /**
@@ -151,14 +171,21 @@ class PostingServiceImpl(
         // 3. content 내용 업데이트
         requestUpdatePostingDto.content?.let { posting.content = it }
 
-        //4. 첨부 이미지 변경있다면, 업데이트
-        if(!requestUpdatePostingDto.imageUrl.isNullOrEmpty()){
-            posting.imageInPosting.clear()
-            imageService.deleteAllByPostingId(postingId)
-            fileStorageService.deleteImagesByPostingId(postingId)
-        }
+        //4. 첨부 이미지 변경있다면, 기존 이미지 삭제
+        //null 체크를 내부적으로 하기 때문에 외부에서 체크x
+        imageService.deleteAllByPostingId(postingId)
+        fileStorageService.deleteImagesByPostingId(postingId)
+        posting.imageInPosting.clear()
 
-        return postingMapper.toDto(posting)
+        //5. 새로운 이미지 저장
+        val newImageUrlList = uploadProfileImage(requestUpdatePostingDto.imageUrl, posting)
+
+        return ResponsePostingDto(
+            writerId = posting.member.id,
+            writerName = posting.member.name,
+            content = posting.content,
+            imageUrl = newImageUrlList
+        )
     }
 
 
@@ -177,12 +204,16 @@ class PostingServiceImpl(
                     "Posting with id $postingId not found"
                 )
             }
+        //1. 글 삭제할 권한 체크
+        jwtUtil.checkPermission(posting.member.id)
 
+        //2. 서버에 저장된 이미지 삭제
         if(!posting.imageInPosting.isNullOrEmpty()){
-            imageService.deleteAllByPostingId(postingId)
+            logger.debug { "imageInPosting delete start" }
+            fileStorageService.deleteImagesByPostingId(postingId)
         }
 
-        jwtUtil.checkPermission(posting.member.id)
+        //3. posting 삭제
         postingRepository.deleteById(postingId)
     }
 
@@ -211,23 +242,27 @@ class PostingServiceImpl(
      * @param savedPosting
      * @return
      */
-    private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<Image>{
-        val uploadedImages = fileStorageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
+    private fun uploadProfileImage(imageUrl : List<MultipartFile>?, savedPosting: Posting) : List<String>{
 
-        if(uploadedImages != null){
+        if(imageUrl != null){
+            val uploadedImages = fileStorageService.uploadPostingImageList(imageUrl)
 
+            val imageUrlList = mutableListOf<String>()
             val imageEntities = uploadedImages.map {
-                    url -> Image(
-                imageUrl = url,
-                imageType = ImageType.IN_POSTING,
-                posting = savedPosting
-            )
+                    url ->
+                imageUrlList.add(url)
+                Image(
+                    imageUrl = url,
+                    imageType = ImageType.IN_POSTING,
+                    posting = savedPosting
+                )
             }
 
-            imageService.createImage(imageEntities)
-            savedPosting.imageInPosting.addAll(imageEntities)     //수정 필요. null일 때 채워넣어야 한다..
+            imageService.createImage(imageEntities)             //image 엔티티 저장
+            savedPosting.imageInPosting.addAll(imageEntities)   //posting에 image 연관관계 설정
             postingRepository.save(savedPosting)
-            return imageEntities
+
+            return imageUrlList
         }
 
         return emptyList()
@@ -250,6 +285,20 @@ class PostingServiceImpl(
             )
         )
 
+    }
+
+    private fun createResponsePostingDto(
+        posting : Posting,
+        imageUrlList: List<String>? = null,
+        commentList: List<ResponseCommentDto>? = null
+    ) : ResponsePostingDto{
+        return ResponsePostingDto(
+            writerId = posting.member.id,
+            writerName = posting.member.name,
+            content = posting.content,
+            imageUrl = imageUrlList,
+            commentList = commentList
+        )
     }
 
 

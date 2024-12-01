@@ -46,6 +46,7 @@ logging:
   level:
     org:
       springframework.security: DEBUG
+      springframework: DEBUG
       hibernate:
         SQL : DEBUG
         type:
