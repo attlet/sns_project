@@ -39,7 +39,7 @@ data class Posting(
     var member : Member,
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var comment: MutableList<Comment>? = null,
+    var comment: MutableList<Comment> = mutableListOf(),
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
     var imageInPosting : MutableList<Image> = mutableListOf()

@@ -23,9 +23,9 @@ class PostingRepositoryCustomImpl(
     override fun findByIdForDetail(postingId: Long): Optional<Posting> {
         val posting =  jpaQueryFactory
             .selectFrom(qPosting)
-            .join(qPosting.imageInPosting, qImage).fetchJoin()
-            .join(qPosting.comment, qComment).fetchJoin()
-            .join(qComment.member, qMember).fetchJoin()
+            .leftJoin(qPosting.imageInPosting, qImage).fetchJoin()
+            .leftJoin(qPosting.comment, qComment).fetchJoin()
+            .leftJoin(qComment.member, qMember).fetchJoin()
             .where(qPosting.id.eq(postingId))
             .fetchOne()
 

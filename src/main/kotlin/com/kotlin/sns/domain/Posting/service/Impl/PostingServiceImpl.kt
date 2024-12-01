@@ -63,12 +63,18 @@ class PostingServiceImpl(
 
         val imageUrlList = posting.imageInPosting.map { url -> url.imageUrl }
 
-        return ResponsePostingDto(
-            writerId = posting.member.id,
-            writerName = posting.member.name,
-            content = posting.content,
-            imageUrl = imageUrlList
-        )
+        val responseCommentDtoList = posting.comment.map {
+            comment ->
+                ResponseCommentDto(
+                    writerId = comment.member.id,
+                    writerName = comment.member.name,
+                    content = comment.content,
+                    createDt = comment.createdDt,
+                    updateDt = comment.updateDt
+                )
+        }
+
+        return createResponsePostingDto(posting, imageUrlList, responseCommentDtoList)
     }
 
     /**
@@ -279,6 +285,20 @@ class PostingServiceImpl(
             )
         )
 
+    }
+
+    private fun createResponsePostingDto(
+        posting : Posting,
+        imageUrlList: List<String>? = null,
+        commentList: List<ResponseCommentDto>? = null
+    ) : ResponsePostingDto{
+        return ResponsePostingDto(
+            writerId = posting.member.id,
+            writerName = posting.member.name,
+            content = posting.content,
+            imageUrl = imageUrlList,
+            commentList = commentList
+        )
     }
 
 
