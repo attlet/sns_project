@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.UUID
 
 /**
  * localhost 환경 테스트 시 사용되는
@@ -27,7 +28,7 @@ class LocalImagaServiceImpl(
 ) : FileStorageService {
 
     override fun uploadProfileImage(file: MultipartFile) : String{
-        val fileName = "profile_${System.currentTimeMillis()}.png" //file name 생성, 겹치치 않도록 생성하는 더 좋은 방법 있을 수도.
+        val fileName = "profile_${UUID.randomUUID()}.png" //file name 생성, 겹치치 않도록 생성하는 더 좋은 방법 있을 수도.
         val filePath = Paths.get(profileDir, fileName)          //uploadDir 폴더 내부에 fileName이라는 이름으로 파일 저장할 것이라는 경로 객체를 생성
         Files.createDirectories(filePath.parent)               //만약 상위 디렉토리가 없다면, 생성. 있다면 동작 x
 
@@ -47,7 +48,7 @@ class LocalImagaServiceImpl(
         val urlList = ArrayList<String>()
 
         for (file in files) {
-            val fileName = "posting_${System.currentTimeMillis()}.png"
+            val fileName = "posting_${UUID.randomUUID()}.png"
             val filePath = Paths.get(postingDir, fileName)
 
             Files.createDirectories(filePath.parent)
