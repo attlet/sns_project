@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 /**
  * posting 관련 비즈니스 로직
@@ -53,16 +54,21 @@ class PostingServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun findPostingById(postingId: Long): ResponsePostingDto {
-        val posting = postingRepository.findById(postingId)
-            .orElseThrow {
-                CustomException(
-                    ExceptionConst.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
-            }
+        val posting = postingRepository.findByIdForDetail(postingId)
+            .orElseThrow { CustomException(
+                ExceptionConst.POSTING,
+                HttpStatus.NOT_FOUND,
+                "Posting with id $postingId not found"
+            ) }
 
-        return postingMapper.toDto(posting)
+        val imageUrlList = posting.imageInPosting.map { url -> url.imageUrl }
+
+        return ResponsePostingDto(
+            writerId = posting.member.id,
+            writerName = posting.member.name,
+            content = posting.content,
+            imageUrl = imageUrlList
+        )
     }
 
     /**
@@ -120,7 +126,7 @@ class PostingServiceImpl(
             }
 
         val savedPosting = savePosting(requestCreatePostingDto, writer)
-        val imageUrlList = uploadProfileImage(requestCreatePostingDto, savedPosting)
+        val imageUrlList = uploadProfileImage(requestCreatePostingDto.imageUrl, savedPosting)
         notifyForNewPosting(writerId)
 
         logger.debug { "imageUrlList : $imageUrlList" }
@@ -159,14 +165,21 @@ class PostingServiceImpl(
         // 3. content 내용 업데이트
         requestUpdatePostingDto.content?.let { posting.content = it }
 
-        //4. 첨부 이미지 변경있다면, 업데이트
-        if(!requestUpdatePostingDto.imageUrl.isNullOrEmpty()){
-            posting.imageInPosting.clear()
-            imageService.deleteAllByPostingId(postingId)
-            fileStorageService.deleteImagesByPostingId(postingId)
-        }
+        //4. 첨부 이미지 변경있다면, 기존 이미지 삭제
+        //null 체크를 내부적으로 하기 때문에 외부에서 체크x
+        imageService.deleteAllByPostingId(postingId)
+        fileStorageService.deleteImagesByPostingId(postingId)
+        posting.imageInPosting.clear()
 
-        return postingMapper.toDto(posting)
+        //5. 새로운 이미지 저장
+        val newImageUrlList = uploadProfileImage(requestUpdatePostingDto.imageUrl, posting)
+
+        return ResponsePostingDto(
+            writerId = posting.member.id,
+            writerName = posting.member.name,
+            content = posting.content,
+            imageUrl = newImageUrlList
+        )
     }
 
 
@@ -185,15 +198,17 @@ class PostingServiceImpl(
                     "Posting with id $postingId not found"
                 )
             }
+        //1. 글 삭제할 권한 체크
+        jwtUtil.checkPermission(posting.member.id)
 
-        jwtUtil.checkPermission(posting.member.id)               //1. 글 삭제할 권한 체크
-
-        if(!posting.imageInPosting.isNullOrEmpty()){             //2. 서버에 저장된 이미지 삭제
+        //2. 서버에 저장된 이미지 삭제
+        if(!posting.imageInPosting.isNullOrEmpty()){
             logger.debug { "imageInPosting delete start" }
             fileStorageService.deleteImagesByPostingId(postingId)
         }
 
-        postingRepository.deleteById(postingId)                 //3. posting 삭제
+        //3. posting 삭제
+        postingRepository.deleteById(postingId)
     }
 
 
@@ -221,21 +236,20 @@ class PostingServiceImpl(
      * @param savedPosting
      * @return
      */
-    private fun uploadProfileImage(requestCreatePostingDto: RequestCreatePostingDto, savedPosting: Posting) : List<String>{
-        val uploadedImages = fileStorageService.uploadPostingImageList(requestCreatePostingDto.imageUrl)
+    private fun uploadProfileImage(imageUrl : List<MultipartFile>?, savedPosting: Posting) : List<String>{
 
-        logger.debug { "uploadedImages : $uploadedImages" }
-        if(uploadedImages != null){
+        if(imageUrl != null){
+            val uploadedImages = fileStorageService.uploadPostingImageList(imageUrl)
+
             val imageUrlList = mutableListOf<String>()
             val imageEntities = uploadedImages.map {
                     url ->
-                    logger.debug { "url : $url" }
-                    imageUrlList.add(url)
-                    Image(
-                        imageUrl = url,
-                        imageType = ImageType.IN_POSTING,
-                        posting = savedPosting
-                    )
+                imageUrlList.add(url)
+                Image(
+                    imageUrl = url,
+                    imageType = ImageType.IN_POSTING,
+                    posting = savedPosting
+                )
             }
 
             imageService.createImage(imageEntities)             //image 엔티티 저장

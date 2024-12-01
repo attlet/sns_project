@@ -27,6 +27,7 @@ class LocalImagaServiceImpl(
     private val imageRepository: ImageRepository
 ) : FileStorageService {
 
+
     override fun uploadProfileImage(file: MultipartFile) : String{
         val fileName = "profile_${UUID.randomUUID()}.png" //file name 생성, 겹치치 않도록 생성하는 더 좋은 방법 있을 수도.
         val filePath = Paths.get(profileDir, fileName)          //uploadDir 폴더 내부에 fileName이라는 이름으로 파일 저장할 것이라는 경로 객체를 생성
@@ -42,8 +43,7 @@ class LocalImagaServiceImpl(
         return filePath.toString()
     }
 
-    override fun uploadPostingImageList(files: List<MultipartFile>?): List<String>? {
-        if(files == null) return null
+    override fun uploadPostingImageList(files: List<MultipartFile>): List<String> {
 
         val urlList = ArrayList<String>()
 
