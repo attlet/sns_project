@@ -6,8 +6,10 @@ import com.kotlin.sns.domain.Likes.entity.QLikes
 import com.kotlin.sns.domain.Likes.repository.LikesRepositoryCustom
 import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.querydsl.jpa.impl.JPAQueryFactory
+import org.springframework.stereotype.Repository
 import java.util.*
 
+@Repository
 class LikesRepositoryCustomImpl(
     private val jpaQueryFactory: JPAQueryFactory
 ) : LikesRepositoryCustom {

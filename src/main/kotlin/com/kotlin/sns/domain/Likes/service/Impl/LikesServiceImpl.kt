@@ -11,8 +11,10 @@ import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+@Service
 class LikesServiceImpl (
     private val likesRepository: LikesRepository,
     private val postingRepository: PostingRepository,

@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 
 
 @Profile("prod")
+@Component
 class NotificationKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, Notification>
 ) : NotificationProducer{
