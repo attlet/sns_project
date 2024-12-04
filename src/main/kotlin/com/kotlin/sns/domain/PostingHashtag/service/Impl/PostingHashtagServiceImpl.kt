@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 class PostingHashtagServiceImpl(
     private val postingHashtagRepository: PostingHashtagRepository
 ) : PostingHashtagService{
-//    @Transactional
-//    override fun createPostingHashtag(requestPostingHashtagDtoList: List<RequestPostingHashtagDto>): List<ResponsePostingHashtagDto> {
-//
-//    }
+    @Transactional
+    override fun createPostingHashtag(requestPostingHashtagDtoList: List<RequestPostingHashtagDto>): List<ResponsePostingHashtagDto> {
+        return emptyList()
+    }
 }

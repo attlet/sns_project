@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile
 data class RequestCreatePostingDto (
     val writerId : Long,
     val content : String,
-    val imageUrl : List<MultipartFile>? = null
+    val imageUrl : List<MultipartFile>? = null,
+    val hastTagList : List<String>? = null
 ){
 }
