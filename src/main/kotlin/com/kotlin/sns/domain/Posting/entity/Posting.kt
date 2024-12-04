@@ -4,6 +4,7 @@ import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.PostingHashtag.entity.PostingHashtag
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -42,6 +43,9 @@ data class Posting(
     var comment: MutableList<Comment> = mutableListOf(),
 
     @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
-    var imageInPosting : MutableList<Image> = mutableListOf()
+    var imageInPosting : MutableList<Image> = mutableListOf(),
+
+    @OneToMany(mappedBy = "posting", cascade = [CascadeType.REMOVE])
+    var postingHashtag: MutableList<PostingHashtag> = mutableListOf()
 
 ) : BaseEntity()

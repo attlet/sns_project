@@ -4,6 +4,8 @@ import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
+import com.kotlin.sns.domain.Hashtag.entity.Hashtag
+import com.kotlin.sns.domain.Hashtag.repository.HashtagRepository
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.FileStorageService
@@ -20,6 +22,8 @@ import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
+import com.kotlin.sns.domain.PostingHashtag.entity.PostingHashtag
+import com.kotlin.sns.domain.PostingHashtag.repository.PostingHashtagRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -37,6 +41,8 @@ import org.springframework.web.multipart.MultipartFile
 class PostingServiceImpl(
     private val postingRepository: PostingRepository,
     private val memberRepository: MemberRepository,
+    private val hashtagRepository: HashtagRepository,
+    private val postingHashtagRepository: PostingHashtagRepository,
     private val postingMapper: PostingMapper,
     private val notificationService: NotificationService,
     private val fileStorageService: FileStorageService,
@@ -83,6 +89,7 @@ class PostingServiceImpl(
      * @param pageable
      * @return
      */
+    @Transactional(readOnly = true)
     override fun findPostingList(pageable: Pageable): List<ResponsePostingDto> {
         val postingList = postingRepository.getPostingListWithComment(pageable)
         val responsePostingList = mutableListOf<ResponsePostingDto>()
@@ -133,6 +140,8 @@ class PostingServiceImpl(
 
         val savedPosting = savePosting(requestCreatePostingDto, writer)
         val imageUrlList = uploadProfileImage(requestCreatePostingDto.imageUrl, savedPosting)
+        val hashTagList = saveHashTag(requestCreatePostingDto.hastTagList, savedPosting)
+
         notifyForNewPosting(writerId)
 
         logger.debug { "imageUrlList : $imageUrlList" }
@@ -141,7 +150,8 @@ class PostingServiceImpl(
             writerName = writer.name,
             content = savedPosting.content,
             commentList = null,
-            imageUrl = imageUrlList
+            imageUrl = imageUrlList,
+            hashTagList = hashTagList
         )
     }
 
@@ -266,6 +276,40 @@ class PostingServiceImpl(
         }
 
         return emptyList()
+    }
+
+    /**
+     * 게시글 생성 시 해시태그 저장 함수
+     *
+     * @param hashTagList
+     * @param posting
+     * @return
+     */
+    private fun saveHashTag(hashTagList : List<String>?, posting : Posting) : List<String>?{
+        //1.해시태그 리스트 null인지 체크
+        val hashTagList = hashTagList?.distinct() ?: emptyList()
+
+        //2. 입력된 태그들 중 기존에 db에 존재하는 해시태그만 반환
+        val existHashTagList = hashtagRepository.findByTagNameForNotExist(hashTagList)
+        val existHashTagNames = existHashTagList.map { tag -> tag.tagName }
+
+        //3. db에 없는 해시태그들 추출
+        val newHashTagNames = hashTagList.filter { it !in existHashTagNames }
+        val newHashTagList = newHashTagNames.map { tagName -> Hashtag(tagName = tagName) }
+
+        //4. 새로운 해시태그들 db에 저장
+        hashtagRepository.saveAll(newHashTagList)
+
+        //5. 게시글에 등록된 모든 해시태그들을 모아서 관계 생성
+        val allHashTagList = existHashTagList + newHashTagList
+        val postingHashtagList = allHashTagList.map {
+            hashtag -> PostingHashtag(posting = posting, hashtag = hashtag)
+        }
+
+        //6. 생성한 관계들을 저장
+        postingHashtagRepository.saveAll(postingHashtagList)
+
+        return allHashTagList.map { tag -> tag.tagName }
     }
 
     /**
