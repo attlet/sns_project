@@ -190,11 +190,16 @@ class PostingServiceImpl(
         //5. 새로운 이미지 저장
         val newImageUrlList = uploadProfileImage(requestUpdatePostingDto.imageUrl, posting)
 
+        //6. 기존 게시글의 해시태그 연결 삭제 후, 새로운 해시태그들 연결
+        postingHashtagRepository.deleteByPostingId(postingId)
+        val newHashtagList = saveHashTag(requestUpdatePostingDto.hashTagList, posting)
+
         return ResponsePostingDto(
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
-            imageUrl = newImageUrlList
+            imageUrl = newImageUrlList,
+            hashTagList = newHashtagList
         )
     }
 
@@ -242,6 +247,8 @@ class PostingServiceImpl(
             member = writer
         )
 //        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
+
+        logger.info { "savedPosting complete" }
         return postingRepository.save(posting)
     }
 
@@ -279,7 +286,7 @@ class PostingServiceImpl(
     }
 
     /**
-     * 게시글 생성 시 해시태그 저장 함수
+     * 게시글 생성, 수정 시 해시태그 저장 함수
      *
      * @param hashTagList
      * @param posting
@@ -309,6 +316,7 @@ class PostingServiceImpl(
         //6. 생성한 관계들을 저장
         postingHashtagRepository.saveAll(postingHashtagList)
 
+        logger.debug { "saveHashTag complete" }
         return allHashTagList.map { tag -> tag.tagName }
     }
 
