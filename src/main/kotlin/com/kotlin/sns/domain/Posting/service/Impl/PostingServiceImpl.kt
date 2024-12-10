@@ -92,7 +92,7 @@ class PostingServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun findPostingList(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<ResponsePostingDto> {
-        val postingList = postingRepository.getPostingListWithComment(pageable)
+        val postingList = postingRepository.getPostingListWithComment(pageable, requestSearchPostingDto)
         val responsePostingList = mutableListOf<ResponsePostingDto>()
 
         for (posting in postingList) {

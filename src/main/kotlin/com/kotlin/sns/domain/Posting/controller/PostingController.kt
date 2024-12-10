@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Posting.controller
 
 
 import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
+import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.service.PostingService
@@ -30,8 +31,9 @@ class PostingController (
 
     @GetMapping("/postingList")
     fun getPostingList(@RequestParam("page") page : Int = 1,
-                       @RequestParam("size") size : Int = 10) : List<ResponsePostingDto> {
-        return postingService.findPostingList(PageRequest.of(page, size))
+                       @RequestParam("size") size : Int = 10,
+                       @RequestBody requestSearchPostingDto: RequestSearchPostingDto) : List<ResponsePostingDto> {
+        return postingService.findPostingList(PageRequest.of(page, size), requestSearchPostingDto)
     }
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
