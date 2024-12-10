@@ -129,6 +129,7 @@ class PostingServiceImpl(
     override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
         val writerId = requestCreatePostingDto.writerId
 
+        //1. 포스팅 작성자 조회
         val writer = memberRepository.findById(writerId)
             .orElseThrow {
                 CustomException(
@@ -138,13 +139,20 @@ class PostingServiceImpl(
                 )
             }
 
+        //2. 입력한 포스팅 내용 저장
         val savedPosting = savePosting(requestCreatePostingDto, writer)
-        val imageUrlList = uploadProfileImage(requestCreatePostingDto.imageUrl, savedPosting)
-        val hashTagList = saveHashTag(requestCreatePostingDto.hastTagList, savedPosting)
 
+        //3. 첨부 이미지 존재하면, 이미지 업로드
+        val imageUrlList = requestCreatePostingDto.imageUrl?.let { uploadProfileImage(it, savedPosting) }
+
+        //4. 해시태그 존재하면, 해시태그 관계 저장
+        val hashTagList = requestCreatePostingDto.hastTagList?.let { saveHashTag(it, savedPosting) }
+
+        //5. 친구가 있다면, 알림 발송
         notifyForNewPosting(writerId)
 
         logger.debug { "imageUrlList : $imageUrlList" }
+
         return ResponsePostingDto(
             writerId = writerId,
             writerName = writer.name,
@@ -188,11 +196,11 @@ class PostingServiceImpl(
         posting.imageInPosting.clear()
 
         //5. 새로운 이미지 저장
-        val newImageUrlList = uploadProfileImage(requestUpdatePostingDto.imageUrl, posting)
+        val newImageUrlList = requestUpdatePostingDto.imageUrl?.let { uploadProfileImage(it, posting) }
 
         //6. 기존 게시글의 해시태그 연결 삭제 후, 새로운 해시태그들 연결
         postingHashtagRepository.deleteByPostingId(postingId)
-        val newHashtagList = saveHashTag(requestUpdatePostingDto.hashTagList, posting)
+        val newHashtagList = requestUpdatePostingDto.hashTagList?.let { saveHashTag(it, posting) }
 
         return ResponsePostingDto(
             writerId = posting.member.id,
@@ -292,9 +300,9 @@ class PostingServiceImpl(
      * @param posting
      * @return
      */
-    private fun saveHashTag(hashTagList : List<String>?, posting : Posting) : List<String>?{
-        //1.해시태그 리스트 null인지 체크
-        val hashTagList = hashTagList?.distinct() ?: emptyList()
+    private fun saveHashTag(hashTagList : List<String>, posting : Posting) : List<String>{
+        //1.해시태그 리스트 내 중복된 태그 제거
+        val hashTagList = hashTagList.distinct()
 
         //2. 입력된 태그들 중 기존에 db에 존재하는 해시태그만 반환
         val existHashTagList = hashtagRepository.findByTagNameForNotExist(hashTagList)
