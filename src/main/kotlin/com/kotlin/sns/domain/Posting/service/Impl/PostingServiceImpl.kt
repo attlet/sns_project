@@ -16,6 +16,7 @@ import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationD
 import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
+import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
@@ -90,7 +91,7 @@ class PostingServiceImpl(
      * @return
      */
     @Transactional(readOnly = true)
-    override fun findPostingList(pageable: Pageable): List<ResponsePostingDto> {
+    override fun findPostingList(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<ResponsePostingDto> {
         val postingList = postingRepository.getPostingListWithComment(pageable)
         val responsePostingList = mutableListOf<ResponsePostingDto>()
 
