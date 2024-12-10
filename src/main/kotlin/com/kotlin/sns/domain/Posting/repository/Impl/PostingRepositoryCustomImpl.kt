@@ -3,10 +3,12 @@ package com.kotlin.sns.domain.Posting.repository.Impl
 import com.kotlin.sns.domain.Comment.entity.QComment
 import com.kotlin.sns.domain.Image.entity.QImage
 import com.kotlin.sns.domain.Member.entity.QMember
+import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.kotlin.sns.domain.Posting.repository.PostingRepositoryCustom
+import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
@@ -20,6 +22,14 @@ class PostingRepositoryCustomImpl(
     private val qComment = QComment.comment
     private val qMember = QMember.member
     private val qImage = QImage.image
+
+    /**
+     * 게시글 하나 상세 조회
+     * 첨부 이미지, 댓글, 댓글 작성자 같이 조회
+     *
+     * @param postingId
+     * @return
+     */
     override fun findByIdForDetail(postingId: Long): Optional<Posting> {
         val posting =  jpaQueryFactory
             .selectFrom(qPosting)
@@ -32,13 +42,21 @@ class PostingRepositoryCustomImpl(
         return Optional.ofNullable(posting)
     }
 
-    override fun getPostingListWithComment(pageable: Pageable): List<Posting> {
+    /**
+     * 게시글 리스트 조회
+     * 댓글 같이 조회
+     * @param pageable
+     * @return
+     */
+    override fun getPostingListWithComment(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<Posting> {
+        val builder = searchCondition(requestSearchPostingDto)
+
         return jpaQueryFactory
             .selectFrom(qPosting)
             .join(qPosting.imageInPosting, qImage).fetchJoin()
             .join(qPosting.comment, qComment).fetchJoin()
             .join(qComment.member, qMember).fetchJoin()
-//            .where()
+            .where(builder)
             .orderBy(qPosting.createdDt.desc())
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
@@ -46,7 +64,18 @@ class PostingRepositoryCustomImpl(
 
     }
 
-    fun condition(){
-        //포스팅 필터링 조건
+    /**
+     * posting 검색 조건들
+     *
+     * @param requestSearchPostingDto
+     * @return
+     */
+    private fun searchCondition(requestSearchPostingDto: RequestSearchPostingDto) : BooleanBuilder{
+        val builder = BooleanBuilder()
+
+        requestSearchPostingDto.writerName?.let { builder.and(qPosting.member.name.containsIgnoreCase(it)) }
+        requestSearchPostingDto.hashtagList?.let { builder.and(qPosting.postingHashtag.any().hashtag.tagName.`in`(it))}
+
+        return builder
     }
 }
