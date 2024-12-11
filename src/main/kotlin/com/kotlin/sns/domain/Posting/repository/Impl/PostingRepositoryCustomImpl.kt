@@ -53,9 +53,9 @@ class PostingRepositoryCustomImpl(
 
         return jpaQueryFactory
             .selectFrom(qPosting)
-            .join(qPosting.imageInPosting, qImage).fetchJoin()
-            .join(qPosting.comment, qComment).fetchJoin()
-            .join(qComment.member, qMember).fetchJoin()
+            .leftJoin(qPosting.imageInPosting, qImage)
+            .leftJoin(qPosting.comment, qComment).fetchJoin()
+            .leftJoin(qComment.member, qMember).fetchJoin()
             .where(builder)
             .orderBy(qPosting.createdDt.desc())
             .offset(pageable.offset)
