@@ -68,20 +68,7 @@ class PostingServiceImpl(
                 "Posting with id $postingId not found"
             ) }
 
-        val imageUrlList = posting.imageInPosting.map { url -> url.imageUrl }
-
-        val responseCommentDtoList = posting.comment.map {
-            comment ->
-                ResponseCommentDto(
-                    writerId = comment.member.id,
-                    writerName = comment.member.name,
-                    content = comment.content,
-                    createDt = comment.createdDt,
-                    updateDt = comment.updateDt
-                )
-        }
-
-        return createResponsePostingDto(posting, imageUrlList, responseCommentDtoList)
+        return createResponsePostingDto(posting)
     }
 
     /**
@@ -95,31 +82,13 @@ class PostingServiceImpl(
 
         logger.debug { "findPostingList request : $requestSearchPostingDto" }
 
-        val postingList = postingRepository.getPostingListWithComment(pageable, requestSearchPostingDto)
-
+        val postingList = postingRepository.findPostingList(pageable, requestSearchPostingDto)
         val responsePostingList = mutableListOf<ResponsePostingDto>()
 
-        for (posting in postingList) {
-            val responseCommentList = posting.comment
-                ?.map {comment ->
-                    ResponseCommentDto(
-                        writerId = comment.member.id,
-                        writerName = comment.member.name,
-                        content = comment.content,
-                        createDt = comment.createdDt,
-                        updateDt = comment.updateDt
-                    )
-                }
-                ?.toList()
+        postingList.map { posting -> {
+            responsePostingList.add(createResponsePostingDto(posting))
+        } }
 
-            responsePostingList.add(ResponsePostingDto(
-                writerId = posting.member.id,
-                writerName = posting.member.name,
-                content = posting.content,
-                commentList = responseCommentList
-            ))
-
-        }
         logger.debug { "response : $responsePostingList" }
 
         return responsePostingList
@@ -164,7 +133,6 @@ class PostingServiceImpl(
             writerId = writerId,
             writerName = writer.name,
             content = savedPosting.content,
-            commentList = null,
             imageUrl = imageUrlList,
             hashTagList = hashTagList
         )
@@ -261,7 +229,6 @@ class PostingServiceImpl(
             content = requestCreatePostingDto.content,
             member = writer
         )
-//        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
 
         logger.info { "savedPosting complete" }
         return postingRepository.save(posting)
@@ -354,17 +321,15 @@ class PostingServiceImpl(
 
     }
 
-    private fun createResponsePostingDto(
-        posting : Posting,
-        imageUrlList: List<String>? = null,
-        commentList: List<ResponseCommentDto>? = null
-    ) : ResponsePostingDto{
+    private fun createResponsePostingDto(posting : Posting) : ResponsePostingDto{
+        val imageUrlList = posting.imageInPosting?.map { url -> url.imageUrl }
+        val hashtagList = posting.postingHashtag?.map { postingHashtag -> postingHashtag.hashtag.tagName }
         return ResponsePostingDto(
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
             imageUrl = imageUrlList,
-            commentList = commentList
+            hashTagList = hashtagList
         )
     }
 

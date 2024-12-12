@@ -13,6 +13,7 @@ import com.kotlin.sns.domain.Comment.service.CommentService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
@@ -26,26 +27,23 @@ class CommentServiceImpl (
 ) : CommentService{
 
     /**
-     * 포스팅 로딩 시 댓글 정보 다 가져오지만,
-     * 댓글 새로고침을 통해 그 포스팅 댓글만 새로 가져올 수 있도록
-     * 로직 구현
+     *  포스팅 로딩 시 댓글 정보 다 가져오지만,
+     *  댓글 새로고침을 통해 그 포스팅 댓글만 새로 가져올 수 있도록
+     *  로직 구현
      *
+     * @param pageable
      * @param postingId
      * @return
      */
-    override fun reloadCommentInPosting(postingId: Long): List<ResponseCommentDto>? {
-        val posting = postingRepository.findById(postingId)
-            .orElseThrow {
-                CustomException(
-                    ExceptionConst.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
-            }
+    override fun getCommentListInPosting(pageable: Pageable, postingId: Long): List<ResponseCommentDto>? {
+        val responseCommentList = mutableListOf<ResponseCommentDto>()
+        val comment =  commentRepository.findCommentListByPosting(pageable, postingId)
 
-        val commentList = posting.comment
+        comment.map { comment -> {
+            responseCommentList.add(createResponseCommentDtoList(comment))
+        } }
 
-        return makeResponseCommentDtoList(commentList)
+        return responseCommentList
     }
 
     @Transactional
@@ -112,17 +110,13 @@ class CommentServiceImpl (
      * @param commentList
      * @return
      */
-    private fun makeResponseCommentDtoList(commentList : List<Comment>?) : List<ResponseCommentDto>?{
-        val responseCommentDtoList = commentList?.stream()
-            ?.map { comment -> ResponseCommentDto(
-                writerId = comment.member.id,
-                writerName = comment.member.name,
-                content = comment.content,
-                createDt = comment.createdDt,
-                updateDt = comment.updateDt
-            ) }
-            ?.toList()
-
-        return responseCommentDtoList
+    private fun createResponseCommentDtoList(comment : Comment) : ResponseCommentDto{
+        return ResponseCommentDto(
+            writerId = comment.member.id,
+            writerName = comment.member.name,
+            content = comment.content,
+            createDt = comment.createdDt,
+            updateDt = comment.updateDt
+        )
     }
 }

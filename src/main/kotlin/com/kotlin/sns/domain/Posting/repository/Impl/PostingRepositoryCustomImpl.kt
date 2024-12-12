@@ -8,6 +8,7 @@ import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.kotlin.sns.domain.Posting.repository.PostingRepositoryCustom
+import com.kotlin.sns.domain.PostingHashtag.entity.QPostingHashtag
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -22,6 +23,7 @@ class PostingRepositoryCustomImpl(
     private val qComment = QComment.comment
     private val qMember = QMember.member
     private val qImage = QImage.image
+    private val qPostingHashtag = QPostingHashtag.postingHashtag
 
     /**
      * 게시글 하나 상세 조회
@@ -34,6 +36,7 @@ class PostingRepositoryCustomImpl(
         val posting =  jpaQueryFactory
             .selectFrom(qPosting)
             .leftJoin(qPosting.imageInPosting, qImage)
+            .leftJoin(qPosting.postingHashtag, qPostingHashtag).fetchJoin()
             .leftJoin(qPosting.comment, qComment).fetchJoin()
             .leftJoin(qComment.member, qMember).fetchJoin()
             .where(qPosting.id.eq(postingId))
@@ -44,24 +47,22 @@ class PostingRepositoryCustomImpl(
 
     /**
      * 게시글 리스트 조회
-     * 댓글 같이 조회
+     *
      * @param pageable
      * @return
      */
-    override fun getPostingListWithComment(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<Posting> {
+    override fun findPostingList(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<Posting> {
         val builder = searchCondition(requestSearchPostingDto)
 
         return jpaQueryFactory
             .selectFrom(qPosting)
-            .leftJoin(qPosting.imageInPosting, qImage)
-            .leftJoin(qPosting.comment, qComment).fetchJoin()
-            .leftJoin(qComment.member, qMember).fetchJoin()
+            .leftJoin(qPosting.imageInPosting, qImage).fetchJoin()
+            .leftJoin(qPosting.postingHashtag, qPostingHashtag)
             .where(builder)
             .orderBy(qPosting.createdDt.desc())
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
-
     }
 
     /**

@@ -7,5 +7,5 @@ import java.util.Optional
 
 interface PostingRepositoryCustom {
     fun findByIdForDetail(postingId: Long) : Optional<Posting>
-    fun getPostingListWithComment(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto) : List<Posting>
+    fun findPostingList(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto) : List<Posting>
 }

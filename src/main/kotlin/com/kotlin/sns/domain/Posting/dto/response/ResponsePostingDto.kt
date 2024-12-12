@@ -6,7 +6,6 @@ data class ResponsePostingDto(
     val writerId : Long,
     val writerName : String,
     val content : String,
-    val commentList : List<ResponseCommentDto>? = null,
     val imageUrl : List<String>? = null,
     val hashTagList : List<String>? = null
 ) {
