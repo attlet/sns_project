@@ -4,5 +4,5 @@ import com.kotlin.sns.domain.Hashtag.entity.Hashtag
 
 interface HashtagRepositoryCustom {
 
-    fun findByTagNameForNotExist(tagNames : List<String>) : List<Hashtag>
+    fun findByTagNameForExist(tagNames : List<String>) : List<Hashtag>
 }

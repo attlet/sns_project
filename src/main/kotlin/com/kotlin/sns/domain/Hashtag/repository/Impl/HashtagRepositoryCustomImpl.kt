@@ -14,12 +14,12 @@ class HashtagRepositoryCustomImpl(
     private val qHashtag = QHashtag.hashtag
 
     /**
-     * 기존에 존재하지 않는 hashtag인지 확인해서 존재하지 않는 태그들만 반환
+     * 이전에 생성된 적 있는 hashtag인지 확인
      *
      * @param tagNames
      * @return
      */
-    override fun findByTagNameForNotExist(tagNames: List<String>): List<Hashtag> {
+    override fun findByTagNameForExist(tagNames: List<String>): List<Hashtag> {
          return jpaQueryFactory
              .selectFrom(qHashtag)
              .where(qHashtag.tagName.`in`(tagNames))
