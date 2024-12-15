@@ -3,7 +3,6 @@ package com.kotlin.sns.domain.Posting.service.Impl
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.common.security.JwtUtil
-import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Hashtag.entity.Hashtag
 import com.kotlin.sns.domain.Hashtag.repository.HashtagRepository
 import com.kotlin.sns.domain.Image.entity.Image
@@ -101,6 +100,9 @@ class PostingServiceImpl(
      */
     @Transactional
     override fun createPosting(requestCreatePostingDto: RequestCreatePostingDto): ResponsePostingDto {
+
+        logger.debug { "requestCreatePostingDto : $requestCreatePostingDto" }
+
         val writerId = requestCreatePostingDto.writerId
 
         //1. 포스팅 작성자 조회
@@ -120,7 +122,7 @@ class PostingServiceImpl(
         val imageUrlList = requestCreatePostingDto.imageUrl?.let { uploadProfileImage(it, savedPosting) }
 
         //4. 해시태그 존재하면, 해시태그 관계 저장
-        val hashTagList = requestCreatePostingDto.hastTagList?.let { saveHashTag(it, savedPosting) }
+        val hashTagList = requestCreatePostingDto.hashTagList?.let { saveHashTag(it, savedPosting) }
 
         //5. 친구가 있다면, 알림 발송
         notifyForNewPosting(writerId)
@@ -256,6 +258,8 @@ class PostingServiceImpl(
         savedPosting.imageInPosting.addAll(imageEntities)   //posting에 image 연관관계 설정
         postingRepository.save(savedPosting)
 
+        logger.info { "uploadProfileImage complete" }
+
         return imageUrlList
     }
 
@@ -294,7 +298,7 @@ class PostingServiceImpl(
         posting.postingHashtag.clear()
         posting.postingHashtag.addAll(postingHashtagList)
 
-        logger.debug { "saveHashTag complete" }
+        logger.info { "saveHashTag complete" }
         return allHashTagList.map { tag -> tag.tagName }
     }
 

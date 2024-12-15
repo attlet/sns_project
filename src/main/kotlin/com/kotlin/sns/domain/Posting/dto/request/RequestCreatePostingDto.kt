@@ -6,6 +6,6 @@ data class RequestCreatePostingDto (
     val writerId : Long,
     val content : String,
     val imageUrl : List<MultipartFile>? = null,
-    val hastTagList : List<String>? = null
+    val hashTagList : List<String>? = null
 ){
 }
