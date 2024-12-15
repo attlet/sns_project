@@ -68,20 +68,7 @@ class PostingServiceImpl(
                 "Posting with id $postingId not found"
             ) }
 
-        val imageUrlList = posting.imageInPosting.map { url -> url.imageUrl }
-
-        val responseCommentDtoList = posting.comment.map {
-            comment ->
-                ResponseCommentDto(
-                    writerId = comment.member.id,
-                    writerName = comment.member.name,
-                    content = comment.content,
-                    createDt = comment.createdDt,
-                    updateDt = comment.updateDt
-                )
-        }
-
-        return createResponsePostingDto(posting, imageUrlList, responseCommentDtoList)
+        return createResponsePostingDto(posting)
     }
 
     /**
@@ -92,29 +79,15 @@ class PostingServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun findPostingList(pageable: Pageable, requestSearchPostingDto: RequestSearchPostingDto): List<ResponsePostingDto> {
-        val postingList = postingRepository.getPostingListWithComment(pageable, requestSearchPostingDto)
-        val responsePostingList = mutableListOf<ResponsePostingDto>()
 
-        for (posting in postingList) {
-            val responseCommentList = posting.comment
-                ?.map {comment ->
-                    ResponseCommentDto(
-                        writerId = comment.member.id,
-                        writerName = comment.member.name,
-                        content = comment.content,
-                        createDt = comment.createdDt,
-                        updateDt = comment.updateDt
-                    )
-                }
-                ?.toList()
+        logger.debug { "findPostingList request : $requestSearchPostingDto" }
 
-            responsePostingList.add(ResponsePostingDto(
-                writerId = posting.member.id,
-                writerName = posting.member.name,
-                content = posting.content,
-                commentList = responseCommentList
-            ))
+        val postingList = postingRepository.findPostingList(pageable, requestSearchPostingDto)
+        val responsePostingList = postingList.map { posting ->
+            createResponsePostingDto(posting)
         }
+
+        logger.debug { "response : $responsePostingList" }
 
         return responsePostingList
     }
@@ -158,7 +131,6 @@ class PostingServiceImpl(
             writerId = writerId,
             writerName = writer.name,
             content = savedPosting.content,
-            commentList = null,
             imageUrl = imageUrlList,
             hashTagList = hashTagList
         )
@@ -255,7 +227,6 @@ class PostingServiceImpl(
             content = requestCreatePostingDto.content,
             member = writer
         )
-//        val posting = postingMapper.toEntity(requestCreatePostingDto, writer)
 
         logger.info { "savedPosting complete" }
         return postingRepository.save(posting)
@@ -268,30 +239,24 @@ class PostingServiceImpl(
      * @param savedPosting
      * @return
      */
-    private fun uploadProfileImage(imageUrl : List<MultipartFile>?, savedPosting: Posting) : List<String>{
+    private fun uploadProfileImage(imageUrl : List<MultipartFile>, savedPosting: Posting) : List<String>{
+        val uploadedImages = fileStorageService.uploadPostingImageList(imageUrl)
 
-        if(imageUrl != null){
-            val uploadedImages = fileStorageService.uploadPostingImageList(imageUrl)
-
-            val imageUrlList = mutableListOf<String>()
-            val imageEntities = uploadedImages.map {
-                    url ->
-                imageUrlList.add(url)
-                Image(
-                    imageUrl = url,
-                    imageType = ImageType.IN_POSTING,
-                    posting = savedPosting
-                )
-            }
-
-            imageService.createImage(imageEntities)             //image 엔티티 저장
-            savedPosting.imageInPosting.addAll(imageEntities)   //posting에 image 연관관계 설정
-            postingRepository.save(savedPosting)
-
-            return imageUrlList
+        val imageUrlList = mutableListOf<String>()
+        val imageEntities = uploadedImages.map { url ->
+            imageUrlList.add(url)
+            Image(
+                imageUrl = url,
+                imageType = ImageType.IN_POSTING,
+                posting = savedPosting
+            )
         }
 
-        return emptyList()
+        imageService.createImage(imageEntities)             //image 엔티티 저장
+        savedPosting.imageInPosting.addAll(imageEntities)   //posting에 image 연관관계 설정
+        postingRepository.save(savedPosting)
+
+        return imageUrlList
     }
 
     /**
@@ -306,7 +271,7 @@ class PostingServiceImpl(
         val hashTagList = hashTagList.distinct()
 
         //2. 입력된 태그들 중 기존에 db에 존재하는 해시태그만 반환
-        val existHashTagList = hashtagRepository.findByTagNameForNotExist(hashTagList)
+        val existHashTagList = hashtagRepository.findByTagNameForExist(hashTagList)
         val existHashTagNames = existHashTagList.map { tag -> tag.tagName }
 
         //3. db에 없는 해시태그들 추출
@@ -324,6 +289,10 @@ class PostingServiceImpl(
 
         //6. 생성한 관계들을 저장
         postingHashtagRepository.saveAll(postingHashtagList)
+
+        //7. posting 엔티티에 연관관계 저장
+        posting.postingHashtag.clear()
+        posting.postingHashtag.addAll(postingHashtagList)
 
         logger.debug { "saveHashTag complete" }
         return allHashTagList.map { tag -> tag.tagName }
@@ -348,17 +317,15 @@ class PostingServiceImpl(
 
     }
 
-    private fun createResponsePostingDto(
-        posting : Posting,
-        imageUrlList: List<String>? = null,
-        commentList: List<ResponseCommentDto>? = null
-    ) : ResponsePostingDto{
+    private fun createResponsePostingDto(posting : Posting) : ResponsePostingDto{
+        val imageUrlList = posting.imageInPosting?.map { url -> url.imageUrl }
+        val hashtagList = posting.postingHashtag?.map { postingHashtag -> postingHashtag.hashtag.tagName }
         return ResponsePostingDto(
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
             imageUrl = imageUrlList,
-            commentList = commentList
+            hashTagList = hashtagList
         )
     }
 

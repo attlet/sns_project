@@ -30,7 +30,7 @@ class PostingController (
     }
 
     @GetMapping("/postingList")
-    fun getPostingList(@RequestParam("page") page : Int = 1,
+    fun getPostingList(@RequestParam("page") page : Int = 0,
                        @RequestParam("size") size : Int = 10,
                        @RequestBody requestSearchPostingDto: RequestSearchPostingDto) : List<ResponsePostingDto> {
         return postingService.findPostingList(PageRequest.of(page, size), requestSearchPostingDto)
