@@ -6,6 +6,7 @@ import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Comment.service.CommentService
 import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -35,6 +36,11 @@ class CommentController (
     fun updateComment(@RequestParam("commentId") commentId : Long,
                       @RequestBody requestUpdateCommentDto : RequestUpdateCommentDto) : ResponseCommentDto {
         return commentService.updateComment(requestUpdateCommentDto)
+    }
+
+    @DeleteMapping()
+    fun deleteComment(@RequestParam("commentId") commentId: Long){
+        return commentService.deleteComment(commentId)
     }
 
 }
