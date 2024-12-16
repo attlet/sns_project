@@ -44,17 +44,16 @@ spring:
 #      default-topic: sns-notifications  # 기본 토픽 이름 설정
 
 logging:
+  config: classpath:logback-spring-local.xml
   level:
     org:
-      springframework.security: DEBUG
-      springframework: DEBUG
       hibernate:
         SQL : DEBUG
         type:
           descriptor:
             sql: trace
 
-#로컬에 이미지 저장
+#로컬에 이미지 저장 설정.
 file:
   storage-type: local
   profile-images-dir: ./uploads/profile_images

@@ -43,9 +43,9 @@ spring:
       default-topic: sns-notifications  # 기본 토픽 이름 설정
 
 logging:
+  config: classpath:logback-spring-prod.xml
   level:
     org:
-      springframework.security: DEBUG
       hibernate:
         SQL : DEBUG
         type:

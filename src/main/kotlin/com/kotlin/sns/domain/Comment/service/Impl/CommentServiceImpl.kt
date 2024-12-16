@@ -12,6 +12,7 @@ import com.kotlin.sns.domain.Comment.repository.CommentRepository
 import com.kotlin.sns.domain.Comment.service.CommentService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -26,6 +27,7 @@ class CommentServiceImpl (
     private val jwtUtil: JwtUtil
 ) : CommentService{
 
+    private val logger = KotlinLogging.logger{}
     /**
      *  포스팅 로딩 시 댓글 정보 다 가져오지만,
      *  댓글 새로고침을 통해 그 포스팅 댓글만 새로 가져올 수 있도록
@@ -42,6 +44,8 @@ class CommentServiceImpl (
         comment.map { comment -> {
             responseCommentList.add(createResponseCommentDtoList(comment))
         } }
+
+        logger.debug { "responseCommentList : $responseCommentList" }
 
         return responseCommentList
     }
@@ -75,11 +79,16 @@ class CommentServiceImpl (
             posting = posting
         ))
 
-        return commentMapper.toDto(savedComment)
+        logger.debug { "savedComment : ${savedComment.content}" }
+
+        return createResponseCommentDtoList(savedComment)
     }
     @Transactional
     override fun updateComment(requestUpdateCommentDto: RequestUpdateCommentDto) : ResponseCommentDto {
         val commentId = requestUpdateCommentDto.commentId
+
+        logger.debug { "comment id : $commentId" }
+
         val comment = commentRepository.findById(commentId)
             .orElseThrow {
                 CustomException(
@@ -89,19 +98,19 @@ class CommentServiceImpl (
                 )
             }
 
-        jwtUtil.checkPermission(commentId)
-
+        jwtUtil.checkPermission(comment.member.id)
         comment.content = requestUpdateCommentDto.content
-
         val savedComment = commentRepository.save(comment)
 
-        return commentMapper.toDto(savedComment)
+        return createResponseCommentDtoList(comment)
     }
 
     @Transactional
-    override fun deleteComment(commentId: Long) {
-        jwtUtil.checkPermission(commentId)
+    override fun deleteComment(commentId: Long, writerId : Long) {
+        jwtUtil.checkPermission(writerId)
         commentRepository.deleteById(commentId)
+
+        logger.debug { "delete comment : $commentId" }
     }
 
     /**

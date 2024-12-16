@@ -57,9 +57,11 @@ class LikesServiceImpl (
         )
 
         likesRepository.save(likes)
-        logger.info { "User ${member.id} liked posting ${posting.id}" }
+        val cnt = likesRepository.getLikesCount(postingId)
 
-        return likesRepository.getLikesCount(postingId) + 1
+        logger.info { "User ${member.id} liked posting ${posting.id}, cnt : $cnt" }
+
+        return cnt
     }
 
     @Transactional
@@ -74,9 +76,12 @@ class LikesServiceImpl (
                 message = "Likes with $postingId and $memberId not found"
             ) }
 
-        likesRepository.delete(existLikes)
         logger.info { "User ${memberId} canceled like on posting ${postingId}" }
 
-        return likesRepository.getLikesCount(postingId) - 1
+        likesRepository.delete(existLikes)
+        val cnt = likesRepository.getLikesCount(postingId)
+
+        logger.debug { "like decrease : $cnt" }
+        return cnt
     }
 }

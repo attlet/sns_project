@@ -9,10 +9,10 @@ import org.mapstruct.Mapping
 
 @Mapper(componentModel = "spring")
 interface CommentMapper {
-
-    fun toEntity(requestCommentDto: RequestCommentDto) : Comment
-
-    @Mapping(source = "member.id", target = "writerId")
-    @Mapping(source = "member.name", target = "writerName")
-    fun toDto(comment: Comment) : ResponseCommentDto
+//
+//    fun toEntity(requestCommentDto: RequestCommentDto) : Comment
+//
+//    @Mapping(source = "member.id", target = "writerId")
+//    @Mapping(source = "member.name", target = "writerName")
+//    fun toDto(comment: Comment) : ResponseCommentDto
 }

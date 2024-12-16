@@ -13,11 +13,11 @@ import org.mapstruct.Mapping
  */
 @Mapper(componentModel = "spring")
 interface PostingMapper {
-    @Mapping(source = "member", target = "member")
-    fun toEntity(requestCreatePostingDto: RequestCreatePostingDto, member: Member) : Posting
-
-    @Mapping(source = "member.id", target = "writerId")
-    @Mapping(source = "member.name", target = "writerName")
-    @Mapping(source = "comment", target = "commentList")
-    fun toDto(posting: Posting) : ResponsePostingDto
+//    @Mapping(source = "member", target = "member")
+//    fun toEntity(requestCreatePostingDto: RequestCreatePostingDto, member: Member) : Posting
+//
+//    @Mapping(source = "member.id", target = "writerId")
+//    @Mapping(source = "member.name", target = "writerName")
+//    @Mapping(source = "comment", target = "commentList")
+//    fun toDto(posting: Posting) : ResponsePostingDto
 }

@@ -6,6 +6,7 @@ import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Comment.service.CommentService
 import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController
 class CommentController (
     private val commentService: CommentService
 ){
-    @GetMapping("/")
+    @GetMapping()
     fun getCommentListInPosting(@RequestParam("postingId") postingId : Long,
-                                @RequestParam("size") size : Int = 0,
-                                @RequestParam("page") page : Int = 20,) : List<ResponseCommentDto>? {
+                                @RequestParam("size") size : Int = 20,
+                                @RequestParam("page") page : Int = 0,) : List<ResponseCommentDto>? {
 
         return commentService.getCommentListInPosting(PageRequest.of(page, size), postingId)
     }
@@ -35,6 +36,12 @@ class CommentController (
     fun updateComment(@RequestParam("commentId") commentId : Long,
                       @RequestBody requestUpdateCommentDto : RequestUpdateCommentDto) : ResponseCommentDto {
         return commentService.updateComment(requestUpdateCommentDto)
+    }
+
+    @DeleteMapping()
+    fun deleteComment(@RequestParam("commentId") commentId: Long,
+                      @RequestParam("writerId") writerId : Long){
+        return commentService.deleteComment(commentId, writerId)
     }
 
 }

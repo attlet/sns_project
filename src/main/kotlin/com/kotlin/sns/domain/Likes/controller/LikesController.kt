@@ -19,7 +19,7 @@ class LikesController (
         return likesService.createLikes(requestLikesDto)
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/unlike")
     fun cancleLikes(@RequestBody requestLikesDto: RequestLikesDto) : Int{
         return likesService.cancleLikes(requestLikesDto)
     }
