@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController
 class CommentController (
     private val commentService: CommentService
 ){
-    @GetMapping("/")
+    @GetMapping()
     fun getCommentListInPosting(@RequestParam("postingId") postingId : Long,
-                                @RequestParam("size") size : Int = 0,
-                                @RequestParam("page") page : Int = 20,) : List<ResponseCommentDto>? {
+                                @RequestParam("size") size : Int = 20,
+                                @RequestParam("page") page : Int = 0,) : List<ResponseCommentDto>? {
 
         return commentService.getCommentListInPosting(PageRequest.of(page, size), postingId)
     }
@@ -39,8 +39,9 @@ class CommentController (
     }
 
     @DeleteMapping()
-    fun deleteComment(@RequestParam("commentId") commentId: Long){
-        return commentService.deleteComment(commentId)
+    fun deleteComment(@RequestParam("commentId") commentId: Long,
+                      @RequestParam("writerId") writerId : Long){
+        return commentService.deleteComment(commentId, writerId)
     }
 
 }

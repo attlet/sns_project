@@ -10,5 +10,5 @@ interface CommentService {
     fun getCommentListInPosting(pageable: Pageable, postingId : Long) : List<ResponseCommentDto>?
     fun createComment(requestCommentDto: RequestCommentDto): ResponseCommentDto
     fun updateComment(requestUpdateCommentDto: RequestUpdateCommentDto) : ResponseCommentDto
-    fun deleteComment(commentId : Long)
+    fun deleteComment(commentId : Long, writerId : Long)
 }

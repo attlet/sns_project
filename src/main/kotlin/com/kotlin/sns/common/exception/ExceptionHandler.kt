@@ -22,17 +22,17 @@ class ExceptionHandler {
        return ResponseEntity(exceptionResponse, e.status)
     }
 
-//    @ExceptionHandler(Exception::class)
-//    fun handleGenericException(e: Exception): ResponseEntity<ExceptionResponse> {
-//
-//        val exceptionResponse = ExceptionResponse(
-//            errorType = "INTERVAL ERROR",
-//            errorCode = "500",
-//            status = null,
-//            message = e.stackTraceToString()
-//        )
-//        return ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR)
-//    }
+    @ExceptionHandler(Exception::class)
+    fun handleGenericException(e: Exception): ResponseEntity<ExceptionResponse> {
+
+        val exceptionResponse = ExceptionResponse(
+            errorType = "INTERVAL ERROR",
+            errorCode = "500",
+            status = null,
+            message = null
+        )
+        return ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }
 
 data class ExceptionResponse(
