@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -31,6 +32,11 @@ class AuthenticationController (
     fun signIn(@RequestBody requestSignInDto: RequestSignInDto) : ResponseSignInDto {
         return authenticationService.signIn(requestSignInDto)
         logger.info{ "SignIn complete"}
+    }
+
+    @PostMapping("/reissue")
+    fun reissue(@RequestParam("refreshToken") refreshToken : String) : String {
+        return authenticationService.reissue(refreshToken)
     }
 
 }
