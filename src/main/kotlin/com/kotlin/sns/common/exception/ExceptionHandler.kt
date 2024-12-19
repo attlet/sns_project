@@ -29,7 +29,7 @@ class ExceptionHandler {
             errorType = "INTERVAL ERROR",
             errorCode = "500",
             status = null,
-            message = null
+            message = e.message
         )
         return ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR)
     }

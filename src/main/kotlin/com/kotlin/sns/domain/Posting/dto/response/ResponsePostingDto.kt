@@ -3,6 +3,7 @@ package com.kotlin.sns.domain.Posting.dto.response
 import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 
 data class ResponsePostingDto(
+    val postingId : Long,
     val writerId : Long,
     val writerName : String,
     val content : String,
