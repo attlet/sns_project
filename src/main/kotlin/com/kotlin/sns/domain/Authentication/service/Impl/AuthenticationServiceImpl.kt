@@ -33,7 +33,7 @@ class AuthenticationServiceImpl(
     private val redisTemplate: RedisTemplate<String, String>,
     private val memberMapper: MemberMapper,
     @Value("\${jwt.expiration}") private val jwtExpiration: Long = 0,
-    @Value("\${jwt.refreshExpiration") private val refreshExpiration : Long = 0
+    @Value("\${jwt.refreshExpiration}") private val refreshExpiration : Long = 0
 ) : AuthenticationService {
 
     private val logging = KotlinLogging.logger {}

@@ -32,7 +32,7 @@ class JwtUtil(
     @Value("\${jwt.expiration}")
     private var jwtExpiration: Long = 0
 
-    @Value("\${jwt.refreshExpiration")
+    @Value("\${jwt.refreshExpiration}")
     private var refreshExpiration : Long = 0
 
     private val logger = KotlinLogging.logger{}
