@@ -36,7 +36,7 @@ class PostingRepositoryCustomImpl(
         val posting =  jpaQueryFactory
             .selectFrom(qPosting)
             .leftJoin(qPosting.imageInPosting, qImage)
-            .leftJoin(qPosting.postingHashtag, qPostingHashtag).fetchJoin()
+            .leftJoin(qPosting.postingHashtag, qPostingHashtag)
             .leftJoin(qPosting.comment, qComment).fetchJoin()
             .leftJoin(qComment.member, qMember).fetchJoin()
             .where(qPosting.id.eq(postingId))

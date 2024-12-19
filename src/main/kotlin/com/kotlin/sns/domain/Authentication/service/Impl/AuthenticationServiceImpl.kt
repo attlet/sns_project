@@ -12,10 +12,13 @@ import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 /**
  * 인증/인가 관련 로직 처리
@@ -27,10 +30,14 @@ class AuthenticationServiceImpl(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtUtil: JwtUtil,
+    private val redisTemplate: RedisTemplate<String, String>,
     private val memberMapper: MemberMapper,
+    @Value("\${jwt.expiration}") private val jwtExpiration: Long = 0,
+    @Value("\${jwt.refreshExpiration}") private val refreshExpiration : Long = 0
 ) : AuthenticationService {
 
     private val logging = KotlinLogging.logger {}
+
 
     /**
      * 회원 가입 메서드
@@ -113,10 +120,52 @@ class AuthenticationServiceImpl(
             )
         }
 
-        logging.debug { "user id : $id , password : $password" }
-        val token = jwtUtil.createToken(id, member.roles)
+        logging.debug { "user id : ${member.userId} , password : $password" }
 
-        return ResponseSignInDto(token = token)
+        val token = jwtUtil.createToken(id, member.roles)
+        val refreshToken = jwtUtil.createRefreshToken(id)
+
+        logging.debug { "token : $token , refresh token : $refreshToken" }
+
+        redisTemplate.opsForValue().set(id, refreshToken, refreshExpiration, TimeUnit.MILLISECONDS)
+
+
+        return ResponseSignInDto(token = token, refreshToken = refreshToken)
+    }
+
+    /**
+     * access token이 만료되었을 때, refresh token을 통해 새로운 token을 생성하는 메서드
+     *
+     * @param refreshToken
+     * @return
+     */
+    override fun reissue(refreshToken: String): String {
+        //1. refresh token 으로부터 user id 추출
+        val userId = jwtUtil.resolveUsername(refreshToken)
+
+        //2. user id 를 key 로 redis에 저장된 refresh token을 확인
+        val storedRefreshToken = redisTemplate.opsForValue().get(userId)
+
+        //3. redis에 저장된 refresh token과 , 요청으로 들어온 refresh token을 비교. 다르면 exception 발생
+        if (refreshToken != storedRefreshToken) {
+            throw CustomException(
+                exception = ExceptionConst.AUTH,
+                status = HttpStatus.UNAUTHORIZED,
+                message = "Invalid refresh token"
+            )
+        }
+
+        //4. 같으면 새로운 access token 생성해서 반환
+        val member = memberRepository.findByUserId(userId)
+            .orElseThrow {
+                CustomException(
+                    exception = ExceptionConst.MEMBER,
+                    status = HttpStatus.NOT_FOUND,
+                    message = "User ID $userId not found"
+                )
+            }
+
+        return jwtUtil.createToken(userId, member.roles)
     }
 
     override fun logout() {

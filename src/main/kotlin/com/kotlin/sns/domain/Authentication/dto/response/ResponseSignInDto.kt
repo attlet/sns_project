@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Authentication.dto.response
 
 class ResponseSignInDto (
-    val token : String
+    val token : String,
+    val refreshToken : String
 ){
 }

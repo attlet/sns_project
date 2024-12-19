@@ -130,6 +130,7 @@ class PostingServiceImpl(
         logger.debug { "imageUrlList : $imageUrlList" }
 
         return ResponsePostingDto(
+            postingId = savedPosting.id,
             writerId = writerId,
             writerName = writer.name,
             content = savedPosting.content,
@@ -178,6 +179,7 @@ class PostingServiceImpl(
         val newHashtagList = requestUpdatePostingDto.hashTagList?.let { saveHashTag(it, posting) }
 
         return ResponsePostingDto(
+            postingId = posting.id,
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
@@ -322,9 +324,10 @@ class PostingServiceImpl(
     }
 
     private fun createResponsePostingDto(posting : Posting) : ResponsePostingDto{
-        val imageUrlList = posting.imageInPosting?.map { url -> url.imageUrl }
-        val hashtagList = posting.postingHashtag?.map { postingHashtag -> postingHashtag.hashtag.tagName }
+        val imageUrlList = posting.imageInPosting?.map { url -> url.imageUrl }?.distinct()
+        val hashtagList = posting.postingHashtag?.map { postingHashtag -> postingHashtag.hashtag.tagName }?.distinct()
         return ResponsePostingDto(
+            postingId = posting.id,
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,

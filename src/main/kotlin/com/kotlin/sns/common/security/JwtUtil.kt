@@ -24,15 +24,16 @@ import java.util.*
  */
 @Component
 class JwtUtil(
-    private val userServiceDetails: UserDetailsService
+    private val userServiceDetails: UserDetailsService,
+    @Value("\${jwt.secret}") private val secret: String
 )
 {
 
     @Value("\${jwt.expiration}")
     private var jwtExpiration: Long = 0
 
-    @Value("\${jwt.secret}")
-    private lateinit var secret: String
+    @Value("\${jwt.refreshExpiration}")
+    private var refreshExpiration : Long = 0
 
     private val logger = KotlinLogging.logger{}
 
@@ -41,8 +42,8 @@ class JwtUtil(
      */
     @PostConstruct
     fun jwtInit() {
-        secret = Base64.getEncoder().encodeToString(secret.toByteArray())
-        logger.debug { "secret code value : $secret" }
+        val encodedSecret = Base64.getEncoder().encodeToString(secret.toByteArray())
+        logger.debug { "secret code value : $encodedSecret" }
         logger.debug { "jwt expire time : $jwtExpiration" }
     }
 
@@ -60,6 +61,18 @@ class JwtUtil(
             .setClaims(claim)
             .setIssuedAt(now)
             .setExpiration(Date(now.time + jwtExpiration))
+            .signWith(Keys.hmacShaKeyFor(secret.toByteArray()), SignatureAlgorithm.HS256)
+            .compact()
+    }
+
+    fun createRefreshToken(username : String) : String{
+        val claim = Jwts.claims().setSubject(username)
+        val now = Date()
+
+        return "Bearer " + Jwts.builder()
+            .setClaims(claim)
+            .setIssuedAt(now)
+            .setExpiration(Date(now.time + refreshExpiration))
             .signWith(Keys.hmacShaKeyFor(secret.toByteArray()), SignatureAlgorithm.HS256)
             .compact()
     }
@@ -95,6 +108,7 @@ class JwtUtil(
 
         return subject
     }
+
 
     /**
      * 포스팅 수정, 삭제 권한을 가진 사용자인지 체크
