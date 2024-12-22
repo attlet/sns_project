@@ -72,6 +72,10 @@ dependencies {
 	//rabbitMQ
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 
+	//actuator
+	implementation ("org.springframework.boot:spring-boot-starter-actuator")
+
+
 }
 
 kotlin {
