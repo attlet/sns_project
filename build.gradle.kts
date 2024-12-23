@@ -72,6 +72,13 @@ dependencies {
 	//rabbitMQ
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 
+	//actuator
+	implementation ("org.springframework.boot:spring-boot-starter-actuator")
+
+	//prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+
 }
 
 kotlin {

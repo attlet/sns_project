@@ -28,6 +28,13 @@ spring:
     host: localhost
     port: 6379
 
+#모니터링 시스템 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
 #  kafka:
 #    bootstrap-servers: localhost:9092  # Kafka 브로커 주소
 #    consumer:
