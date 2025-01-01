@@ -32,7 +32,7 @@ class PostingController (
     @GetMapping("/postingList")
     fun getPostingList(@RequestParam("page") page : Int = 0,
                        @RequestParam("size") size : Int = 10,
-                       @RequestBody requestSearchPostingDto: RequestSearchPostingDto) : List<ResponsePostingDto> {
+                       requestSearchPostingDto: RequestSearchPostingDto) : List<ResponsePostingDto> {
         return postingService.findPostingList(PageRequest.of(page, size), requestSearchPostingDto)
     }
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
