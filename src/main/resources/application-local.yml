@@ -33,7 +33,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus"
+        include: prometheus
 
 #  kafka:
 #    bootstrap-servers: localhost:9092  # Kafka 브로커 주소

@@ -24,7 +24,6 @@ repositories {
 val queryDslVersion = "5.1.0" //querydsl 버전
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -76,7 +75,7 @@ dependencies {
 	implementation ("org.springframework.boot:spring-boot-starter-actuator")
 
 	//prometheus
-	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation ("io.micrometer:micrometer-registry-prometheus")
 
 
 }
