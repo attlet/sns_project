@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Posting.repository.Impl
 
 import com.kotlin.sns.domain.Comment.entity.QComment
+import com.kotlin.sns.domain.Hashtag.entity.QHashtag
 import com.kotlin.sns.domain.Image.entity.QImage
 import com.kotlin.sns.domain.Member.entity.QMember
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
@@ -23,6 +24,7 @@ class PostingRepositoryCustomImpl(
     private val qComment = QComment.comment
     private val qMember = QMember.member
     private val qImage = QImage.image
+    private val qHashtag = QHashtag.hashtag
     private val qPostingHashtag = QPostingHashtag.postingHashtag
 
     /**
@@ -56,8 +58,9 @@ class PostingRepositoryCustomImpl(
 
         return jpaQueryFactory
             .selectFrom(qPosting)
-            .leftJoin(qPosting.imageInPosting, qImage).fetchJoin()
+            .leftJoin(qPosting.imageInPosting, qImage)
             .leftJoin(qPosting.postingHashtag, qPostingHashtag)
+            .leftJoin(qPostingHashtag.hashtag, qHashtag)
             .where(builder)
             .orderBy(qPosting.createdDt.desc())
             .offset(pageable.offset)
