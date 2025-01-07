@@ -21,52 +21,52 @@ class DataInit (
     private val postingHashtagRepository: PostingHashtagRepository
 ) : CommandLineRunner{
     override fun run(vararg args: String?) {
-        val memberList = mutableListOf<Member>()
-        val hashtagList = mutableListOf<Hashtag>()
-        val postingList = mutableListOf<Posting>()
-
-        if(memberRepository.findById(1).isPresent){
-            return;
-        }
-
-        for(i in 1 .. 20){
-            val member = Member(
-                userId = "123456789$i",
-                name = "user$i",
-                email = "user$i@aaa.com",
-                pw = "1234$i",
-                roles = listOf("user")
-            )
-            memberList.add(member)
-        }
-
-        memberRepository.saveAll(memberList)
-
-        for(i in 1 .. 10){
-            val hashtag = Hashtag(
-                tagName = "test tag$i"
-            )
-            hashtagList.add(hashtag)
-        }
-
-        hashtagRepository.saveAll(hashtagList)
-
-        for(i in 1 .. 50000000){
-            val posting = Posting(
-                content = "test posting$i",
-                member = memberList[i % 20],
-            )
-
-            val postingHashtag = mutableListOf(PostingHashtag(
-                posting = posting,
-                hashtag = hashtagList[i % 10]))
-
-            postingRepository.save(posting)
-
-            posting.postingHashtag = postingHashtag
-
-            postingHashtagRepository.save(postingHashtag[0])
-        }
+//        val memberList = mutableListOf<Member>()
+//        val hashtagList = mutableListOf<Hashtag>()
+//        val postingList = mutableListOf<Posting>()
+//
+//        if(memberRepository.findById(1).isPresent){
+//            return;
+//        }
+//
+//        for(i in 1 .. 20){
+//            val member = Member(
+//                userId = "123456789$i",
+//                name = "user$i",
+//                email = "user$i@aaa.com",
+//                pw = "1234$i",
+//                roles = listOf("user")
+//            )
+//            memberList.add(member)
+//        }
+//
+//        memberRepository.saveAll(memberList)
+//
+//        for(i in 1 .. 10){
+//            val hashtag = Hashtag(
+//                tagName = "test tag$i"
+//            )
+//            hashtagList.add(hashtag)
+//        }
+//
+//        hashtagRepository.saveAll(hashtagList)
+//
+//        for(i in 1 .. 50000000){
+//            val posting = Posting(
+//                content = "test posting$i",
+//                member = memberList[i % 20],
+//            )
+//
+//            val postingHashtag = mutableListOf(PostingHashtag(
+//                posting = posting,
+//                hashtag = hashtagList[i % 10]))
+//
+//            postingRepository.save(posting)
+//
+//            posting.postingHashtag = postingHashtag
+//
+//            postingHashtagRepository.save(postingHashtag[0])
+//        }
 
 
     }
