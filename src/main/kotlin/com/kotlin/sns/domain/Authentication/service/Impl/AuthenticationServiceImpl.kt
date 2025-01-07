@@ -3,6 +3,7 @@ package com.kotlin.sns.domain.Authentication.service.Impl
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.common.security.JwtUtil
+import com.kotlin.sns.domain.Authentication.dto.request.RequestReissueDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignInDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
@@ -36,7 +37,7 @@ class AuthenticationServiceImpl(
     @Value("\${jwt.refreshExpiration}") private val refreshExpiration : Long = 0
 ) : AuthenticationService {
 
-    private val logging = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
 
     /**
@@ -49,7 +50,7 @@ class AuthenticationServiceImpl(
      */
     @Transactional
     override fun signUp(requestSignUpDto: RequestSignUpDto): ResponseMemberDto {
-        logging.info { "AuthenticationService signUp " }
+        logger.info { "AuthenticationService signUp " }
         val id = requestSignUpDto.id
         val name = requestSignUpDto.name
         val password = requestSignUpDto.password
@@ -74,7 +75,7 @@ class AuthenticationServiceImpl(
             )
         }
 
-        logging.debug { "user id : $id , email : $email" }
+        logger.debug { "user id : $id , email : $email" }
 
         val member = Member(
             userId = id,
@@ -97,7 +98,7 @@ class AuthenticationServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun signIn(requestSignInDto: RequestSignInDto): ResponseSignInDto {
-        logging.info { "Authentication signIn" }
+        logger.info { "Authentication signIn" }
 
         val id = requestSignInDto.id
         val password = requestSignInDto.password
@@ -120,12 +121,12 @@ class AuthenticationServiceImpl(
             )
         }
 
-        logging.debug { "user id : ${member.userId} , password : $password" }
+        logger.debug { "user id : ${member.userId} , password : $password" }
 
         val token = jwtUtil.createToken(id, member.roles)
         val refreshToken = jwtUtil.createRefreshToken(id)
 
-        logging.debug { "token : $token , refresh token : $refreshToken" }
+        logger.debug { "token : $token , refresh token : $refreshToken" }
 
         redisTemplate.opsForValue().set(id, refreshToken, refreshExpiration, TimeUnit.MILLISECONDS)
 
@@ -139,7 +140,11 @@ class AuthenticationServiceImpl(
      * @param refreshToken
      * @return
      */
-    override fun reissue(refreshToken: String): String {
+    override fun reissue(requestReissueDto: RequestReissueDto): String {
+
+        logger.info{ "Authentication reissue"}
+        val refreshToken = requestReissueDto.refreshToken
+
         //1. refresh token 으로부터 user id 추출
         val userId = jwtUtil.resolveUsername(refreshToken)
 
