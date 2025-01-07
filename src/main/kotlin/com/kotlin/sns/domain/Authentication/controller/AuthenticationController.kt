@@ -1,5 +1,6 @@
 package com.kotlin.sns.domain.Authentication.controller
 
+import com.kotlin.sns.domain.Authentication.dto.request.RequestReissueDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignInDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
@@ -35,8 +36,8 @@ class AuthenticationController (
     }
 
     @PostMapping("/reissue")
-    fun reissue(@RequestParam("refreshToken") refreshToken : String) : String {
-        return authenticationService.reissue(refreshToken)
+    fun reissue(@RequestBody requestReissueDto: RequestReissueDto) : String {
+        return authenticationService.reissue(requestReissueDto)
     }
 
 }

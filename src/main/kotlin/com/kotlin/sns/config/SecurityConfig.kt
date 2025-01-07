@@ -34,7 +34,8 @@ class SecurityConfig (
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-resources/**",
-        "/auth/**",
+        "/auth/signIn",
+        "/auth/signUp",
         "/actuator/**")
     @Bean
     fun filterChain(httpSecurity : HttpSecurity) : SecurityFilterChain {
