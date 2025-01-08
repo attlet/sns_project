@@ -99,16 +99,25 @@ class JwtUtil(
     }
 
     fun resolveUsername(token : String) : String{
-        val subject = Jwts.parserBuilder()
-            .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
-            .build()
-            .parseClaimsJws(token)
-            .body
-            .subject
+        if(token.startsWith("Bearer ")) {
+            val realToken = token.substringAfter("Bearer ")
 
-        return subject
+            return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
+                .build()
+                .parseClaimsJws(realToken)
+                .body
+                .subject
+        }
+        else{
+            throw CustomException(
+                exception = ExceptionConst.AUTH,
+                status = HttpStatus.NOT_FOUND,
+                message = "invalid token parsing in resolveUsername"
+            )
+        }
+
     }
-
 
     /**
      * 포스팅 수정, 삭제 권한을 가진 사용자인지 체크

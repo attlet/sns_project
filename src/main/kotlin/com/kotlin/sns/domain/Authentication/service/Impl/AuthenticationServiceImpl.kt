@@ -6,6 +6,7 @@ import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Authentication.dto.request.RequestReissueDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignInDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
+import com.kotlin.sns.domain.Authentication.dto.response.ResponseReissueDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Authentication.service.AuthenticationService
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
@@ -103,6 +104,7 @@ class AuthenticationServiceImpl(
         val id = requestSignInDto.id
         val password = requestSignInDto.password
 
+        //1. id에 대응되는 member get
         val member = memberRepository.findByUserId(id)
             .orElseThrow {
                 CustomException(
@@ -112,7 +114,7 @@ class AuthenticationServiceImpl(
                 )
             }
 
-        // 비밀번호 확인
+        //2. 비밀번호 일치하는지 확인
         if (!passwordEncoder.matches(password, member.pw)) {
             throw CustomException(
                 ExceptionConst.AUTH,
@@ -121,13 +123,16 @@ class AuthenticationServiceImpl(
             )
         }
 
-        logger.debug { "user id : ${member.userId} , password : $password" }
+        logger.debug { "user id : ${member.id} , password : $password" }
 
+        //3. access token , refresh token 생성
         val token = jwtUtil.createToken(id, member.roles)
         val refreshToken = jwtUtil.createRefreshToken(id)
 
         logger.debug { "token : $token , refresh token : $refreshToken" }
 
+
+        //4. refresh token은 redis에도 세팅. key : user id,  value : refresh token
         redisTemplate.opsForValue().set(id, refreshToken, refreshExpiration, TimeUnit.MILLISECONDS)
 
 
@@ -140,10 +145,12 @@ class AuthenticationServiceImpl(
      * @param refreshToken
      * @return
      */
-    override fun reissue(requestReissueDto: RequestReissueDto): String {
+    @Transactional
+    override fun reissue(requestReissueDto: RequestReissueDto): ResponseReissueDto {
 
         logger.info{ "Authentication reissue"}
         val refreshToken = requestReissueDto.refreshToken
+        val id = requestReissueDto.id
 
         //1. refresh token 으로부터 user id 추출
         val userId = jwtUtil.resolveUsername(refreshToken)
@@ -170,7 +177,15 @@ class AuthenticationServiceImpl(
                 )
             }
 
-        return jwtUtil.createToken(userId, member.roles)
+        //5. redis에 해당 사용자의 refresh token을 새로 갱신
+        val newRefreshToken = jwtUtil.createRefreshToken(userId)
+        redisTemplate.opsForValue().set(id, newRefreshToken)
+        redisTemplate.expire(id, refreshExpiration, TimeUnit.MILLISECONDS)
+
+        //6. 새로운 access token 생성
+        val newToken = jwtUtil.createToken(userId, member.roles)
+
+        return ResponseReissueDto(id = id, accessToken = newToken, refreshToken = newRefreshToken)
     }
 
     override fun logout() {
