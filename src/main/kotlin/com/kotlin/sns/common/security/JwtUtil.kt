@@ -99,24 +99,18 @@ class JwtUtil(
     }
 
     fun resolveUsername(token : String) : String{
+        logger.debug{ "token value : $token "}
+
         if(token.startsWith("Bearer ")) {
-            val realToken = token.substringAfter("Bearer ")
-
-            return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
-                .build()
-                .parseClaimsJws(realToken)
-                .body
-                .subject
-        }
-        else{
-            throw CustomException(
-                exception = ExceptionConst.AUTH,
-                status = HttpStatus.NOT_FOUND,
-                message = "invalid token parsing in resolveUsername"
-            )
+            token.substringAfter("Bearer ")
         }
 
+        return Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
+            .build()
+            .parseClaimsJws(token)
+            .body
+            .subject
     }
 
     /**
