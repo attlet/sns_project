@@ -14,10 +14,10 @@ import jakarta.persistence.Table
 data class Likes(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postingId")
-    private val posting: Posting,
+    private var posting: Posting,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberId")
-    private val member: Member
+    private var member: Member
 ) :BaseEntity() {
 }
