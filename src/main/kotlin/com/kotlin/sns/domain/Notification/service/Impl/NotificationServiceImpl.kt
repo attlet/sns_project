@@ -9,6 +9,7 @@ import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.repository.SseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +28,8 @@ class NotificationService(
     private val notificationProducer: NotificationProducer,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
-    private val sseRepository: SseRepository
+    private val sseRepository: SseRepository,
+    @Value("\${sse.timeout}") private val sseTimeOut : Long = 0
 )  : NotificationService {
 
 
@@ -92,7 +94,7 @@ class NotificationService(
      * @return
      */
     override fun subscribe(userId : Long) : SseEmitter{
-        val emitter = SseEmitter(60 * 1000L)  //60초 연결
+        val emitter = SseEmitter(sseTimeOut)  //60초 연결
 
         sseRepository.save(userId, emitter)
 

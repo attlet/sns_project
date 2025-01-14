@@ -40,7 +40,7 @@ class PostingController (
     fun createPosting(@ModelAttribute requestCreatePostingDto: RequestCreatePostingDto) : ResponsePostingDto{
         return postingService.createPosting(requestCreatePostingDto)
     }
-    @PutMapping
+    @PutMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
     fun updatePosting(@RequestBody requestUpdatePostingDto: RequestUpdatePostingDto) : ResponsePostingDto {
         return postingService.updatePosting(requestUpdatePostingDto)
