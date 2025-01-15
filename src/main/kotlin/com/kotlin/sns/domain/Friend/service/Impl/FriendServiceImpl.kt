@@ -9,14 +9,15 @@ import com.kotlin.sns.domain.Friend.dto.response.ResponseFriendDto
 import com.kotlin.sns.domain.Friend.entity.Friend
 import com.kotlin.sns.domain.Friend.repository.friendRepository
 import com.kotlin.sns.domain.Friend.service.FriendService
+import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
-import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import javax.sound.midi.Receiver
 
 /**
  * friend 비즈니스 로직 처리
@@ -42,6 +43,7 @@ class FriendServiceImpl(
             }
 
         return ResponseFriendDto(
+            friendRequestId = friend.id,
             senderId = friend.sender.id,
             receiverId = friend.receiver.id,
             status = friend.status
@@ -79,16 +81,10 @@ class FriendServiceImpl(
         val savedFriend = friendRepository.save(friend)
 
         //친구 요청 알림 생성
-        notificationService.createNotification(
-            requestCreateNotificationDto = RequestCreateNotificationDto(
-                receiverId = listOf(receiver.id),
-                senderId = sender.id,
-                type = NotificationType.FRIEND_REQUEST,
-                message = "${sender.name} has sent you a friend request."
-            )
-        )
+        notifyForFriendRequest(sender, receiver)
 
         return ResponseFriendDto(
+            friendRequestId = savedFriend.id,
             senderId = savedFriend.sender.id,
             receiverId = savedFriend.receiver.id,
             status = savedFriend.status
@@ -96,6 +92,7 @@ class FriendServiceImpl(
     }
     @Transactional
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
+        val friendRequestId = requestUpdateFriendDto.friendRequestId
         val senderId = requestUpdateFriendDto.senderId
         val receiverId = requestUpdateFriendDto.receiverId
         val status = requestUpdateFriendDto.status
@@ -117,17 +114,21 @@ class FriendServiceImpl(
                 )
             }
 
-        val friend = Friend(
-            sender = sender,
-            receiver = receiver,
-            status = status
-        )
+        val friendRequest = friendRepository.findById(friendRequestId)
+            .orElseThrow{
+                CustomException(
+                    ExceptionConst.FRIEND,
+                    HttpStatus.NOT_FOUND,
+                    "Friend Request id $friendRequestId not found"
+                )
+            }
 
-        val updatedFriend = friendRepository.save(friend)
+        friendRequest.status = status
 
         return ResponseFriendDto(
-            senderId = updatedFriend.sender.id,
-            receiverId = updatedFriend.receiver.id,
+            friendRequestId = friendRequest.id,
+            senderId = friendRequest.sender.id,
+            receiverId = friendRequest.receiver.id,
             status = status
         )
     }
@@ -141,5 +142,24 @@ class FriendServiceImpl(
             )
         }
         friendRepository.deleteById(friendId)
+    }
+
+    /**
+     * 친구 요청 시 상대에게 알림보내는 로직
+     *
+     * @param sender
+     * @param receiver
+     */
+    private fun notifyForFriendRequest(sender : Member, receiver: Member){
+
+        notificationService.createNotification(
+            RequestCreateNotificationDto(
+                receiverId = listOf(receiver.id),
+                senderId = sender.id,
+                type = NotificationType.FRIEND_REQUEST,
+                message = "${sender.name}으로부터 친구 요청이 도착했습니다."
+            )
+        )
+
     }
 }

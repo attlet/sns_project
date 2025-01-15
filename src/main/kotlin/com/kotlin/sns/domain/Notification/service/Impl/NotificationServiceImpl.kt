@@ -4,11 +4,13 @@ import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.repository.SseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +29,8 @@ class NotificationService(
     private val notificationProducer: NotificationProducer,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
-    private val sseRepository: SseRepository
+    private val sseRepository: SseRepository,
+    @Value("\${sse.timeout}") private val sseTimeOut : Long = 0
 )  : NotificationService {
 
 
@@ -49,6 +52,7 @@ class NotificationService(
         val message = requestCreateNotificationDto.message
 
         val notifications = mutableListOf<Notification>()
+        val publishDtos = mutableListOf<RequestPublishDto>()
 
         val sender = senderId?.let {
             memberRepository.findById(it)
@@ -64,12 +68,18 @@ class NotificationService(
                 type = type,
                 message = message
             ))
+
+            publishDtos.add(RequestPublishDto(
+                receiverId = receiver.id,
+                type = type,
+                message = message
+            ))
         }
 
         notificationRepository.saveAll(notifications)
 
         //알림 받는 사람들에게 sse 알림 발송
-        for(notification in notifications) {
+        for(notification in publishDtos) {
 //            sendNotificationToClient(notification.receiver.id, notification)
             notificationProducer.sendNotification(notification)
         }
@@ -92,7 +102,7 @@ class NotificationService(
      * @return
      */
     override fun subscribe(userId : Long) : SseEmitter{
-        val emitter = SseEmitter(60 * 1000L)  //60초 연결
+        val emitter = SseEmitter(sseTimeOut)  //60초 연결
 
         sseRepository.save(userId, emitter)
 

@@ -26,13 +26,13 @@ import org.mapstruct.Builder
 data class Friend (
     @ManyToOne
     @JoinColumn(name = "senderId")
-    val sender : Member,
+    var sender : Member,
 
     @ManyToOne
     @JoinColumn(name = "receiverId")
-    val receiver : Member,
+    var receiver : Member,
 
     @Enumerated(EnumType.STRING)  //enum 타입 값을 엔티티 클래스 속성에 사용하도록 지정
-    val status : friendApplyStatusEnum
+    var status : friendApplyStatusEnum
 ) : BaseEntity(){
 }

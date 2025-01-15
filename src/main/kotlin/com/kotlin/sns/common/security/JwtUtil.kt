@@ -99,16 +99,19 @@ class JwtUtil(
     }
 
     fun resolveUsername(token : String) : String{
-        val subject = Jwts.parserBuilder()
+        logger.debug{ "token value : $token "}
+
+        if(token.startsWith("Bearer ")) {
+            token.substringAfter("Bearer ")
+        }
+
+        return Jwts.parserBuilder()
             .setSigningKey(Keys.hmacShaKeyFor(secret.toByteArray()))
             .build()
             .parseClaimsJws(token)
             .body
             .subject
-
-        return subject
     }
-
 
     /**
      * 포스팅 수정, 삭제 권한을 가진 사용자인지 체크

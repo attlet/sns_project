@@ -126,7 +126,7 @@ class PostingServiceImpl(
 
         //5. 친구가 있다면, 알림 발송
         notifyForNewPosting(writerId)
-
+        
         logger.debug { "imageUrlList : $imageUrlList" }
 
         return ResponsePostingDto(

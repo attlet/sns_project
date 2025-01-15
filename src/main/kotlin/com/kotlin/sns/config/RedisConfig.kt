@@ -1,14 +1,30 @@
 package com.kotlin.sns.config
 
+import com.kotlin.sns.domain.Notification.messageQueue.NotificationRedisConsumer
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.listener.ChannelTopic
+import org.springframework.data.redis.listener.RedisMessageListenerContainer
 import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
-class RedisConfig {
+class RedisConfig(
+    @Value("\${redis.host}") private val host : String,
+    @Value("\${redis.port}") private val port : Int
+) {
+
+    @Bean
+    fun redisConnectionFactory() : RedisConnectionFactory {
+        val redisStandaloneConfiguration = RedisStandaloneConfiguration();
+        redisStandaloneConfiguration.hostName = host
+        redisStandaloneConfiguration.port = port
+        return LettuceConnectionFactory(redisStandaloneConfiguration);   //Lettuce vs Jedis 중 lettuce를 선택.
+    }
 
     /**
      * redisTemplate : redis와 통신할 때 사용되는 핵심적인 객체
@@ -36,4 +52,5 @@ class RedisConfig {
     fun topic(): ChannelTopic{
         return ChannelTopic("notification_channel")  //채널 이름을 설정
     }
+
 }

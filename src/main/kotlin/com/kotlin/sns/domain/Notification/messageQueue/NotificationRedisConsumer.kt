@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.repository.SseRepository
 import org.springframework.context.annotation.Profile
@@ -18,11 +19,11 @@ class NotificationRedisConsumer(
 ) : NotificationConsumer, MessageListener{
     override fun onMessage(message: Message, pattern: ByteArray?) {
         val notificationJson = String(message.body)
-        val notification = objectMapper.readValue(notificationJson, Notification::class.java)  //json 다시 객체로 변환
+        val notification = objectMapper.readValue(notificationJson, RequestPublishDto::class.java)  //json 다시 객체로 변환
         receiveMessage(notification)
     }
-    override fun receiveMessage(notification: Notification) {
-        val receiverId = notification.receiver.id
+    override fun receiveMessage(requestPublishDto: RequestPublishDto) {
+        val receiverId = requestPublishDto.receiverId
         val emitter = sseRepository.get(receiverId)             //추후 처리하는 로직 작성 필요
 
         if(emitter != null){
@@ -31,7 +32,7 @@ class NotificationRedisConsumer(
                     SseEmitter
                         .event()
                         .name("notification")
-                        .data(notification))
+                        .data(requestPublishDto))
             } catch (e : IOException){
                 sseRepository.remove(receiverId)   //추후 체크 필요
             }

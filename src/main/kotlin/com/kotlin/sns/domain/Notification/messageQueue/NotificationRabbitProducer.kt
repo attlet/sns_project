@@ -1,5 +1,6 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
+import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import org.springframework.amqp.core.Exchange
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -33,7 +34,7 @@ class NotificationRabbitProducer(
     @Value("\${spring.rabbitmq.routing-key}")
     private lateinit var routingKey: String
 
-    override fun sendNotification(notification: Notification) {
-        rabbitTemplate.convertAndSend(exchange.name, routingKey, notification)
+    override fun sendNotification(requestPublishDto: RequestPublishDto) {
+        rabbitTemplate.convertAndSend(exchange.name, routingKey, requestPublishDto)
     }
 }
