@@ -4,6 +4,7 @@ import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
@@ -51,6 +52,7 @@ class NotificationService(
         val message = requestCreateNotificationDto.message
 
         val notifications = mutableListOf<Notification>()
+        val publishDtos = mutableListOf<RequestPublishDto>()
 
         val sender = senderId?.let {
             memberRepository.findById(it)
@@ -66,12 +68,18 @@ class NotificationService(
                 type = type,
                 message = message
             ))
+
+            publishDtos.add(RequestPublishDto(
+                receiverId = receiver.id,
+                type = type,
+                message = message
+            ))
         }
 
         notificationRepository.saveAll(notifications)
 
         //알림 받는 사람들에게 sse 알림 발송
-        for(notification in notifications) {
+        for(notification in publishDtos) {
 //            sendNotificationToClient(notification.receiver.id, notification)
             notificationProducer.sendNotification(notification)
         }
