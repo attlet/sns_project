@@ -10,5 +10,5 @@ interface NotificationService {
     fun createNotification(requestCreateNotificationDto: RequestCreateNotificationDto)
     fun getNotificationsForUser(receiverId: Long): List<Notification>
     fun subscribe(userId : Long) : SseEmitter
-    fun sendNotificationToClient(userId: Long, notification: Notification)
+    fun sendNotificationToClient(userId: Long, dummy : String)
 }
