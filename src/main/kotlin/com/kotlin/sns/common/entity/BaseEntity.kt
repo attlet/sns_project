@@ -22,14 +22,14 @@ open를 통해 상속이 가능하도록 선언
 open class BaseEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id : Long = 0 ,
+    var id : Long = 0 ,
 
     @Column(updatable = false)
     @CreatedDate
-    val createdDt : Instant = Instant.now(),
+    var createdDt : Instant = Instant.now(),
 
     @LastModifiedDate
-    val updateDt : Instant = Instant.now()
+    var updateDt : Instant = Instant.now()
 ){
 
 }

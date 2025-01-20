@@ -2,7 +2,7 @@ package com.kotlin.sns.domain.Friend.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Friend.const.friendApplyStatusEnum
+import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Friend.dto.request.RequestCreateFriendDto
 import com.kotlin.sns.domain.Friend.dto.request.RequestUpdateFriendDto
 import com.kotlin.sns.domain.Friend.dto.response.ResponseFriendDto
@@ -17,7 +17,6 @@ import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import javax.sound.midi.Receiver
 
 /**
  * friend 비즈니스 로직 처리
@@ -53,7 +52,7 @@ class FriendServiceImpl(
     override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
         val receiverId = requestCreateFriendDto.receiverId
-        val status = friendApplyStatusEnum.PENDING
+        val status = FriendApplyStatusEnum.PENDING
 
         val sender = memberRepository.findById(senderId)
             .orElseThrow {

@@ -1,9 +1,8 @@
 package com.kotlin.sns.domain.Member.repository.Impl
 
-import com.kotlin.sns.domain.Friend.const.friendApplyStatusEnum
+
 import com.kotlin.sns.domain.Friend.entity.QFriend
 import com.kotlin.sns.domain.Member.repository.MemberRepositoryCustom
-import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
 
