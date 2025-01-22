@@ -79,9 +79,9 @@ class NotificationService(
         notificationRepository.saveAll(notifications)
 
         //알림 받는 사람들에게 sse 알림 발송
-        for(notification in publishDtos) {
+        for(publishDto in publishDtos) {
 //            sendNotificationToClient(notification.receiver.id, notification)
-            notificationProducer.sendNotification(notification)
+            notificationProducer.sendNotification(publishDto)
         }
 
     }
@@ -106,6 +106,7 @@ class NotificationService(
 
         sseRepository.save(userId, emitter)
 
+        sendNotificationToClient(userId, "dummy")
         emitter.onCompletion { sseRepository.remove(userId)}
         emitter.onTimeout{ sseRepository.remove(userId)}
         emitter.onError { sseRepository.remove(userId) }
@@ -117,17 +118,17 @@ class NotificationService(
      * parameter로 받은 userId를 가진 member에게 notification 전송하는 메서드
      *
      * @param userId
-     * @param notification
+     * @param dummy
      */
-    override fun sendNotificationToClient(userId: Long, notification: Notification) {
+    override fun sendNotificationToClient(userId: Long, dummy : String) {
         val emitter = sseRepository.get(userId)             //추후 처리하는 로직 작성 필요
 
         if(emitter != null){
             try{
                 emitter.send(SseEmitter
                     .event()
-                    .name("notification")
-                    .data(notification))
+                    .name("dummy data")
+                    .data(dummy))
             } catch (e : IOException){
                 sseRepository.remove(userId)   //추후 체크 필요
             }

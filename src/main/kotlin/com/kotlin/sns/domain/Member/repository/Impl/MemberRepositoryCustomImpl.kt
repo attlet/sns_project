@@ -1,5 +1,6 @@
 package com.kotlin.sns.domain.Member.repository.Impl
 
+
 import com.kotlin.sns.domain.Friend.entity.QFriend
 import com.kotlin.sns.domain.Member.repository.MemberRepositoryCustom
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -18,11 +19,11 @@ class MemberRepositoryCustomImpl(
      * @param senderId
      * @return
      */
-    override fun findFriendsId(senderId: Long): List<Long> {
-        return jpaQueryFactory
-            .select(qFriend.receiver.id)
-            .from(qFriend)
-            .where(qFriend.sender.id.eq(senderId))
-            .fetch()
-    }
+//    override fun findFriendsId(senderId: Long): List<Long> {
+//        return jpaQueryFactory
+//            .select(qFriend.receiver.id)
+//            .from(qFriend)
+//            .where(qFriend.sender.id.eq(senderId))
+//            .fetch()
+//    }
 }

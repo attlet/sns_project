@@ -2,7 +2,7 @@ package com.kotlin.sns.domain.Friend.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Friend.const.friendApplyStatusEnum
+import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Friend.dto.request.RequestCreateFriendDto
 import com.kotlin.sns.domain.Friend.dto.request.RequestUpdateFriendDto
 import com.kotlin.sns.domain.Friend.dto.response.ResponseFriendDto
@@ -17,7 +17,6 @@ import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import javax.sound.midi.Receiver
 
 /**
  * friend 비즈니스 로직 처리
@@ -31,6 +30,12 @@ class FriendServiceImpl(
     private val notificationService: NotificationService
 ) : FriendService {
 
+    /**
+     * friend id 기반으로 하나 조회
+     *
+     * @param friendId
+     * @return
+     */
     @Transactional(readOnly = true)
     override fun findFriendById(friendId: Long): ResponseFriendDto {
         val friend = friendRepository.findById(friendId)
@@ -49,11 +54,18 @@ class FriendServiceImpl(
             status = friend.status
         )
     }
+
+    /**
+     * 친구 요청 보낼 때 로직
+     *
+     * @param requestCreateFriendDto
+     * @return
+     */
     @Transactional
     override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
         val receiverId = requestCreateFriendDto.receiverId
-        val status = friendApplyStatusEnum.PENDING
+        val status = FriendApplyStatusEnum.PENDING
 
         val sender = memberRepository.findById(senderId)
             .orElseThrow {
@@ -90,6 +102,16 @@ class FriendServiceImpl(
             status = savedFriend.status
         )
     }
+
+    /**
+     * 친구 요청에 대해 응답에 대한 처리
+     *
+     * ACCEPT : 수락
+     * BLOCKED : 거절
+     *
+     * @param requestUpdateFriendDto
+     * @return
+     */
     @Transactional
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
         val friendRequestId = requestUpdateFriendDto.friendRequestId

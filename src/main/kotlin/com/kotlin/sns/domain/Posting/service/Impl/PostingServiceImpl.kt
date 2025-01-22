@@ -3,6 +3,7 @@ package com.kotlin.sns.domain.Posting.service.Impl
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.common.security.JwtUtil
+import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Hashtag.entity.Hashtag
 import com.kotlin.sns.domain.Hashtag.repository.HashtagRepository
 import com.kotlin.sns.domain.Image.entity.Image
@@ -310,7 +311,7 @@ class PostingServiceImpl(
      * @param writerId
      */
     private fun notifyForNewPosting(writerId : Long){
-        val friends = memberRepository.findFriendsId(writerId)
+        val friends = memberRepository.findFriendsId(writerId, FriendApplyStatusEnum.ACCEPT)
 
         notificationService.createNotification(
             RequestCreateNotificationDto(

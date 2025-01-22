@@ -1,10 +1,9 @@
 package com.kotlin.sns.domain.Friend.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
-import com.kotlin.sns.domain.Friend.const.friendApplyStatusEnum
+import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Member.entity.Member
 import jakarta.persistence.*
-import org.mapstruct.Builder
 
 /**
  * friend entity class
@@ -23,7 +22,7 @@ import org.mapstruct.Builder
  */
 @Entity
 @Table(name = "friend")
-data class Friend (
+class Friend (
     @ManyToOne
     @JoinColumn(name = "senderId")
     var sender : Member,
@@ -33,6 +32,6 @@ data class Friend (
     var receiver : Member,
 
     @Enumerated(EnumType.STRING)  //enum 타입 값을 엔티티 클래스 속성에 사용하도록 지정
-    var status : friendApplyStatusEnum
+    var status : FriendApplyStatusEnum
 ) : BaseEntity(){
 }

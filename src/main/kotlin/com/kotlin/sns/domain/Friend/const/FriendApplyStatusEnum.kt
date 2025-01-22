@@ -8,7 +8,7 @@ blocked : 친구 신청 거절
 pending : 아직 처리 안 함
 
  */
-enum class friendApplyStatusEnum {
+enum class FriendApplyStatusEnum {
     ACCEPT,
     BLOCKED,
     PENDING

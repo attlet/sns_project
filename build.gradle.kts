@@ -39,6 +39,8 @@ dependencies {
 	//querydsl 설정
 	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
 	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+	kapt("jakarta.annotation:jakarta.annotation-api")
+	kapt("jakarta.persistence:jakarta.persistence-api")
 
 	//mapStruct 의존성
 	implementation("org.mapstruct:mapstruct:1.4.2.Final")
@@ -80,14 +82,38 @@ dependencies {
 
 }
 
-kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll("-Xjsr305=strict")
+
+// Querydsl 설정부 추가 - start
+val generated = file("src/main/generated")
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType<JavaCompile> {
+	options.generatedSourceOutputDirectory.set(generated)
+}
+
+// kotlin source set 에 querydsl QClass 위치 추가
+sourceSets {
+	main {
+		kotlin.srcDirs += generated
 	}
 }
 
-val querydslDir = "${layout.buildDirectory}/generated/querydsl"
+// gradle clean 시에 QClass 디렉토리 삭제
+tasks.named("clean") {
+	doLast {
+		generated.deleteRecursively()
+	}
+}
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+
+kapt {
+	generateStubs = true
+}
+
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+	kotlinOptions {
+		freeCompilerArgs += listOf("-Xjsr305=strict")
+		jvmTarget = "17"
+	}
 }
