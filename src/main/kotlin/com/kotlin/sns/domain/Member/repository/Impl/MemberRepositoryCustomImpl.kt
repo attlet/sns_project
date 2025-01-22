@@ -19,11 +19,11 @@ class MemberRepositoryCustomImpl(
      * @param senderId
      * @return
      */
-    override fun findFriendsId(senderId: Long): List<Long> {
-        return jpaQueryFactory
-            .select(qFriend.receiver.id)
-            .from(qFriend)
-            .where(qFriend.sender.id.eq(senderId))
-            .fetch()
-    }
+//    override fun findFriendsId(senderId: Long): List<Long> {
+//        return jpaQueryFactory
+//            .select(qFriend.receiver.id)
+//            .from(qFriend)
+//            .where(qFriend.sender.id.eq(senderId))
+//            .fetch()
+//    }
 }

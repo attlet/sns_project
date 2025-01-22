@@ -18,5 +18,5 @@ interface MemberRepository : JpaRepository<Member, Long>, MemberRepositoryCustom
     @Query("SELECT f.receiver.id " +
             "FROM Friend f " +
             "WHERE f.sender.id = :senderId AND f.status = :status")
-    fun findFriendsId(receiverId : Long, senderId : Long, status : FriendApplyStatusEnum)
+    fun findFriendsId(senderId : Long, status : FriendApplyStatusEnum) : List<Long>
 }

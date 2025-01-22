@@ -30,6 +30,12 @@ class FriendServiceImpl(
     private val notificationService: NotificationService
 ) : FriendService {
 
+    /**
+     * friend id 기반으로 하나 조회
+     *
+     * @param friendId
+     * @return
+     */
     @Transactional(readOnly = true)
     override fun findFriendById(friendId: Long): ResponseFriendDto {
         val friend = friendRepository.findById(friendId)
@@ -48,6 +54,13 @@ class FriendServiceImpl(
             status = friend.status
         )
     }
+
+    /**
+     * 친구 요청 보낼 때 로직
+     *
+     * @param requestCreateFriendDto
+     * @return
+     */
     @Transactional
     override fun sendFriend(requestCreateFriendDto: RequestCreateFriendDto): ResponseFriendDto {
         val senderId = requestCreateFriendDto.senderId
@@ -89,6 +102,16 @@ class FriendServiceImpl(
             status = savedFriend.status
         )
     }
+
+    /**
+     * 친구 요청에 대해 응답에 대한 처리
+     *
+     * ACCEPT : 수락
+     * BLOCKED : 거절
+     *
+     * @param requestUpdateFriendDto
+     * @return
+     */
     @Transactional
     override fun updateFriend(requestUpdateFriendDto: RequestUpdateFriendDto): ResponseFriendDto {
         val friendRequestId = requestUpdateFriendDto.friendRequestId
