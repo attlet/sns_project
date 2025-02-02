@@ -155,7 +155,7 @@ class FriendServiceImpl(
 
         friendRequest.status = status
 
-        notifyForFriendRequestUpdate(sender, receiver, status)
+        notifyForFriendRequestUpdate(sender, receiver, friendRequestId, status)
 
         return ResponseFriendDto(
             friendRequestId = friendRequest.id,
@@ -201,12 +201,13 @@ class FriendServiceImpl(
      * @param sender
      * @param receiver
      */
-    private fun notifyForFriendRequestUpdate(sender : Member, receiver: Member, type : FriendApplyStatusEnum){
+    private fun notifyForFriendRequestUpdate(sender : Member, receiver: Member, friendId : Long, type : FriendApplyStatusEnum){
 
         notificationService.createNotification(
             RequestCreateNotificationDto(
                 receiverId = listOf(receiver.id),
                 senderId = sender.id,
+                friendId = friendId,
                 type = NotificationType.Friend_RESPONSE,
                 message = "${sender.name}이 친구 요청을 ${type.name} 했습니다."
             )
