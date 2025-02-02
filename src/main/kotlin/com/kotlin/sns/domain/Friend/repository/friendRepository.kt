@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface friendRepository : JpaRepository<Friend, Long> {
+interface friendRepository : JpaRepository<Friend, Long>, friendRepositoryCustom {
 }
