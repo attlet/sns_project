@@ -67,6 +67,14 @@ class FriendServiceImpl(
         val receiverId = requestCreateFriendDto.receiverId
         val status = FriendApplyStatusEnum.PENDING
 
+        //만약 이미 친구 요청을 보낸 상대라면 exception 반환
+        if(friendRepository.isFriendRequestExist(receiverId, senderId)){
+            throw CustomException(
+                ExceptionConst.FRIEND,
+                HttpStatus.CONFLICT,
+                "Already send friend request to $senderId")
+        }
+
         val sender = memberRepository.findById(senderId)
             .orElseThrow {
                 CustomException(
