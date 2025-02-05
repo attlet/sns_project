@@ -30,6 +30,11 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+
+	//test 시에도 kotlin 1.9.25 사용을 명시
+	testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.25")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.9.25")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 
