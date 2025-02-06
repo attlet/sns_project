@@ -4,8 +4,9 @@ import com.kotlin.sns.domain.Notification.entity.NotificationType
 
 data class RequestCreateNotificationDto (
     val receiverId : List<Long>,
-    val senderId : Long?,
+    val senderId : Long? = null,
+    val friendId : Long? = null,
     val type : NotificationType,
-    val message : String,
+    val message : String
 ){
 }
