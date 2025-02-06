@@ -38,6 +38,9 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 
+	//aop
+	implementation("org.springframework.boot:spring-boot-starter-aop")
+
 	//db 연동
 	implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")
 
