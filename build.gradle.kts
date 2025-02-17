@@ -1,5 +1,5 @@
 plugins {
-	val kotlinVersion = "1.9.25"
+	val kotlinVersion = "1.8.20"
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
 	id("org.springframework.boot") version "3.2.9"
@@ -28,14 +28,14 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+	//test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-
-	//test 시에도 kotlin 1.9.25 사용을 명시
-	testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.25")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.9.25")
-
+	testImplementation("org.mockito:mockito-core:5.2.0")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 
 	//aop
@@ -104,6 +104,10 @@ sourceSets {
 	main {
 		kotlin.srcDirs += generated
 	}
+
+	test {
+		kotlin.srcDirs("src/test/kotlin")
+	}
 }
 
 // gradle clean 시에 QClass 디렉토리 삭제
@@ -124,4 +128,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 		freeCompilerArgs += listOf("-Xjsr305=strict")
 		jvmTarget = "17"
 	}
+}
+
+tasks.test {
+	useJUnitPlatform()
 }
