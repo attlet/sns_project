@@ -1,10 +1,10 @@
-package com.kotlin.sns.domain.Member.controller
+package com.kotlin.sns.domain.member.controller
 
 import com.kotlin.sns.domain.Image.service.FileStorageService
-import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
-import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.service.MemberService
+import com.kotlin.sns.domain.member.dto.request.RequestCreateMemberDto
+import com.kotlin.sns.domain.member.dto.request.RequestUpdateMemberDto
+import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.member.service.MemberService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.tags.Tag

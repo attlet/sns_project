@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Comment.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
-import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.member.entity.Member
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
 

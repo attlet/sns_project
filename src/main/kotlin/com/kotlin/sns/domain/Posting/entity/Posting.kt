@@ -4,7 +4,7 @@ import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Likes.entity.Likes
-import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.member.entity.Member
 import com.kotlin.sns.domain.PostingHashtag.entity.PostingHashtag
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column

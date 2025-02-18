@@ -10,7 +10,7 @@ import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Comment.mapper.CommentMapper
 import com.kotlin.sns.domain.Comment.repository.CommentRepository
 import com.kotlin.sns.domain.Comment.service.CommentService
-import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.member.repository.MemberRepository
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional

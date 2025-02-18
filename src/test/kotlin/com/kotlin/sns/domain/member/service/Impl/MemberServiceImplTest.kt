@@ -1,22 +1,17 @@
-package com.kotlin.sns.domain.Member.service.Impl
+package com.kotlin.sns.domain.member.service.Impl
 
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.entity.Member
-import com.kotlin.sns.domain.Member.mapper.MemberMapper
-import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.member.entity.Member
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-import org.junit.jupiter.api.Assertions.*
-import java.util.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
-
+@SpringBootTest
 class MemberServiceImplTest {
 
-    private lateinit var memberRepository: MemberRepository
-    private lateinit var memberMapper: MemberMapper
+    @Autowired
     private lateinit var memberService: MemberServiceImpl
     @Test
     fun findMemberByIdReturnsMemberWhenExists() {
@@ -34,7 +29,7 @@ class MemberServiceImplTest {
 //        whenever(memberMapper.toDto(member)).thenReturn(responseMember)
 //
 //        // when
-//        val result = memberService.findMemberById(memberId)
+        memberService.findMemberById(1L)
 
         // then
         assertThat(responseMember).isEqualTo(responseMember)

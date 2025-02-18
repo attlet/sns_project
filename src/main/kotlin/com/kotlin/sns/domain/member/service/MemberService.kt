@@ -1,9 +1,8 @@
-package com.kotlin.sns.domain.Member.service
+package com.kotlin.sns.domain.member.service
 
-import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
-import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.member.dto.request.RequestCreateMemberDto
+import com.kotlin.sns.domain.member.dto.request.RequestUpdateMemberDto
+import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
 
 
 interface MemberService {

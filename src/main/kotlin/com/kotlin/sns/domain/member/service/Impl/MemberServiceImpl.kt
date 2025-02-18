@@ -1,19 +1,17 @@
-package com.kotlin.sns.domain.Member.service.Impl
+package com.kotlin.sns.domain.member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.common.security.JwtUtil
-import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
-import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.mapper.MemberMapper
-import com.kotlin.sns.domain.Member.repository.MemberRepository
-import com.kotlin.sns.domain.Member.service.MemberService
+import com.kotlin.sns.domain.member.dto.request.RequestCreateMemberDto
+import com.kotlin.sns.domain.member.dto.request.RequestUpdateMemberDto
+import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.member.mapper.MemberMapper
+import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.member.service.MemberService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

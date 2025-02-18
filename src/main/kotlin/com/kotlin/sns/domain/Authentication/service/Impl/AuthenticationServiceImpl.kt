@@ -9,10 +9,10 @@ import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseReissueDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Authentication.service.AuthenticationService
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.Member.entity.Member
-import com.kotlin.sns.domain.Member.mapper.MemberMapper
-import com.kotlin.sns.domain.Member.repository.MemberRepository
+import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.member.entity.Member
+import com.kotlin.sns.domain.member.mapper.MemberMapper
+import com.kotlin.sns.domain.member.repository.MemberRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.redis.core.RedisTemplate

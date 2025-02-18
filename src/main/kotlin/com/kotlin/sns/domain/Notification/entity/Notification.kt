@@ -1,9 +1,8 @@
 package com.kotlin.sns.domain.Notification.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
-import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.member.entity.Member
 import jakarta.persistence.*
-import java.time.LocalDateTime
 
 @Entity
 data class Notification(
