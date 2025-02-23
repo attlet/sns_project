@@ -78,6 +78,10 @@ dependencies {
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
+	//Caffeine 내장 캐시
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
+
 	//kafka
 	implementation("org.springframework.kafka:spring-kafka")
 
