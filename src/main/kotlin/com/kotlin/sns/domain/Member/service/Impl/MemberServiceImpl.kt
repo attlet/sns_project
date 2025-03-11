@@ -5,9 +5,11 @@ import com.kotlin.sns.common.exception.ExceptionConst
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
+import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
@@ -31,6 +33,7 @@ class MemberServiceImpl(
 
     /**
      * uuid 기반으로 member 반환
+     * 해당 member의 공개할 모든 정보를 조회
      *
      * @param memberId
      * @return
@@ -158,4 +161,20 @@ class MemberServiceImpl(
                 )
             }
     }
+
+
+//    private fun createResponseMemberDto(member : Member) : ResponseMemberDto{
+////        val postingList = member.postings?.map { posting -> ResponsePostingDto(
+////            postingId = posting.id,
+////            writerId = member.id,
+////            writerName = member.name,
+////            content = posting.content,
+////
+////            ) }
+////
+////        return ResponseMemberDto(
+////            name = member.name,
+////            uploadedPostingList =
+////        )
+//    }
 }
