@@ -1,7 +1,7 @@
-package com.kotlin.sns.domain.member.repository
+package com.kotlin.sns.domain.Member.repository
 
 import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
-import com.kotlin.sns.domain.member.entity.Member
+import com.kotlin.sns.domain.Member.entity.Member
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.util.*

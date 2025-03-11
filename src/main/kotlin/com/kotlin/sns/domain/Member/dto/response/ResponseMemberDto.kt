@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.member.dto.response
+package com.kotlin.sns.domain.Member.dto.response
 
 /**
  * 기본적인 member 처리 반환 dto

@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.member.dto.request
+package com.kotlin.sns.domain.Member.dto.request
 
 /**
  * member 생성 시 양식 dto

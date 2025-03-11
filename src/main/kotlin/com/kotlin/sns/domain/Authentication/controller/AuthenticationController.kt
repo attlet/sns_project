@@ -6,7 +6,7 @@ import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseReissueDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Authentication.service.AuthenticationService
-import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping

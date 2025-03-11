@@ -10,8 +10,8 @@ import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.FileStorageService
 import com.kotlin.sns.domain.Image.service.ImageService
-import com.kotlin.sns.domain.member.entity.Member
-import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.entity.NotificationType
 import com.kotlin.sns.domain.Notification.service.NotificationService

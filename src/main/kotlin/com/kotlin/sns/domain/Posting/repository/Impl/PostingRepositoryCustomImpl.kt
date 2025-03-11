@@ -3,7 +3,7 @@ package com.kotlin.sns.domain.Posting.repository.Impl
 import com.kotlin.sns.domain.Comment.entity.QComment
 import com.kotlin.sns.domain.Hashtag.entity.QHashtag
 import com.kotlin.sns.domain.Image.entity.QImage
-import com.kotlin.sns.domain.member.entity.QMember
+import com.kotlin.sns.domain.Member.entity.QMember
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.entity.QPosting

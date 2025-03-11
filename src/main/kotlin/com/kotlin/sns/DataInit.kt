@@ -1,7 +1,7 @@
 package com.kotlin.sns
 
 import com.kotlin.sns.domain.Hashtag.repository.HashtagRepository
-import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.PostingHashtag.repository.PostingHashtagRepository
 import org.springframework.boot.CommandLineRunner

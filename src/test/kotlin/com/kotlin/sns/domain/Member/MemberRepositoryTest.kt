@@ -1,7 +1,7 @@
-package com.kotlin.sns.domain.member
+package com.kotlin.sns.domain.Member
 
-import com.kotlin.sns.domain.member.entity.Member
-import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Member.repository.MemberRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

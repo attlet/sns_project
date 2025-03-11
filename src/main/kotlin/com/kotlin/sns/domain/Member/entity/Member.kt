@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.member.entity
+package com.kotlin.sns.domain.Member.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Image.entity.Image

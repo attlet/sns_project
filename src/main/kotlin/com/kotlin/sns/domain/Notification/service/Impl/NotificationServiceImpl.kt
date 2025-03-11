@@ -2,7 +2,7 @@ package com.kotlin.sns.domain.Notification.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification

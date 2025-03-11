@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.member.dto.response
+package com.kotlin.sns.domain.Member.dto.response
 
 /**
  * 멤버 조회 시 반환 dto

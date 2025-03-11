@@ -1,9 +1,9 @@
-package com.kotlin.sns.domain.member.mapper
+package com.kotlin.sns.domain.Member.mapper
 
-import com.kotlin.sns.domain.member.dto.request.RequestCreateMemberDto
-import com.kotlin.sns.domain.member.dto.request.RequestUpdateMemberDto
-import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.member.entity.Member
+import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
+import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
+import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.Member.entity.Member
 import org.mapstruct.Mapper
 
 /**

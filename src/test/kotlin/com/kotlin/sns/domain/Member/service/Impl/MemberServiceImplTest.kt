@@ -1,8 +1,8 @@
-package com.kotlin.sns.domain.member.service.Impl
+package com.kotlin.sns.domain.Member.service.Impl
 
-import com.kotlin.sns.domain.member.dto.response.ResponseMemberDto
-import com.kotlin.sns.domain.member.entity.Member
-import com.kotlin.sns.domain.member.repository.MemberRepository
+import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
+import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Member.repository.MemberRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever

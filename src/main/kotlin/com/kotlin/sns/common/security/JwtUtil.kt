@@ -2,7 +2,7 @@ package com.kotlin.sns.common.security
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.member.entity.Member
+import com.kotlin.sns.domain.Member.entity.Member
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
