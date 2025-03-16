@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Member.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
+import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
@@ -45,6 +46,9 @@ data class Member(
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var postings: List<Posting> = mutableListOf(),
+
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
+    var comments : List<Comment> = mutableListOf(),
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var profileImageUrl: List<Image>? = mutableListOf(),
