@@ -13,17 +13,5 @@ class MemberRepositoryCustomImpl(
 
     private val qFriend = QFriend.friend
 
-    /**
-     * sender와 친구관계인 member들의 id값 조회
-     *
-     * @param senderId
-     * @return
-     */
-//    override fun findFriendsId(senderId: Long): List<Long> {
-//        return jpaQueryFactory
-//            .select(qFriend.receiver.id)
-//            .from(qFriend)
-//            .where(qFriend.sender.id.eq(senderId))
-//            .fetch()
-//    }
+
 }
