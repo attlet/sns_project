@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-	val kotlinVersion = "1.9.25"
+	val kotlinVersion = "1.8.20"
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
-	id("org.springframework.boot") version "3.2.9"
-	id("io.spring.dependency-management") version "1.1.6"
+	id("org.springframework.boot") version "3.2.5"
+	id("io.spring.dependency-management") version "1.1.4"
 	kotlin("plugin.jpa") version kotlinVersion
 	kotlin("kapt") version kotlinVersion
 }
@@ -28,14 +30,15 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
-	//test 시에도 kotlin 1.9.25 사용을 명시
-	testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.25")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.9.25")
+	//test
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+	}
+	testImplementation("org.mockito:mockito-core:5.2.0")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+	runtimeOnly("com.h2database:h2")
 
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 
 	//aop
@@ -75,6 +78,10 @@ dependencies {
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
+	//Caffeine 내장 캐시
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
+
 	//kafka
 	implementation("org.springframework.kafka:spring-kafka")
 
@@ -104,8 +111,10 @@ sourceSets {
 	main {
 		kotlin.srcDirs += generated
 	}
+	test {
+		kotlin.srcDirs("src/test/kotlin")
+	}
 }
-
 // gradle clean 시에 QClass 디렉토리 삭제
 tasks.named("clean") {
 	doLast {
@@ -124,4 +133,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 		freeCompilerArgs += listOf("-Xjsr305=strict")
 		jvmTarget = "17"
 	}
+}
+
+tasks.named<Test>("test") {
+	useJUnitPlatform()
 }

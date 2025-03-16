@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 알림 로직

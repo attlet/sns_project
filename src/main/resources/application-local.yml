@@ -20,6 +20,10 @@ spring:
     queue: notification_queue
     exchange: notification_exchange
     routing_key: notification_key
+  cache:
+    type: caffeine   #caffeine 캐시 설정
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=600s
 
   notification:
     broker: rabbitmq
@@ -59,3 +63,5 @@ jwt:
 
 sse:
   timeout: 3600000  #60 * 60 * 1000
+
+

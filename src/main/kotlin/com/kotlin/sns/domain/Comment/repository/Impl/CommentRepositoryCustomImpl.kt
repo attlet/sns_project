@@ -4,7 +4,6 @@ package com.kotlin.sns.domain.Comment.repository.Impl
 import com.kotlin.sns.domain.Comment.entity.Comment
 import com.kotlin.sns.domain.Comment.entity.QComment
 import com.kotlin.sns.domain.Comment.repository.CommentRepositoryCustom
-import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
 

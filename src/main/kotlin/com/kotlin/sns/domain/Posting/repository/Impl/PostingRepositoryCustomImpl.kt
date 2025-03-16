@@ -5,13 +5,11 @@ import com.kotlin.sns.domain.Hashtag.entity.QHashtag
 import com.kotlin.sns.domain.Image.entity.QImage
 import com.kotlin.sns.domain.Member.entity.QMember
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
-import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.entity.QPosting
 import com.kotlin.sns.domain.Posting.repository.PostingRepositoryCustom
 import com.kotlin.sns.domain.PostingHashtag.entity.QPostingHashtag
 import com.querydsl.core.BooleanBuilder
-import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
 import java.util.Optional

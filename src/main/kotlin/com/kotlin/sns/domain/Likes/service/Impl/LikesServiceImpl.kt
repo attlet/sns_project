@@ -7,7 +7,6 @@ import com.kotlin.sns.domain.Likes.entity.Likes
 import com.kotlin.sns.domain.Likes.repository.LikesRepository
 import com.kotlin.sns.domain.Likes.service.LikesService
 import com.kotlin.sns.domain.Member.repository.MemberRepository
-import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
