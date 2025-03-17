@@ -8,7 +8,7 @@ import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 
 interface AuthenticationService {
-    fun signUp(requestSignUpDto: RequestSignUpDto) : ResponseMemberDto;
+    fun signUp(requestSignUpDto: RequestSignUpDto) : String;
     fun signIn(requestSignInDto: RequestSignInDto) : ResponseSignInDto;
     fun reissue(requestReissueDto: RequestReissueDto) : ResponseReissueDto
     fun logout();

@@ -23,7 +23,7 @@ class AuthenticationController (
     private val logger = KotlinLogging.logger{}
 
     @PostMapping("/signUp")
-    fun signUp(@RequestBody requestSignUpDto: RequestSignUpDto) : ResponseMemberDto{
+    fun signUp(@RequestBody requestSignUpDto: RequestSignUpDto) : String{
         return authenticationService.signUp(requestSignUpDto)
         logger.info { "SignUp complete" }
     }
