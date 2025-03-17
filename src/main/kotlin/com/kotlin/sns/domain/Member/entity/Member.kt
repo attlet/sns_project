@@ -50,8 +50,8 @@ data class Member(
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var comments : List<Comment> = mutableListOf(),
 
-    @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
-    var profileImageUrl: List<Image>? = mutableListOf(),
+    @OneToOne(mappedBy = "member", cascade = [CascadeType.REMOVE])
+    var profileImageUrl: Image? = null,
 
     @ElementCollection(fetch = FetchType.EAGER)
     var roles: List<String>
