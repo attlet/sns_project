@@ -1,18 +1,18 @@
 package com.kotlin.sns.domain.Posting.mapper
 
-import org.mapstruct.Mapper
+import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
+import com.kotlin.sns.domain.Posting.entity.Posting
 
-/**
- * posting <-> dto 변환 mapper
- *
- */
-@Mapper(componentModel = "spring")
-interface PostingMapper {
-//    @Mapping(source = "member", target = "member")
-//    fun toEntity(requestCreatePostingDto: RequestCreatePostingDto, member: Member) : Posting
-//
-//    @Mapping(source = "member.id", target = "writerId")
-//    @Mapping(source = "member.name", target = "writerName")
-//    @Mapping(source = "comment", target = "commentList")
-//    fun toDto(posting: Posting) : ResponsePostingDto
+object PostingMapper {
+    fun toDto(posting : Posting, member : Member) : ResponsePostingDto {
+        return ResponsePostingDto(
+            postingId = posting.id,
+            writerId = member.id,
+            writerName = member.name,
+            content = posting.content,
+            imageUrl = posting.imageInPosting?.map { it.imageUrl },
+            hashTagList = posting.postingHashtag.map { it.hashtag.tagName }
+        )
+    }
 }

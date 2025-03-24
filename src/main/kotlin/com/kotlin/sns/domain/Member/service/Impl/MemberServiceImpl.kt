@@ -9,13 +9,19 @@ import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
+import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
+import com.kotlin.sns.domain.Posting.entity.Posting
+import com.kotlin.sns.domain.Posting.mapper.PostingMapper
+import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.awt.print.Pageable
 
 /**
  * member의 비즈니스 로직 처리
@@ -26,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
+    private val postingRepository: PostingRepository
 ) : MemberService, UserDetailsService {
 
     private val logging = KotlinLogging.logger{}
@@ -38,6 +45,7 @@ class MemberServiceImpl(
      * @param memberId
      * @return
      */
+    @Transactional(readOnly = true)
     override fun findMemberById(memberId: Long): ResponseMemberDto {
         logging.info { "memberService findByMemberId : memberId : $memberId" }
 
@@ -59,6 +67,7 @@ class MemberServiceImpl(
      * @param email
      * @return
      */
+    @Transactional(readOnly = true)
     override fun findMemberByEmail(email: String): ResponseMemberDto {
         logging.info{"memberService findMemberByEmail"}
 
@@ -81,6 +90,7 @@ class MemberServiceImpl(
      * @param userId
      * @return
      */
+    @Transactional(readOnly = true)
     override fun findMemberByUserId(userId: String): ResponseMemberDto {
         logging.info{"memberService findMemberByUserId"}
 
@@ -93,7 +103,14 @@ class MemberServiceImpl(
                 )
             }
 
-        return createResponseMemberDto(member)
+        val pageable = PageRequest.of(0, 10)
+        val requestSearchPostingDto = RequestSearchPostingDto(
+            writerName = member.name
+        )
+
+        val postingList = postingRepository.findPostingList(pageable, requestSearchPostingDto)
+
+        return createResponseMemberDto(member, postingList)
     }
 
     /**
@@ -195,33 +212,19 @@ class MemberServiceImpl(
 
     /**
      * responseMemberDto 생성하는 메서드
+     * member가 작성한 게시글들을 반환해야한다면, postingList 매개변수 사용 필요.
      *
      * @param member
      * @return
      */
-    private fun createResponseMemberDto(member : Member) : ResponseMemberDto{
-        val postingList = member.postings?.map { posting -> ResponsePostingDto(
-            postingId = posting.id,
-            writerId = member.id,
-            writerName = member.name,
-            content = posting.content,
-            imageUrl = posting.imageInPosting.map { it.imageUrl },
-            hashTagList = posting.postingHashtag.map { it.hashtag.tagName  }
-            ) } ?: emptyList()
-
-        val commentList = member.comments?.map { comment -> ResponseCommentDto(
-            writerId = member.id,
-            writerName = member.name,
-            content = comment.content,
-            createDt = comment.createdDt,
-            updateDt = comment.updateDt
-        )}
+    private fun createResponseMemberDto(member : Member, postingList : List<Posting>? = null) : ResponseMemberDto{
+        val postingList = postingList?.map { it -> PostingMapper.toDto(it, member)}
 
         return ResponseMemberDto(
             name = member.name,
             profileImage = member.profileImageUrl?.imageUrl,
             uploadedPostingList = postingList,
-            uploadedPostingCnt = postingList.size
+            uploadedPostingCnt = postingList?.size
         )
     }
 }

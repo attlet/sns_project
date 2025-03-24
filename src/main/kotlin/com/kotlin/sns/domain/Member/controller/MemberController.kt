@@ -32,12 +32,11 @@ class MemberController(
     private val fileStorageService: FileStorageService
 ) {
 
-    @GetMapping()
-    @Parameter(name = "auth_token", description = "토큰", `in` = ParameterIn.HEADER)
-    fun getMemberById(@RequestParam("memberId") memberId : Long) : ResponseMemberDto {
-        return memberService.findMemberById(memberId)
-    }
 
+    @GetMapping()
+    fun getMemberByUserId(@RequestParam("userId") userId : String) : ResponseMemberDto{
+        return memberService.findMemberByUserId(userId)
+    }
     @PostMapping
     fun createMember(@RequestBody requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto{
         return memberService.createMember(requestCreateMemberDto)
