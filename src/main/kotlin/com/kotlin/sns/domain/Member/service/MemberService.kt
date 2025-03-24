@@ -8,6 +8,7 @@ import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 interface MemberService {
     fun findMemberById(memberId : Long):ResponseMemberDto
     fun findMemberByEmail(email : String):ResponseMemberDto
+    fun findMemberByUserId(id : String) : ResponseMemberDto
     fun createMember(requestCreateMemberDto: RequestCreateMemberDto) : ResponseMemberDto
     fun updateMember(requestUpdateMemberDto: RequestUpdateMemberDto) : ResponseMemberDto
     fun deleteMember(memberId: Long)

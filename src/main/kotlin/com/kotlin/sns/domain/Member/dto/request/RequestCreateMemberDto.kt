@@ -9,6 +9,7 @@ package com.kotlin.sns.domain.Member.dto.request
  * @property profileImageUrl
  */
 data class RequestCreateMemberDto(
+    val userId : String,
     val name : String,
     val email : String,
     val pw : String

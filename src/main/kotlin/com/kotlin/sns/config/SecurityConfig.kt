@@ -51,6 +51,7 @@ class SecurityConfig (
             .authorizeHttpRequests{
                 auth -> auth.requestMatchers(*permitUrlList.toTypedArray()).permitAll()  //인증 없이 접속 가능한 url
                 .requestMatchers(HttpMethod.GET, "/postings/**").permitAll()                //posting 을 get하는 api들은 인증 없이 사용 가능
+                .requestMatchers(HttpMethod.GET, "/members/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/comment**").permitAll()
                 .anyRequest().authenticated()                                            //나머지는 인증 필요한 url
             }

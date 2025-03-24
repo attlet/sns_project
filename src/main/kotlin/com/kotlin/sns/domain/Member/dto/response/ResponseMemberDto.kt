@@ -13,10 +13,8 @@ import org.springframework.web.multipart.MultipartFile
  */
 data class ResponseMemberDto(
     val name : String,
-    val profileImage : MultipartFile? = null,
+    val profileImage : String? = null,
     val uploadedPostingList : List<ResponsePostingDto>? = null,   //작성한 posting 목록
-    val uploadedPostingCnt : Int = 0,                             //작성한 posting 갯수
-    val uploadedCommentList : List<ResponseCommentDto>? = null,   //작성한 댓글 목록
-    val uploadedCommentCnt : Int = 0,                             //작성한 댓글 갯수
+    val uploadedPostingCnt : Int? = 0,                             //작성한 posting 갯수
 ){
 }

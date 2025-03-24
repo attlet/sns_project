@@ -11,7 +11,6 @@ import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Authentication.service.AuthenticationService
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
-import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -33,7 +32,6 @@ class AuthenticationServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val jwtUtil: JwtUtil,
     private val redisTemplate: RedisTemplate<String, String>,
-    private val memberMapper: MemberMapper,
     @Value("\${jwt.expiration}") private val jwtExpiration: Long = 0,
     @Value("\${jwt.refreshExpiration}") private val refreshExpiration : Long = 0
 ) : AuthenticationService {
@@ -50,7 +48,7 @@ class AuthenticationServiceImpl(
      * @return
      */
     @Transactional
-    override fun signUp(requestSignUpDto: RequestSignUpDto): ResponseMemberDto {
+    override fun signUp(requestSignUpDto: RequestSignUpDto): String {
         logger.info { "AuthenticationService signUp " }
         val id = requestSignUpDto.id
         val name = requestSignUpDto.name
@@ -88,7 +86,7 @@ class AuthenticationServiceImpl(
 
         val savedMember = memberRepository.save(member)
 
-        return memberMapper.toDto(savedMember)
+        return "success"
     }
 
     /**
