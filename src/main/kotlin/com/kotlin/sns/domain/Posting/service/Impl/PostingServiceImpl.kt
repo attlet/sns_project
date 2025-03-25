@@ -44,7 +44,6 @@ class PostingServiceImpl(
     private val memberRepository: MemberRepository,
     private val hashtagRepository: HashtagRepository,
     private val postingHashtagRepository: PostingHashtagRepository,
-    private val postingMapper: PostingMapper,
     private val notificationService: NotificationService,
     private val fileStorageService: FileStorageService,
     private val imageService: ImageService,

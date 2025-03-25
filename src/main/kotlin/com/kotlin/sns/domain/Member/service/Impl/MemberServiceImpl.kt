@@ -7,6 +7,7 @@ import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
@@ -220,11 +221,6 @@ class MemberServiceImpl(
     private fun createResponseMemberDto(member : Member, postingList : List<Posting>? = null) : ResponseMemberDto{
         val postingList = postingList?.map { it -> PostingMapper.toDto(it, member)}
 
-        return ResponseMemberDto(
-            name = member.name,
-            profileImage = member.profileImageUrl?.imageUrl,
-            uploadedPostingList = postingList,
-            uploadedPostingCnt = postingList?.size
-        )
+        return MemberMapper.toDto(member, postingList)
     }
 }
