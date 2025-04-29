@@ -13,20 +13,18 @@ class ExceptionHandler {
     @ExceptionHandler(CustomException::class)
     fun handleCustomException(e : CustomException, request : HttpServletRequest) : ResponseEntity<ExceptionResponse>{
         val exceptionResponse = ExceptionResponse(
-            errorType = e.exception.exceptionDesc,
-            errorCode = e.status.value().toString(),
-            status = e.status,
-            message = e.message
+            errorCode = e.errorCode.code,
+            status = e.errorCode.status,
+            message = e.errorCode.message
         )
 
-       return ResponseEntity(exceptionResponse, e.status)
+       return ResponseEntity(exceptionResponse, e.errorCode.status)
     }
 
     @ExceptionHandler(Exception::class)
     fun handleGenericException(e: Exception): ResponseEntity<ExceptionResponse> {
 
         val exceptionResponse = ExceptionResponse(
-            errorType = "INTERVAL ERROR",
             errorCode = "500",
             status = null,
             message = e.message
@@ -36,7 +34,6 @@ class ExceptionHandler {
 }
 
 data class ExceptionResponse(
-    val errorType : String,
     val errorCode : String,
     val status : HttpStatus?,
     val message : String?
