@@ -21,12 +21,15 @@ enum class ErrorCode(
     // --- 인증 및 권한 관련 오류 (기존 ExceptionConst.AUTH 카테고리 세분화) ---
     AUTHENTICATION_FAILED("A002", HttpStatus.UNAUTHORIZED, "인증에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요."),
     INVALID_TOKEN("A003", HttpStatus.UNAUTHORIZED, "유효하지 않은 인증 토큰입니다."),
-    TOKEN_EXPIRED("A004", HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다. 다시 로그인해주세요."),
+    DIFFERENT_REFRESH_TOKEN("A004", HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
+    TOKEN_EXPIRED("A005", HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었습니다. 다시 로그인해주세요."),
+    CANNOT_MODIFY_OR_DELETE_POSTING("A006", HttpStatus.FORBIDDEN, "게시글 수정 및 삭제 권한이 없습니다."),
 
     // --- 회원 관련 오류 (기존 ExceptionConst.MEMBER 카테고리 세분화) ---
     MEMBER_NOT_FOUND("M001", HttpStatus.NOT_FOUND, "해당 회원을 찾을 수 없습니다. (ID: {0})"),
     EMAIL_DUPLICATION("M002", HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다: {0}"),
-    INVALID_PASSWORD("M003", HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."), 
+    USERID_DUPLICATION("M003", HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다: {0}"),
+    INVALID_PASSWORD("M004", HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
     // --- 게시글 관련 오류 (기존 ExceptionConst.POSTING 카테고리 세분화) ---
     POST_NOT_FOUND("P001", HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다. (ID: {0})"),
