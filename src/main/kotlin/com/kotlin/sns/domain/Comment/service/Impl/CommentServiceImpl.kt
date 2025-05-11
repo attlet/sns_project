@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Comment.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Comment.dto.request.RequestUpdateCommentDto
 import com.kotlin.sns.domain.Comment.dto.request.RequestCommentDto
@@ -57,20 +57,12 @@ class CommentServiceImpl (
 
         val member = memberRepository.findById(writerId)
             .orElseThrow{
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $writerId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
+                CustomException(ErrorCode.POST_NOT_FOUND)
             }
 
         val savedComment = commentRepository.save(Comment(
@@ -91,11 +83,7 @@ class CommentServiceImpl (
 
         val comment = commentRepository.findById(commentId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.COMMENT,
-                    HttpStatus.NOT_FOUND,
-                    "Comment with id $commentId not found"
-                )
+                CustomException(ErrorCode.COMMENT_NOT_FOUND)
             }
 
         jwtUtil.checkPermission(comment.member.id)

@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Posting.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Hashtag.entity.Hashtag
@@ -20,7 +20,6 @@ import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
 import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
-import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import com.kotlin.sns.domain.Posting.service.PostingService
 import com.kotlin.sns.domain.PostingHashtag.entity.PostingHashtag
@@ -61,11 +60,7 @@ class PostingServiceImpl(
     @Transactional(readOnly = true)
     override fun findPostingById(postingId: Long): ResponsePostingDto {
         val posting = postingRepository.findByIdForDetail(postingId)
-            .orElseThrow { CustomException(
-                ExceptionConst.POSTING,
-                HttpStatus.NOT_FOUND,
-                "Posting with id $postingId not found"
-            ) }
+            .orElseThrow { CustomException(ErrorCode.POST_NOT_FOUND) }
 
         return createResponsePostingDto(posting)
     }
@@ -108,11 +103,7 @@ class PostingServiceImpl(
         //1. 포스팅 작성자 조회
         val writer = memberRepository.findById(writerId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "writer with id $writerId not found"
-                )
+                CustomException()
             }
 
         //2. 입력한 포스팅 내용 저장
@@ -153,7 +144,7 @@ class PostingServiceImpl(
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
                 CustomException(
-                    ExceptionConst.POSTING,
+                    ErrorCode.POSTING,
                     HttpStatus.NOT_FOUND,
                     "Posting with id $postingId not found"
                 )
@@ -199,7 +190,7 @@ class PostingServiceImpl(
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
                 CustomException(
-                    ExceptionConst.POSTING,
+                    ErrorCode.POSTING,
                     HttpStatus.NOT_FOUND,
                     "Posting with id $postingId not found"
                 )

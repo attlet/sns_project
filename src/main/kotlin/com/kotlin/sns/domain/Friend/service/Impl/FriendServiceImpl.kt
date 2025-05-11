@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Friend.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.domain.Friend.const.FriendApplyStatusEnum
 import com.kotlin.sns.domain.Friend.dto.request.RequestCreateFriendDto
 import com.kotlin.sns.domain.Friend.dto.request.RequestUpdateFriendDto
@@ -40,11 +40,7 @@ class FriendServiceImpl(
     override fun findFriendById(friendId: Long): ResponseFriendDto {
         val friend = friendRepository.findById(friendId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Friend with id $friendId not found"
-                )
+                CustomException(ErrorCode.FRIEND_REQUEST_NOT_FOUND)
             }
 
         return ResponseFriendDto(
@@ -69,27 +65,16 @@ class FriendServiceImpl(
 
         //만약 이미 친구 요청을 보낸 상대라면 exception 반환
         if(friendRepository.isFriendRequestExist(receiverId, senderId)){
-            throw CustomException(
-                ExceptionConst.FRIEND,
-                HttpStatus.CONFLICT,
-                "Already send friend request to $senderId")
+            throw CustomException(ErrorCode.ALREADY_FRIENDS)
         }
 
         val sender = memberRepository.findById(senderId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $senderId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
         val receiver = memberRepository.findById(receiverId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $receiverId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         val friend = Friend(
@@ -129,28 +114,16 @@ class FriendServiceImpl(
 
         val sender = memberRepository.findById(senderId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $senderId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
         val receiver = memberRepository.findById(receiverId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $receiverId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         val friendRequest = friendRepository.findById(friendRequestId)
             .orElseThrow{
-                CustomException(
-                    ExceptionConst.FRIEND,
-                    HttpStatus.NOT_FOUND,
-                    "Friend Request id $friendRequestId not found"
-                )
+                CustomException(ErrorCode.FRIEND_REQUEST_NOT_FOUND)
             }
 
         friendRequest.status = status
@@ -168,7 +141,7 @@ class FriendServiceImpl(
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
             throw CustomException(
-                ExceptionConst.MEMBER,
+                ErrorCode.MEMBER,
                 HttpStatus.NOT_FOUND,
                 "Friend with id $friendId not found"
             )
