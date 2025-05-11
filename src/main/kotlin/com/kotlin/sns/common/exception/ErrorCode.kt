@@ -27,9 +27,11 @@ enum class ErrorCode(
 
     // --- 회원 관련 오류 (기존 ExceptionConst.MEMBER 카테고리 세분화) ---
     MEMBER_NOT_FOUND("M001", HttpStatus.NOT_FOUND, "해당 회원을 찾을 수 없습니다. (ID: {0})"),
-    EMAIL_DUPLICATION("M002", HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다: {0}"),
-    USERID_DUPLICATION("M003", HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다: {0}"),
-    INVALID_PASSWORD("M004", HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    MEMBER_NOT_FOUND_BY_EMAIL("M002", HttpStatus.NOT_FOUND, "해당 이메일을 가진 회원을 찾을 수 없습니다. (이메일: {0})"),
+    MEMBER_NOT_FOUND_BY_USERID("M003", HttpStatus.NOT_FOUND, "해당 아이디를 가진 회원을 찾을 수 없습니다. (아이디: {0})"),
+    EMAIL_DUPLICATION("M004", HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다: {0}"),
+    USERID_DUPLICATION("M005", HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다: {0}"),
+    INVALID_PASSWORD("M006", HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
     // --- 게시글 관련 오류 (기존 ExceptionConst.POSTING 카테고리 세분화) ---
     POST_NOT_FOUND("P001", HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다. (ID: {0})"),
