@@ -2,8 +2,7 @@ package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
-import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.repository.SseRepository
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.connection.Message
@@ -15,7 +14,7 @@ import java.io.IOException
 @Profile("local")
 @Component
 class NotificationRedisConsumer(
-    private val sseRepository: SseRepository,
+    private val hashMapSseRepository: HashMapSseRepository,
     private val objectMapper: ObjectMapper
 ) : NotificationConsumer, MessageListener{
 
@@ -28,7 +27,7 @@ class NotificationRedisConsumer(
     }
     override fun receiveMessage(requestPublishDto: RequestPublishDto) {
         val receiverId = requestPublishDto.receiverId
-        val emitter = sseRepository.get(receiverId)             //추후 처리하는 로직 작성 필요
+        val emitter = hashMapSseRepository.get(receiverId)             //추후 처리하는 로직 작성 필요
 
         logger.debug { "receiver id in reveiveMessage : $receiverId , $requestPublishDto" }
         if(emitter != null){
@@ -39,7 +38,7 @@ class NotificationRedisConsumer(
                         .name("notification")
                         .data(requestPublishDto))
             } catch (e : IOException){
-                sseRepository.remove(receiverId)   //추후 체크 필요
+                hashMapSseRepository.remove(receiverId)   //추후 체크 필요
             }
         } else {
             // null 처리

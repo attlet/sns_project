@@ -8,10 +8,9 @@ import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
-import com.kotlin.sns.domain.Notification.repository.SseRepository
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
@@ -28,7 +27,7 @@ class NotificationService(
     private val notificationProducer: NotificationProducer,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
-    private val sseRepository: SseRepository,
+    private val hashMapSseRepository: HashMapSseRepository,
     @Value("\${sse.timeout}") private val sseTimeOut : Long = 0
 )  : NotificationService {
 
@@ -103,12 +102,12 @@ class NotificationService(
     override fun subscribe(userId : Long) : SseEmitter{
         val emitter = SseEmitter(sseTimeOut)  //60초 연결
 
-        sseRepository.save(userId, emitter)
+        hashMapSseRepository.save(userId, emitter)
 
         sendNotificationToClient(userId, "dummy")
-        emitter.onCompletion { sseRepository.remove(userId)}
-        emitter.onTimeout{ sseRepository.remove(userId)}
-        emitter.onError { sseRepository.remove(userId) }
+        emitter.onCompletion { hashMapSseRepository.remove(userId)}
+        emitter.onTimeout{ hashMapSseRepository.remove(userId)}
+        emitter.onError { hashMapSseRepository.remove(userId) }
 
         return emitter
     }
@@ -120,7 +119,7 @@ class NotificationService(
      * @param dummy
      */
     override fun sendNotificationToClient(userId: Long, dummy : String) {
-        val emitter = sseRepository.get(userId)             //추후 처리하는 로직 작성 필요
+        val emitter = hashMapSseRepository.get(userId)             //추후 처리하는 로직 작성 필요
 
         if(emitter != null){
             try{
@@ -129,7 +128,7 @@ class NotificationService(
                     .name("dummy data")
                     .data(dummy))
             } catch (e : IOException){
-                sseRepository.remove(userId)   //추후 체크 필요
+                hashMapSseRepository.remove(userId)   //추후 체크 필요
             }
         } else {
             // null 처리
