@@ -47,7 +47,10 @@ enum class ErrorCode(
     LIKE_NOT_FOUND("L002", HttpStatus.NOT_FOUND, "좋아요 정보를 찾을 수 없습니다."),
 
     // --- 친구 관련 오류 (기존 ExceptionConst.FRIEND 카테고리 세분화) ---
-    FRIEND_REQUEST_NOT_FOUND("FR001", HttpStatus.NOT_FOUND, "해당 친구 요청을 찾을 수 없습니다."), 
+    FRIEND_REQUEST_NOT_FOUND("FR001", HttpStatus.NOT_FOUND, "해당 친구 요청을 찾을 수 없습니다."),
+    FRIEND_REQUEST_ACCESS_DENIED("FR002", HttpStatus.FORBIDDEN, "친구 요청에 대한 접근 권한이 없습니다."),
+    FRIEND_REQUEST_ALREADY_EXISTS("FR003", HttpStatus.BAD_REQUEST, "이미 친구 요청을 보냈습니다."),
+    FRIEND_NOT_FOUND("FR004", HttpStatus.NOT_FOUND, "해당 친구를 찾을 수 없습니다."),
     ALREADY_FRIENDS("FR002", HttpStatus.BAD_REQUEST, "이미 친구 관계입니다."),     
     SELF_FRIEND_REQUEST("FR003", HttpStatus.BAD_REQUEST, "자기 자신에게 친구 요청을 보낼 수 없습니다."),       
 

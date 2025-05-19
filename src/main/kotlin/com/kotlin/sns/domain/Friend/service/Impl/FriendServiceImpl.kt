@@ -112,6 +112,7 @@ class FriendServiceImpl(
         val receiverId = requestUpdateFriendDto.receiverId
         val status = requestUpdateFriendDto.status
 
+        // 1. SENDER, RECEIVER 존재 여부 확인
         val sender = memberRepository.findById(senderId)
             .orElseThrow {
                 CustomException(ErrorCode.MEMBER_NOT_FOUND)
@@ -121,13 +122,16 @@ class FriendServiceImpl(
                 CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
+        // 2. FRIEND_REQUEST 존재 여부 확인
         val friendRequest = friendRepository.findById(friendRequestId)
             .orElseThrow{
                 CustomException(ErrorCode.FRIEND_REQUEST_NOT_FOUND)
             }
 
+        // 3. FRIEND_REQUEST의 STATUS를 update.
         friendRequest.status = status
 
+        // 4. FRIEND_REQUEST 응답 결과를 상대에게 알림으로 전송
         notifyForFriendRequestUpdate(sender, receiver, friendRequestId, status)
 
         return ResponseFriendDto(
@@ -137,14 +141,16 @@ class FriendServiceImpl(
             status = status
         )
     }
+
+    /**
+     * 친구 삭제
+     *
+     * @param friendId
+     */
     @Transactional
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
-            throw CustomException(
-                ErrorCode.MEMBER,
-                HttpStatus.NOT_FOUND,
-                "Friend with id $friendId not found"
-            )
+            throw CustomException(ErrorCode.FRIEND_NOT_FOUND)
         }
         friendRepository.deleteById(friendId)
     }
@@ -176,10 +182,11 @@ class FriendServiceImpl(
      */
     private fun notifyForFriendRequestUpdate(sender : Member, receiver: Member, friendId : Long, type : FriendApplyStatusEnum){
 
+        //응답 알림이므로, sender는 receiver, receiver는 sender로 입력
         notificationService.createNotification(
             RequestCreateNotificationDto(
-                receiverId = listOf(receiver.id),
-                senderId = sender.id,
+                receiverId = listOf(sender.id),
+                senderId = receiver.id,
                 friendId = friendId,
                 type = NotificationType.Friend_RESPONSE,
                 message = "${sender.name}이 친구 요청을 ${type.name} 했습니다."

@@ -103,7 +103,7 @@ class PostingServiceImpl(
         //1. 포스팅 작성자 조회
         val writer = memberRepository.findById(writerId)
             .orElseThrow {
-                CustomException()
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         //2. 입력한 포스팅 내용 저장
@@ -143,11 +143,7 @@ class PostingServiceImpl(
         // 1. 수정할 posting 조회
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
-                CustomException(
-                    ErrorCode.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
+                CustomException(ErrorCode.POST_NOT_FOUND)
             }
 
         // 2. 해당 posting 을 수정할 권한이 있는지 체크
@@ -189,11 +185,7 @@ class PostingServiceImpl(
     override fun deletePosting(postingId: Long) {
         val posting = postingRepository.findById(postingId)
             .orElseThrow {
-                CustomException(
-                    ErrorCode.POSTING,
-                    HttpStatus.NOT_FOUND,
-                    "Posting with id $postingId not found"
-                )
+                CustomException(ErrorCode.POST_NOT_FOUND)
             }
         //1. 글 삭제할 권한 체크
         jwtUtil.checkPermission(posting.member.id)
