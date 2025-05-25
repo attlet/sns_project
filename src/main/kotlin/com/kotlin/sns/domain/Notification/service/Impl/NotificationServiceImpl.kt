@@ -8,7 +8,7 @@ import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
-import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
+import com.kotlin.sns.domain.Sse.SseEmitterRepository.Impl.HashMapSseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service

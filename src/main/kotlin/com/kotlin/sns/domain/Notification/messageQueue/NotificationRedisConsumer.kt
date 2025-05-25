@@ -2,7 +2,7 @@ package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
-import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
+import com.kotlin.sns.domain.Sse.SseEmitterRepository.Impl.HashMapSseRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.connection.Message

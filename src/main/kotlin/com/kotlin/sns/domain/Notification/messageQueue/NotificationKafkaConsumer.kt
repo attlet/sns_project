@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
+import com.kotlin.sns.domain.Sse.SseEmitterRepository.Impl.HashMapSseRepository
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component

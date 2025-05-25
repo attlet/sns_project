@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
-import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
+import com.kotlin.sns.domain.Sse.SseEmitterRepository.Impl.HashMapSseRepository
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
