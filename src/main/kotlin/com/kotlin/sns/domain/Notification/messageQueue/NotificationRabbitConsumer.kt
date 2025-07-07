@@ -1,18 +1,16 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
-import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.repository.SseRepository
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 @Profile("prod")
 @Component
 class NotificationRabbitConsumer(
-    private val sseRepository: SseRepository
+    private val sseRepository: HashMapSseRepository
 ): NotificationConsumer {
 
     @RabbitListener(queues = ["\${spring.rabbitmq.queue}"])   //rabbitmq의 특정 queue에 데이터가 들어올 때 마다 호출

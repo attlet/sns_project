@@ -8,10 +8,9 @@ import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
 import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
-import com.kotlin.sns.domain.Notification.repository.SseRepository
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
@@ -28,7 +27,7 @@ class NotificationService(
     private val notificationProducer: NotificationProducer,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
-    private val sseRepository: SseRepository,
+    private val sseRepository: HashMapSseRepository,
     @Value("\${sse.timeout}") private val sseTimeOut : Long = 0
 )  : NotificationService {
 
