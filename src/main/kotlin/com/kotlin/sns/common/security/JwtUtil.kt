@@ -1,7 +1,7 @@
 package com.kotlin.sns.common.security
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.domain.Member.entity.Member
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Jwts
@@ -128,11 +128,7 @@ class JwtUtil(
         logger.debug { "user id : ${currentUser.id}" }
         if (makerId != currentUser.id) {
             logger.debug { "jwtUtil checkPermission : cannot modify or delete" }
-            throw CustomException(
-                ExceptionConst.AUTH,
-                HttpStatus.FORBIDDEN,
-                "You do not have permission to modify this posting"
-            )
+            throw CustomException(ErrorCode.CANNOT_MODIFY_OR_DELETE_POSTING)
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Authentication.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.common.security.JwtUtil
 import com.kotlin.sns.domain.Authentication.dto.request.RequestReissueDto
 import com.kotlin.sns.domain.Authentication.dto.request.RequestSignInDto
@@ -9,7 +9,6 @@ import com.kotlin.sns.domain.Authentication.dto.request.RequestSignUpDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseReissueDto
 import com.kotlin.sns.domain.Authentication.dto.response.ResponseSignInDto
 import com.kotlin.sns.domain.Authentication.service.AuthenticationService
-import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -58,20 +57,12 @@ class AuthenticationServiceImpl(
 
         // 아이디 중복 체크
         if (memberRepository.findByUserId(id).isPresent) {
-            throw CustomException(
-                ExceptionConst.MEMBER,
-                HttpStatus.CONFLICT,
-                "User ID $id already exists"
-            )
+            throw CustomException(ErrorCode.USERID_DUPLICATION)
         }
 
         // 이메일 중복 체크
         if (memberRepository.findByEmail(email).isPresent) {
-            throw CustomException(
-                ExceptionConst.MEMBER,
-                HttpStatus.CONFLICT,
-                "Email $email already exists"
-            )
+            throw CustomException(ErrorCode.EMAIL_DUPLICATION)
         }
 
         logger.debug { "user id : $id , email : $email" }
@@ -105,20 +96,12 @@ class AuthenticationServiceImpl(
         //1. id에 대응되는 member get
         val member = memberRepository.findByUserId(id)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "User ID $id not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         //2. 비밀번호 일치하는지 확인
         if (!passwordEncoder.matches(password, member.pw)) {
-            throw CustomException(
-                ExceptionConst.AUTH,
-                HttpStatus.UNAUTHORIZED,
-                "Invalid password"
-            )
+            throw CustomException(ErrorCode.INVALID_PASSWORD)
         }
 
         logger.debug { "user id : ${member.id} , password : $password" }
@@ -158,21 +141,13 @@ class AuthenticationServiceImpl(
 
         //3. redis에 저장된 refresh token과 , 요청으로 들어온 refresh token을 비교. 다르면 exception 발생
         if (refreshToken != storedRefreshToken) {
-            throw CustomException(
-                exception = ExceptionConst.AUTH,
-                status = HttpStatus.UNAUTHORIZED,
-                message = "Invalid refresh token"
-            )
+            throw CustomException(ErrorCode.DIFFERENT_REFRESH_TOKEN)
         }
 
         //4. 같으면 새로운 access token 생성해서 반환
         val member = memberRepository.findByUserId(userId)
             .orElseThrow {
-                CustomException(
-                    exception = ExceptionConst.MEMBER,
-                    status = HttpStatus.NOT_FOUND,
-                    message = "User ID $userId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         //5. redis에 해당 사용자의 refresh token을 새로 갱신

@@ -1,16 +1,15 @@
 package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
-import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.dto.response.ResponseMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
+import com.kotlin.sns.domain.Member.mapper.MemberMapper
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Member.service.MemberService
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
-import com.kotlin.sns.domain.Posting.dto.response.ResponsePostingDto
 import com.kotlin.sns.domain.Posting.entity.Posting
 import com.kotlin.sns.domain.Posting.mapper.PostingMapper
 import com.kotlin.sns.domain.Posting.repository.PostingRepository
@@ -21,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.awt.print.Pageable
 
 /**
  * member의 비즈니스 로직 처리
@@ -51,11 +49,7 @@ class MemberServiceImpl(
 
         val member = memberRepository.findById(memberId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $memberId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         return createResponseMemberDto(member)
@@ -73,11 +67,7 @@ class MemberServiceImpl(
 
         val member = memberRepository.findByEmail(email)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with email $email not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL)
             }
 
         return createResponseMemberDto(member)
@@ -96,11 +86,7 @@ class MemberServiceImpl(
 
         val member = memberRepository.findByUserId(userId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with userid $userId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND_BY_USERID)
             }
 
         val pageable = PageRequest.of(0, 10)
@@ -146,11 +132,7 @@ class MemberServiceImpl(
         val updateId = requestUpdateMemberDto.memberId
         val updateMember = memberRepository.findById(updateId)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "Member with id $updateId not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
         requestUpdateMemberDto.name?.let { updateMember.name = it }
@@ -189,11 +171,7 @@ class MemberServiceImpl(
     override fun deleteMember(memberId: Long) {
         logging.info{"memberService deleteMember"}
         if (!memberRepository.existsById(memberId)) {
-            throw CustomException(
-                ExceptionConst.MEMBER,
-                HttpStatus.NOT_FOUND,
-                "Member with id $memberId not found"
-            )
+            throw CustomException(ErrorCode.MEMBER_NOT_FOUND)
         }
         memberRepository.deleteById(memberId)
     }
@@ -202,11 +180,7 @@ class MemberServiceImpl(
         logging.info{"userDetailService loadUserByUsername"}
         return memberRepository.findByUserId(username)
             .orElseThrow {
-                CustomException(
-                    ExceptionConst.MEMBER,
-                    HttpStatus.NOT_FOUND,
-                    "User with username $username not found"
-                )
+                CustomException(ErrorCode.MEMBER_NOT_FOUND_BY_USERID)
             }
     }
 
@@ -220,11 +194,6 @@ class MemberServiceImpl(
     private fun createResponseMemberDto(member : Member, postingList : List<Posting>? = null) : ResponseMemberDto{
         val postingList = postingList?.map { it -> PostingMapper.toDto(it, member)}
 
-        return ResponseMemberDto(
-            name = member.name,
-            profileImage = member.profileImageUrl?.imageUrl,
-            uploadedPostingList = postingList,
-            uploadedPostingCnt = postingList?.size
-        )
+        return MemberMapper.toDto(member, postingList)
     }
 }

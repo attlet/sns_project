@@ -1,7 +1,7 @@
 package com.kotlin.sns.domain.Notification.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
-import com.kotlin.sns.common.exception.ExceptionConst
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
@@ -55,7 +55,7 @@ class NotificationService(
 
         val sender = senderId?.let {
             memberRepository.findById(it)
-                .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Sender not found") }
+                .orElseThrow { CustomException(ErrorCode.MEMBER_NOT_FOUND) }
         }
 
         val receivers = memberRepository.findAllById(receiversId)
@@ -89,7 +89,7 @@ class NotificationService(
     @Transactional(readOnly = true)
     override fun getNotificationsForUser(receiverId: Long): List<Notification> {
         val receiver = memberRepository.findById(receiverId)
-            .orElseThrow { CustomException(ExceptionConst.MEMBER, HttpStatus.NOT_FOUND, "Receiver not found") }
+            .orElseThrow { CustomException(ErrorCode.MEMBER_NOT_FOUND) }
 
         return notificationRepository.findAllByReceiver(receiver)
     }

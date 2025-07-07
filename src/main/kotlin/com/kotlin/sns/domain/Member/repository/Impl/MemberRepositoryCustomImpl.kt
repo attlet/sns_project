@@ -26,7 +26,7 @@ class MemberRepositoryCustomImpl(
      */
     override fun findByUserId(userId: String): Optional<Member> {
         val member = jpaQueryFactory.selectFrom(qMember)
-            .leftJoin(qMember.postings, qPosting).fetchJoin()
+
             .where(qMember.userId.eq(userId))
             .fetchOne()
 
