@@ -140,11 +140,7 @@ class FriendServiceImpl(
     @Transactional
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
-            throw CustomException(
-                ErrorCode.MEMBER,
-                HttpStatus.NOT_FOUND,
-                "Friend with id $friendId not found"
-            )
+            throw CustomException(ErrorCode.FRIEND_REQUEST_NOT_FOUND)
         }
         friendRepository.deleteById(friendId)
     }
