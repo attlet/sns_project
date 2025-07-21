@@ -31,7 +31,49 @@ class MemberRepositoryTest {
         //then
         assertThat(findMember)
             .isPresent
-            .isEqualTo(member1)
+            .hasValueSatisfying {
+                assertThat(it.userId).isEqualTo("abcd")
+                assertThat(it.name).isEqualTo("user1")
+            }
     }
 
+    @Test
+    fun saveTest() {
+        // given
+        val member = Member(
+            userId = "testuser",
+            name = "Test User",
+            email = "test@example.com",
+            pw = "password",
+            roles = listOf("USER")
+        )
+
+        // when
+        val savedMember = memberRepository.save(member)
+
+        // then
+        assertThat(savedMember.id).isNotNull()
+        assertThat(savedMember.userId).isEqualTo("testuser")
+        assertThat(savedMember.email).isEqualTo("test@example.com")
+    }
+
+    @Test
+    fun findByUserIdTest() {
+        // given
+        val member = Member(
+            userId = "testuser",
+            name = "Test User",
+            email = "test@example.com",
+            pw = "password",
+            roles = listOf("USER")
+        )
+        memberRepository.save(member)
+
+        // when
+        val foundMember = memberRepository.findByUserId("testuser")
+
+        // then
+        assertThat(foundMember).isPresent
+        assertThat(foundMember.get().userId).isEqualTo("testuser")
+    }
 }
