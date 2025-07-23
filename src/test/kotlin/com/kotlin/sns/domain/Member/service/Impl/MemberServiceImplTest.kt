@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Member.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.domain.Member.dto.request.RequestCreateMemberDto
 import com.kotlin.sns.domain.Member.dto.request.RequestUpdateMemberDto
 import com.kotlin.sns.domain.Member.entity.Member
@@ -73,7 +74,7 @@ class MemberServiceImplTest {
         val exception = assertThrows(CustomException::class.java) {
             memberService.findMemberById(memberId)
         }
-        assertThat(exception.message).contains("Member with id $memberId not found")
+        assertThat(exception.message).contains(ErrorCode.MEMBER_NOT_FOUND.message)
     }
 
     /**
@@ -143,7 +144,7 @@ class MemberServiceImplTest {
         val exception = assertThrows(CustomException::class.java) {
             memberService.deleteMember(memberId)
         }
-        assertThat(exception.message).contains("Member with id $memberId not found")
+        assertThat(exception.message).contains(ErrorCode.MEMBER_NOT_FOUND.message)
     }
 
     /**
@@ -198,7 +199,9 @@ class MemberServiceImplTest {
         val exception = assertThrows(CustomException::class.java) {
             memberService.updateMember(request)
         }
-        assertThat(exception.message).contains("Member with id $memberId not found")
+
+
+        assertThat(exception.message).contains(ErrorCode.MEMBER_NOT_FOUND.message)
     }
 
     /**
@@ -243,7 +246,7 @@ class MemberServiceImplTest {
         val exception = assertThrows(CustomException::class.java) {
             memberService.findMemberByEmail(email)
         }
-        assertThat(exception.message).contains("Member with email $email not found")
+        assertThat(exception.message).contains(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL.message)
     }
 
     /**
