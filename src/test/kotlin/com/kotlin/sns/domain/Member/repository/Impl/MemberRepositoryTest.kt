@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.Member
+package com.kotlin.sns.domain.Member.repository.Impl
 
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
