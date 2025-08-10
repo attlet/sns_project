@@ -6,13 +6,15 @@ import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
 import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.messageQueue.NotificationProducer
 import com.kotlin.sns.domain.Notification.repository.NotificationRepository
 import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
+import com.kotlin.sns.domain.Notification.service.NotificationSender
 import com.kotlin.sns.domain.Notification.service.NotificationService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronizationManager
+import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 
@@ -24,7 +26,7 @@ import java.io.IOException
  */
 @Service
 class NotificationService(
-    private val notificationProducer: NotificationProducer,
+    private val notificationSender: NotificationSender,
     private val notificationRepository: NotificationRepository,
     private val memberRepository: MemberRepository,
     private val sseRepository: HashMapSseRepository,
@@ -42,47 +44,7 @@ class NotificationService(
      * @param type
      * @param message
      */
-    @Transactional
-    override fun createNotification(requestCreateNotificationDto: RequestCreateNotificationDto) {
-        val receiversId = requestCreateNotificationDto.receiverId
-        val senderId = requestCreateNotificationDto.senderId
-        val type = requestCreateNotificationDto.type
-        val message = requestCreateNotificationDto.message
-
-        val notifications = mutableListOf<Notification>()
-        val publishDtos = mutableListOf<RequestPublishDto>()
-
-        val sender = senderId?.let {
-            memberRepository.findById(it)
-                .orElseThrow { CustomException(ErrorCode.MEMBER_NOT_FOUND) }
-        }
-
-        val receivers = memberRepository.findAllById(receiversId)
-
-        for (receiver in receivers) {
-            notifications.add(Notification(
-                receiver = receiver,
-                sender = sender,
-                type = type,
-                message = message
-            ))
-
-            publishDtos.add(RequestPublishDto(
-                receiverId = receiver.id,
-                type = type,
-                message = message
-            ))
-        }
-
-        notificationRepository.saveAll(notifications)
-
-        //알림 받는 사람들에게 sse 알림 발송
-        for(publishDto in publishDtos) {
-//            sendNotificationToClient(notification.receiver.id, notification)
-            notificationProducer.sendNotification(publishDto)
-        }
-
-    }
+    
 
     // 특정 사용자의 알림 목록 조회
     @Transactional(readOnly = true)

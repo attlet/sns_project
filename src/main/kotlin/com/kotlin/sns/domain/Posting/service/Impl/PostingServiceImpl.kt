@@ -12,9 +12,8 @@ import com.kotlin.sns.domain.Image.service.FileStorageService
 import com.kotlin.sns.domain.Image.service.ImageService
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
-import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.event.NotificationEvent
 import com.kotlin.sns.domain.Notification.entity.NotificationType
-import com.kotlin.sns.domain.Notification.service.NotificationService
 import com.kotlin.sns.domain.Posting.dto.request.RequestCreatePostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestSearchPostingDto
 import com.kotlin.sns.domain.Posting.dto.request.RequestUpdatePostingDto
@@ -25,8 +24,8 @@ import com.kotlin.sns.domain.Posting.service.PostingService
 import com.kotlin.sns.domain.PostingHashtag.entity.PostingHashtag
 import com.kotlin.sns.domain.PostingHashtag.repository.PostingHashtagRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -43,7 +42,7 @@ class PostingServiceImpl(
     private val memberRepository: MemberRepository,
     private val hashtagRepository: HashtagRepository,
     private val postingHashtagRepository: PostingHashtagRepository,
-    private val notificationService: NotificationService,
+    private val eventPublisher: ApplicationEventPublisher,
     private val fileStorageService: FileStorageService,
     private val imageService: ImageService,
     private val jwtUtil: JwtUtil
@@ -295,15 +294,16 @@ class PostingServiceImpl(
     private fun notifyForNewPosting(writerId : Long){
         val friends = memberRepository.findFriendsId(writerId, FriendApplyStatusEnum.ACCEPT)
 
-        notificationService.createNotification(
-            RequestCreateNotificationDto(
-                receiverId = friends,
-                senderId = writerId,
-                type = NotificationType.NEW_POST,
-                message = "친구가 포스팅을 게시했습니다."
+        if (friends.isNotEmpty()) {
+            eventPublisher.publishEvent(
+                NotificationEvent(
+                    receiverId = friends,
+                    senderId = writerId,
+                    type = NotificationType.NEW_POST,
+                    message = "친구가 포스팅을 게시했습니다."
+                )
             )
-        )
-
+        }
     }
 
     private fun createResponsePostingDto(posting : Posting) : ResponsePostingDto{
