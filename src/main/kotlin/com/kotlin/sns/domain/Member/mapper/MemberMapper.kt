@@ -12,6 +12,7 @@ object MemberMapper {
         return ResponseMemberDto(
             name = member.name,
             userId = member.userId,
+            email = member.email,
             profileImage = member?.profileImageUrl?.imageUrl,
             uploadedPostingList = postingList,
             uploadedPostingCnt = postingList?.size

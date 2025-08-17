@@ -1,19 +1,17 @@
 package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.repository.SseRepository
-import org.springframework.context.annotation.Bean
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
 
 @Profile("prod")
 @Component
 class NotificationKafkaConsumer(
-    private val sseRepository: SseRepository
+    private val sseRepository: HashMapSseRepository
 ) {
 
     @KafkaListener(topics = ["\${kafka.topic}"], groupId = "\${kafka.groupId")

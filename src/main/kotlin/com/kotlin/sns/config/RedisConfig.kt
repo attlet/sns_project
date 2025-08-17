@@ -15,7 +15,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 @Configuration
 class RedisConfig(
     @Value("\${redis.host}") private val host : String,
-    @Value("\${redis.port}") private val port : Int
+    @Value("\${redis.port}") private val port : Int,
+    private val notificationRedisConsumer: NotificationRedisConsumer,
 ) {
 
     @Bean
@@ -51,6 +52,20 @@ class RedisConfig(
     @Bean
     fun topic(): ChannelTopic{
         return ChannelTopic("notification_channel")  //채널 이름을 설정
+    }
+
+    /**
+     * connection factory통해 redis 연결
+     * 메시지 리스너와 topic연결
+     *
+     * @return
+     */
+    @Bean
+    fun redisMessageListenerContainer(redisConnectionFactory : RedisConnectionFactory, topic: ChannelTopic) : RedisMessageListenerContainer{
+        val container = RedisMessageListenerContainer()
+        container.setConnectionFactory(redisConnectionFactory)
+        container.addMessageListener(notificationRedisConsumer, topic)
+        return container
     }
 
 }

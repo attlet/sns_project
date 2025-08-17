@@ -11,10 +11,9 @@ import com.kotlin.sns.domain.Friend.repository.friendRepository
 import com.kotlin.sns.domain.Friend.service.FriendService
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
-import com.kotlin.sns.domain.Notification.dto.request.RequestCreateNotificationDto
+import com.kotlin.sns.domain.Notification.event.NotificationEvent
 import com.kotlin.sns.domain.Notification.entity.NotificationType
-import com.kotlin.sns.domain.Notification.service.NotificationService
-import org.springframework.http.HttpStatus
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 class FriendServiceImpl(
     private val friendRepository: friendRepository,
     private val memberRepository: MemberRepository,
-    private val notificationService: NotificationService
+    private val eventPublisher: ApplicationEventPublisher
 ) : FriendService {
 
     /**
@@ -140,11 +139,7 @@ class FriendServiceImpl(
     @Transactional
     override fun deleteFriend(friendId: Long) {
         if (!friendRepository.existsById(friendId)) {
-            throw CustomException(
-                ErrorCode.MEMBER,
-                HttpStatus.NOT_FOUND,
-                "Friend with id $friendId not found"
-            )
+            throw CustomException(ErrorCode.FRIEND_REQUEST_NOT_FOUND)
         }
         friendRepository.deleteById(friendId)
     }
@@ -156,16 +151,14 @@ class FriendServiceImpl(
      * @param receiver
      */
     private fun notifyForFriendRequest(sender : Member, receiver: Member){
-
-        notificationService.createNotification(
-            RequestCreateNotificationDto(
+        eventPublisher.publishEvent(
+            NotificationEvent(
                 receiverId = listOf(receiver.id),
                 senderId = sender.id,
                 type = NotificationType.FRIEND_REQUEST,
                 message = "${sender.name}으로부터 친구 요청이 도착했습니다."
             )
         )
-
     }
 
     /**
@@ -175,9 +168,8 @@ class FriendServiceImpl(
      * @param receiver
      */
     private fun notifyForFriendRequestUpdate(sender : Member, receiver: Member, friendId : Long, type : FriendApplyStatusEnum){
-
-        notificationService.createNotification(
-            RequestCreateNotificationDto(
+        eventPublisher.publishEvent(
+            NotificationEvent(
                 receiverId = listOf(receiver.id),
                 senderId = sender.id,
                 friendId = friendId,
@@ -185,6 +177,5 @@ class FriendServiceImpl(
                 message = "${sender.name}이 친구 요청을 ${type.name} 했습니다."
             )
         )
-
     }
 }

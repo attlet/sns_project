@@ -2,8 +2,7 @@ package com.kotlin.sns.domain.Notification.messageQueue
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kotlin.sns.domain.Notification.dto.request.RequestPublishDto
-import com.kotlin.sns.domain.Notification.entity.Notification
-import com.kotlin.sns.domain.Notification.repository.SseRepository
+import com.kotlin.sns.domain.Notification.repository.HashMapSseRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.connection.Message
@@ -15,7 +14,7 @@ import java.io.IOException
 @Profile("local")
 @Component
 class NotificationRedisConsumer(
-    private val sseRepository: SseRepository,
+    private val sseRepository: HashMapSseRepository,
     private val objectMapper: ObjectMapper
 ) : NotificationConsumer, MessageListener{
 
