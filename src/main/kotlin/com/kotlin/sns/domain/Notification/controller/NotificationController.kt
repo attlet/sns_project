@@ -19,10 +19,10 @@ class NotificationController(
     private val notificationService: NotificationService
 )
 {
-    @PostMapping("/make")
-    fun createNotification(@RequestBody requestCreateNotificationDto: RequestCreateNotificationDto){
-        notificationService.createNotification(requestCreateNotificationDto)
-    }
+//    @PostMapping("/make")
+//    fun createNotification(@RequestBody requestCreateNotificationDto: RequestCreateNotificationDto){
+//        notificationService.createNotification(requestCreateNotificationDto)
+//    }
 
     @GetMapping("/getReceiverNotification")
     fun getNotificationForReceiver(@RequestParam("receiverId") receiverId : Long) : List<ResponseNotificationDto>{

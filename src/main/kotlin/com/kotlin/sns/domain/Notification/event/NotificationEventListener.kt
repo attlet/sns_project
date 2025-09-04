@@ -10,6 +10,7 @@ import com.kotlin.sns.domain.Notification.service.NotificationSender
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
@@ -32,13 +33,14 @@ class NotificationEventListener(
 
     /**
      * 비동기로 알림 발송 처리
-     * 트랜잭션 커밋 후에 실행되도록 설정
+     * - @TransactionalEventListener을 통해 트랜잭션 커밋 후에 실행되도록 설정
+     * - transactional(propagation = Propagation.REQUIRES_NEW)로 별도의 트랜잭션에서 알림 로직 실행, 트랜잭션 충돌을 방지.
      *
      * @param event
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun handleNotificationEvent(event: NotificationEvent) {
         logger.info { "Notification event received: $event" }
 

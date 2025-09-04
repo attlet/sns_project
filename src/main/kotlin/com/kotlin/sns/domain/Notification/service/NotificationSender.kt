@@ -10,6 +10,12 @@ import org.springframework.transaction.annotation.Transactional
 class NotificationSender(
     private val notificationProducer: NotificationProducer
 ) {
+    /**
+     * message queue로 알림 전송
+     * - @Async로 비동기 처리, 호출한 스레드와 별도의 스레드에서 실행
+     *
+     * @param publishDtos
+     */
     @Async
     @Transactional
     fun sendNotificationsAsync(publishDtos: List<RequestPublishDto>) {
