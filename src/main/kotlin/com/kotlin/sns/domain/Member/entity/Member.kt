@@ -31,9 +31,9 @@ import org.springframework.security.core.userdetails.UserDetails
  */
 @Entity
 @Table(name = "member")
-data class Member(
-    @Column(nullable = false, unique = true)
-    var userId : String,
+class Member(
+    @Column(unique = true)
+    var userId : String?,
 
     @Column(nullable = false, unique = true)
     var name: String,
@@ -41,8 +41,8 @@ data class Member(
     @Column(nullable = false, unique = true)
     var email: String,
 
-    @Column(nullable = false, unique = true)
-    var pw: String,
+    @Column(unique = true)
+    var pw: String?,
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.REMOVE])
     var postings: List<Posting> = mutableListOf(),
@@ -54,18 +54,28 @@ data class Member(
     var profileImageUrl: Image? = null,
 
     @ElementCollection(fetch = FetchType.EAGER)
-    var roles: List<String>
+    var roles: MutableList<String> = mutableListOf(),
+
+    // Github 연동 정보
+    val githubId: Long? = null,
+    var githubUsername: String? = null,
+    var githubAvatarUrl: String? = null,
+    @Column(length = 1000)
+    var githubAccessToken: String? = null,
+    var commitStreak: Int = 0
+
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return roles.map { SimpleGrantedAuthority(it) }.toMutableList()
     }
 
-    override fun getPassword(): String {
+    override fun getPassword(): String? {
         return pw
     }
 
     override fun getUsername(): String {
-        return userId
+        // UserDetails의 username은 null을 허용하지 않으므로, email을 고유 식별자로 사용
+        return email
     }
 
     override fun isAccountNonExpired(): Boolean {

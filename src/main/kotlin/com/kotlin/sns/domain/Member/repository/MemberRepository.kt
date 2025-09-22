@@ -12,6 +12,7 @@ import java.util.*
  */
 interface MemberRepository : JpaRepository<Member, Long>, MemberRepositoryCustom{
     fun findByEmail(email : String) : Optional<Member>
+    fun findByGithubId(githubId: Long?): Member?
 //    fun findByUsername(username : String) : Optional<Member>
 
     @Query("SELECT f.receiver.id " +
