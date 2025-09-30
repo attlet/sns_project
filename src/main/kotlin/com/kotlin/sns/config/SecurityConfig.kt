@@ -3,7 +3,8 @@ package com.kotlin.sns.config
 import com.kotlin.sns.common.security.CustomAccessDeniedHandler
 import com.kotlin.sns.common.security.CustomAuthenticationEntryPoint
 import com.kotlin.sns.common.security.JwtAuthenticationFilter
-import org.mapstruct.BeanMapping
+import com.kotlin.sns.common.security.oauth2.CustomOAuth2UserService
+import com.kotlin.sns.common.security.oauth2.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -15,7 +16,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.stereotype.Component
 
 /**
  * security 설정
@@ -28,14 +28,19 @@ import org.springframework.stereotype.Component
 class SecurityConfig (
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
-    private val customAccessDeniedHandler: CustomAccessDeniedHandler
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
+    private val customOAuth2UserService: CustomOAuth2UserService,
+    private val oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler
 ){
     val permitUrlList = mutableListOf<String>(
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-resources/**",
         "/auth/**",
-        "/actuator/**")
+        "/actuator/**",
+        "/login/**",
+        "/oauth2/**"
+    )
     @Bean
     fun filterChain(httpSecurity : HttpSecurity) : SecurityFilterChain {
         httpSecurity
@@ -55,6 +60,12 @@ class SecurityConfig (
                 .requestMatchers(HttpMethod.GET, "/comment**").permitAll()
                 .anyRequest().authenticated()                                            //나머지는 인증 필요한 url
             }
+            .oauth2Login {
+                it.userInfoEndpoint {
+                    it.userService(customOAuth2UserService)
+                }
+                it.successHandler(oAuth2AuthenticationSuccessHandler)
+            }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .exceptionHandling{
                     exception ->
@@ -67,6 +78,7 @@ class SecurityConfig (
 
         return httpSecurity.build()
     }
+
 
     @Bean
     fun passEncoder() : PasswordEncoder {
