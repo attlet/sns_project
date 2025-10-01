@@ -33,7 +33,7 @@ class OAuthController(
      * GitHub에서 인증 후 리디렉션되는 콜백을 처리합니다.
      * 'code'를 받아 액세스 토큰을 요청하고, 사용자 정보를 가져와 JWT를 생성합니다.
      */
-    @GetMapping("/login/oauth2/code/github")
+    @GetMapping("/callback")
     fun githubCallback(@RequestParam("code") code: String): ResponseEntity<*> {
         val jwtResponse = oAuthService.githubLogin(code)
         return ResponseEntity.ok(jwtResponse)
