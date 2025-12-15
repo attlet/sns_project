@@ -1,5 +1,6 @@
-package com.kotlin.sns.domain.Authentication.controller
+package com.kotlin.sns.domain.oauth2.controller
 
+import com.kotlin.sns.domain.oauth2.service.Impl.GithubOAuthServiceImpl
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
@@ -9,9 +10,18 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.io.IOException
 
+/**
+ * GithubOauthController
+ * - GitHub OAuth 로그인을 처리하는 컨트롤러
+ *
+ * @property oAuthService
+ * @property clientId
+ * @property redirectUri
+ */
 @RestController
 @RequestMapping("/auth")
-class OAuthController(
+class GithubOauthController(
+    private val oAuthService: GithubOAuthServiceImpl,
     @Value("\${spring.security.oauth2.client.registration.github.client-id}")
     private val clientId: String,
     @Value("\${spring.security.oauth2.client.registration.github.redirect-uri}")
@@ -19,7 +29,7 @@ class OAuthController(
 ) {
 
     /**
-     * GitHub OAuth 로그인을 시작하기 위해 사용자를 GitHub 인증 페이지로 리디렉션합니다.
+     * GitHub OAuth 로그인을 시작하기 위해 사용자를 GitHub 인증 페이지로 리디렉션
      */
     @GetMapping("/github/login")
     @Throws(IOException::class)
@@ -30,8 +40,8 @@ class OAuthController(
     }
 
     /**
-     * GitHub에서 인증 후 리디렉션되는 콜백을 처리합니다.
-     * 'code'를 받아 액세스 토큰을 요청하고, 사용자 정보를 가져와 JWT를 생성합니다.
+     * GitHub에서 인증 후 리디렉션되는 콜백 처리
+     * 'code'를 받아 액세스 토큰을 요청하고, 사용자 정보를 가져와 JWT를 생성
      */
     @GetMapping("/callback")
     fun githubCallback(@RequestParam("code") code: String): ResponseEntity<*> {

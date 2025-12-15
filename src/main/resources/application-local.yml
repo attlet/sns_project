@@ -12,16 +12,6 @@ spring:
       hibernate.default_batch_fetch_size: 1000    #batch size설정해서 n + 1 문제 해결
       hibernate:
         format_sql: true
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
-            scope:
-              - read:user
-              - user:email
   rabbitmq:
     host: localhost
     port: 5672
@@ -74,5 +64,15 @@ jwt:
 sse:
   timeout: 3600000  #60 * 60 * 1000
 
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - read:user
+              - user:email
 
 

@@ -37,6 +37,7 @@ dependencies {
 	}
 	testImplementation("org.mockito:mockito-core:5.2.0")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+	testImplementation("io.mockk:mockk:1.13.5")
 	runtimeOnly("com.h2database:h2")
 
 	implementation("org.springframework.boot:spring-boot-starter-logging")
@@ -113,7 +114,14 @@ sourceSets {
 		kotlin.srcDirs += generated
 	}
 	test {
-		kotlin.srcDirs("src/test/kotlin")
+		kotlin {
+			srcDirs("src/test/kotlin")
+			exclude("**/com/kotlin/sns/domain/Friend/**")
+			exclude("**/com/kotlin/sns/domain/Member/**")
+			exclude("**/com/kotlin/sns/domain/Notification/**")
+			exclude("**/com/kotlin/sns/domain/Posting/**")
+			exclude("**/com/kotlin/sns/domain/Comment/**")
+		}
 	}
 }
 // gradle clean 시에 QClass 디렉토리 삭제

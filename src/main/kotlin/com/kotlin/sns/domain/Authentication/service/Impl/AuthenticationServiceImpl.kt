@@ -72,7 +72,7 @@ class AuthenticationServiceImpl(
             name = name,
             pw = passwordEncoder.encode(password),
             email = email,
-            roles = listOf(roles)
+            roles = mutableListOf(roles)
         )
 
         val savedMember = memberRepository.save(member)
