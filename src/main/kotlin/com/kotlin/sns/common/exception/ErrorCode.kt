@@ -55,5 +55,8 @@ enum class ErrorCode(
     FILE_UPLOAD_FAILED("F001", HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
     INVALID_FILE_FORMAT("F002", HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다. ({0})"),
 
+    // --- 콘텐츠 관련 오류 ---
+    CONTENT_NOT_FOUND("CT001", HttpStatus.NOT_FOUND, "해당 콘텐츠를 찾을 수 없습니다. (ID: {0})"),
+
     ; 
 }

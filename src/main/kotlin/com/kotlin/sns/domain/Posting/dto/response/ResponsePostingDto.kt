@@ -8,6 +8,8 @@ data class ResponsePostingDto(
     val writerName : String,
     val content : String,
     val imageUrl : List<String>? = null,
-    val hashTagList : List<String>? = null
+    val hashTagList : List<String>? = null,
+    val likeCount: Int,
+    val comments: List<ResponseCommentDto>? = null
 ) {
 }

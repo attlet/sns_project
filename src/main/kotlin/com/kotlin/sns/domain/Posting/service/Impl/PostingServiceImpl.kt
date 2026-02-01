@@ -10,6 +10,7 @@ import com.kotlin.sns.domain.Image.entity.Image
 import com.kotlin.sns.domain.Image.entity.ImageType
 import com.kotlin.sns.domain.Image.service.FileStorageService
 import com.kotlin.sns.domain.Image.service.ImageService
+import com.kotlin.sns.domain.Likes.repository.LikesRepository
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Notification.event.NotificationEvent
@@ -42,6 +43,7 @@ class PostingServiceImpl(
     private val memberRepository: MemberRepository,
     private val hashtagRepository: HashtagRepository,
     private val postingHashtagRepository: PostingHashtagRepository,
+    private val likesRepository: LikesRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val fileStorageService: FileStorageService,
     private val imageService: ImageService,
@@ -125,7 +127,9 @@ class PostingServiceImpl(
             writerName = writer.name,
             content = savedPosting.content,
             imageUrl = imageUrlList,
-            hashTagList = hashTagList
+            hashTagList = hashTagList,
+            likeCount = 0,
+            comments = emptyList()
         )
     }
 
@@ -164,13 +168,18 @@ class PostingServiceImpl(
         postingHashtagRepository.deleteByPostingId(postingId)
         val newHashtagList = requestUpdatePostingDto.hashTagList?.let { saveHashTag(it, posting) }
 
+        val likeCount = likesRepository.getLikesCount(postingId)
+        val comments = posting.comment.map { it.toResponse() }
+
         return ResponsePostingDto(
             postingId = posting.id,
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
             imageUrl = newImageUrlList,
-            hashTagList = newHashtagList
+            hashTagList = newHashtagList,
+            likeCount = likeCount,
+            comments = comments
         )
     }
 
@@ -309,13 +318,17 @@ class PostingServiceImpl(
     private fun createResponsePostingDto(posting : Posting) : ResponsePostingDto{
         val imageUrlList = posting.imageInPosting?.map { url -> url.imageUrl }?.distinct()
         val hashtagList = posting.postingHashtag?.map { postingHashtag -> postingHashtag.hashtag.tagName }?.distinct()
+        val likeCount = likesRepository.getLikesCount(posting.id)
+        val comments = posting.comment.map { it.toResponse() }
         return ResponsePostingDto(
             postingId = posting.id,
             writerId = posting.member.id,
             writerName = posting.member.name,
             content = posting.content,
             imageUrl = imageUrlList,
-            hashTagList = hashtagList
+            hashTagList = hashtagList,
+            likeCount = likeCount,
+            comments = comments
         )
     }
 

@@ -15,7 +15,9 @@ object PostingMapper {
             writerName = member.name,
             content = posting.content,
             imageUrl = posting.imageInPosting?.map { it.imageUrl },
-            hashTagList = posting.postingHashtag.map { it.hashtag.tagName }
+            hashTagList = posting.postingHashtag.map { it.hashtag.tagName },
+            likeCount = 0,
+            comments = emptyList()
         )
     }
 }

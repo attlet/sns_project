@@ -11,7 +11,7 @@ object MemberMapper {
     fun toDto(member : Member, postingList : List<ResponsePostingDto>?) : ResponseMemberDto{
         return ResponseMemberDto(
             name = member.name,
-            userId = member.userId,
+            userId = member.userId ?: "",
             email = member.email,
             profileImage = member?.profileImageUrl?.imageUrl,
             uploadedPostingList = postingList,

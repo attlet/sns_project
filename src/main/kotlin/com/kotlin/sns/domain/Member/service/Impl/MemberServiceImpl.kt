@@ -114,7 +114,7 @@ class MemberServiceImpl(
             name = requestCreateMemberDto.name,
             email = requestCreateMemberDto.email,
             pw = requestCreateMemberDto.pw,
-            roles = listOf("user"))
+            roles = mutableListOf("user"))
 
         val member = memberRepository.save(savedMember)
         return createResponseMemberDto(member)

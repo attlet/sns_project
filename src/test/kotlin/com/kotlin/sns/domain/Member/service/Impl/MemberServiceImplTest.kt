@@ -46,7 +46,7 @@ class MemberServiceImplTest {
             name = "User One",
             email = "user1@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         whenever(memberRepository.findById(memberId)).thenReturn(Optional.of(member))
 
@@ -97,7 +97,7 @@ class MemberServiceImplTest {
             name = request.name,
             email = request.email,
             pw = request.pw,
-            roles = listOf("user")
+            roles = mutableListOf("user")
         )
         whenever(memberRepository.save(Mockito.any(Member::class.java))).thenReturn(member)
 
@@ -167,7 +167,7 @@ class MemberServiceImplTest {
             name = "User One",
             email = "user1@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         whenever(memberRepository.findById(memberId)).thenReturn(Optional.of(member))
 
@@ -219,7 +219,7 @@ class MemberServiceImplTest {
             name = "User One",
             email = email,
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         whenever(memberRepository.findByEmail(email)).thenReturn(Optional.of(member))
 
@@ -264,7 +264,7 @@ class MemberServiceImplTest {
             name = "User One",
             email = "user1@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         // Add postingRepository mock if needed
         whenever(memberRepository.findByUserId(userId)).thenReturn(Optional.of(member))
@@ -292,7 +292,7 @@ class MemberServiceImplTest {
             name = "User One",
             email = "user1@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         whenever(memberRepository.findByUserId(userId)).thenReturn(Optional.of(member))
 

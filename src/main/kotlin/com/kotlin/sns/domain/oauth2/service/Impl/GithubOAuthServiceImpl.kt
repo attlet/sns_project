@@ -1,7 +1,8 @@
-package com.kotlin.sns.domain.Authentication.service.Impl
+package com.kotlin.sns.domain.oauth2.service.Impl
 
-import com.kotlin.sns.domain.Authentication.dto.GithubAccessTokenResponse
+import com.kotlin.sns.domain.Authentication.dto.GithubTokenResponse
 import com.kotlin.sns.domain.Authentication.dto.JwtResponse
+import com.kotlin.sns.domain.Authentication.dto.request.RequestOAuthToken
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -47,7 +48,7 @@ class GithubOAuthServiceImpl (
             tokenUrl,
             HttpMethod.POST,
             requestEntity,
-            GithubAccessTokenResponse::class.java
+            GithubTokenResponse::class.java
         )
 
         return responseEntity.body?.accessToken ?: throw IllegalStateException("Access Token을 가져오는데 실패했습니다.")

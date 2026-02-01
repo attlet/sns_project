@@ -1,6 +1,7 @@
 package com.kotlin.sns.domain.Comment.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
+import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
@@ -19,4 +20,14 @@ data class Comment(
     @JoinColumn(name = "postingId")
     var posting: Posting
 ) : BaseEntity(){
+
+    fun toResponse() : ResponseCommentDto {
+        return ResponseCommentDto(
+            writerId = this.member.id,
+            writerName = this.member.name,
+            content = this.content,
+            createDt = super.createdDt,
+            updateDt = super.updateDt
+        )
+    }
 }

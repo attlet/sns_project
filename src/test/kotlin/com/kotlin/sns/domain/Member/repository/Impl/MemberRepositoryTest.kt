@@ -21,7 +21,7 @@ class MemberRepositoryTest {
             name = "user1",
             email = "aaa@naver.com",
             pw = "1234",
-            roles = listOf("user1"))
+            roles = mutableListOf("user1"))
 
         memberRepository.save(member1)
 
@@ -45,7 +45,7 @@ class MemberRepositoryTest {
             name = "Test User",
             email = "test@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
 
         // when
@@ -65,7 +65,7 @@ class MemberRepositoryTest {
             name = "Test User",
             email = "test@example.com",
             pw = "password",
-            roles = listOf("USER")
+            roles = mutableListOf("USER")
         )
         memberRepository.save(member)
 

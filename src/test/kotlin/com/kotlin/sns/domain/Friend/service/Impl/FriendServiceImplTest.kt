@@ -53,8 +53,8 @@ class FriendServiceImplTest {
         // given
         val senderId = 1L
         val receiverId = 2L
-        val sender = Member("senderId", "sender", "sender@test.com", "password", roles = listOf("USER"))
-        val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = listOf("USER"))
+        val sender = Member("senderId", "sender", "sender@test.com", "password", roles = mutableListOf("USER"))
+        val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = mutableListOf("USER"))
         sender.id = senderId
         receiver.id = receiverId
 
@@ -64,7 +64,7 @@ class FriendServiceImplTest {
         whenever(memberRepository.findById(receiver.id!!)).thenReturn(Optional.of(receiver))
         whenever(friendRepository.isFriendRequestExist(receiver.id!!, sender.id!!)).thenReturn(false)
         whenever(friendRepository.save(any())).thenAnswer { it.arguments[0] as Friend }
-        doNothing().whenever(notificationService).createNotification(Mockito.any())
+//        doNothing().whenever(notificationService).createNotification(Mockito.any())
 
         // when
         val result = friendService.sendFriend(request)
@@ -109,9 +109,9 @@ class FriendServiceImplTest {
     @DisplayName("친구 요청 수락/거절 성공")
     fun updateFriend_Success() {
         // given
-        val sender = Member("senderId", "sender", "sender@test.com", "password", roles = listOf("USER"))
+        val sender = Member("senderId", "sender", "sender@test.com", "password", roles = mutableListOf("USER"))
         sender.id = 1L
-        val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = listOf("USER"))
+        val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = mutableListOf("USER"))
         receiver.id = 2L
         val friend = Friend(sender, receiver, FriendApplyStatusEnum.PENDING)
         friend.id = 1L
@@ -120,7 +120,7 @@ class FriendServiceImplTest {
         whenever(memberRepository.findById(sender.id!!)).thenReturn(Optional.of(sender))
         whenever(memberRepository.findById(receiver.id!!)).thenReturn(Optional.of(receiver))
         whenever(friendRepository.findById(friend.id!!)).thenReturn(Optional.of(friend))
-        doNothing().whenever(notificationService).createNotification(any())
+//        doNothing().whenever(notificationService).createNotification(any())
 
         // when
         val result = friendService.updateFriend(request)

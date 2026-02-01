@@ -72,7 +72,7 @@ class PostingServiceImplTest {
         // given
         val postingId = 1L
         val writerId = 1L
-        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = listOf("USER")).setId(writerId)
+        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = mutableListOf("USER")).setId(writerId)
         val posting = Posting(content = "Test Content", member = member).setId(postingId)
         whenever(postingRepository.findByIdForDetail(postingId)).thenReturn(Optional.of(posting))
 
@@ -120,7 +120,7 @@ class PostingServiceImplTest {
             hashTagList = listOf("test", "spring"),
             imageUrl = emptyList()
         )
-        val writer = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = listOf("USER")).setId(writerId)
+        val writer = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = mutableListOf("USER")).setId(writerId)
         val savedPosting = Posting(content = request.content, member = writer).setId(postingId)
 
         whenever(memberRepository.findById(writerId)).thenReturn(Optional.of(writer))
@@ -179,7 +179,7 @@ class PostingServiceImplTest {
             hashTagList = null,
             imageUrl = null
         )
-        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = listOf("USER")).setId(writerId)
+        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = mutableListOf("USER")).setId(writerId)
         val posting = Posting(content = "Original Content", member = member).setId(postingId)
         
         whenever(postingRepository.findById(postingId)).thenReturn(Optional.of(posting))
@@ -225,7 +225,7 @@ class PostingServiceImplTest {
         // given
         val postingId = 1L
         val writerId = 1L
-        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = listOf("USER")).setId(writerId)
+        val member = Member(userId = "user123", name = "User One", email = "user1@example.com", pw = "password", roles = mutableListOf("USER")).setId(writerId)
         val posting = Posting(content = "Test Content", member = member).setId(postingId)
         whenever(postingRepository.findById(postingId)).thenReturn(Optional.of(posting))
 
