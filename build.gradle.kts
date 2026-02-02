@@ -96,6 +96,11 @@ dependencies {
 	//prometheus
 	implementation ("io.micrometer:micrometer-registry-prometheus")
 
+	//webflux (for WebClient - external API calls)
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+	//wiremock (for external API mocking in tests)
+	testImplementation("org.wiremock:wiremock-standalone:3.3.1")
 
 }
 
