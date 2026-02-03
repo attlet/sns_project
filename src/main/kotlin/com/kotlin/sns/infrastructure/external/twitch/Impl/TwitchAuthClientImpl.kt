@@ -52,12 +52,12 @@ class TwitchAuthClientImpl(
                 .uri(TOKEN_ENDPOINT)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(
-                    BodyInserters.fromFormData("client_id", clientId)
+                    BodyInserters.fromFormData("client_id", clientId)    // 요청 body 설정. form 데이터로 변환됨.
                         .with("client_secret", clientSecret)
                         .with("grant_type", GRANT_TYPE)
                 )
-                .retrieve()
-                .bodyToMono(TwitchTokenResponse::class.java)
+                .retrieve()                                                    // 요청 실행 및 응답 처리 시작. 4xx/5xx 결과면 WebClientResponseException 발생
+                .bodyToMono(TwitchTokenResponse::class.java)                   // 응답 body를 TwitchTokenResponse로 역직렬화
                 .block()
                 ?: throw TwitchAuthException("Empty response from Twitch OAuth server")
 

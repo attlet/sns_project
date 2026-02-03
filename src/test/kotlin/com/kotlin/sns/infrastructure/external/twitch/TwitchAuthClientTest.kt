@@ -76,21 +76,13 @@ class TwitchAuthClientTest {
         @DisplayName("유효한 credentials로 토큰 발급 성공")
         fun `given valid credentials when getAccessToken then return token response`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""
-                                {
-                                    "access_token": "test-access-token-12345",
-                                    "expires_in": 3600,
-                                    "token_type": "bearer"
-                                }
-                            """.trimIndent())
-                    )
-            )
+            stubResponse(200, """
+                {
+                    "access_token": "test-access-token-12345",
+                    "expires_in": 3600,
+                    "token_type": "bearer"
+                }
+            """.trimIndent())
 
             // When
             val result = twitchAuthClient.getAccessToken()
@@ -117,20 +109,14 @@ class TwitchAuthClientTest {
         @DisplayName("잘못된 Client ID로 401 에러 발생")
         fun `given invalid client id when getAccessToken then throw TwitchAuthException`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(401)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""{"status": 401, "message": "invalid client"}""")
-                    )
-            )
+            stubResponse(401, """{"status": 401, "message": "invalid client"}""")
 
             // When & Then
+            // 401 오류로 WebClientResponseException 발생 catch -> 이후 TwitchAuthException으로 throw
             val exception = assertThrows<TwitchAuthException> {
                 twitchAuthClient.getAccessToken()
             }
+
             assertTrue(exception.message?.contains("401") == true)
         }
 
@@ -138,15 +124,7 @@ class TwitchAuthClientTest {
         @DisplayName("잘못된 Client Secret으로 403 에러 발생")
         fun `given invalid client secret when getAccessToken then throw TwitchAuthException`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(403)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""{"status": 403, "message": "invalid client secret"}""")
-                    )
-            )
+            stubResponse(403, """{"status": 403, "message": "invalid client secret"}""")
 
             // When & Then
             assertThrows<TwitchAuthException> {
@@ -158,14 +136,7 @@ class TwitchAuthClientTest {
         @DisplayName("서버 오류 시 예외 발생")
         fun `given server error when getAccessToken then throw TwitchAuthException`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(500)
-                            .withBody("Internal Server Error")
-                    )
-            )
+            stubResponse(500, "Internal Server Error")
 
             // When & Then
             assertThrows<TwitchAuthException> {
@@ -182,21 +153,13 @@ class TwitchAuthClientTest {
         @DisplayName("캐시된 토큰이 없으면 새 토큰 발급")
         fun `given no cached token when getValidToken then fetch new token`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""
-                                {
-                                    "access_token": "new-token-abc",
-                                    "expires_in": 3600,
-                                    "token_type": "bearer"
-                                }
-                            """.trimIndent())
-                    )
-            )
+            stubResponse(200, """
+                {
+                    "access_token": "new-token-abc",
+                    "expires_in": 3600,
+                    "token_type": "bearer"
+                }
+            """.trimIndent())
 
             // When
             val token = twitchAuthClient.getValidToken()
@@ -210,21 +173,13 @@ class TwitchAuthClientTest {
         @DisplayName("유효한 캐시 토큰이 있으면 재사용 (API 호출 없음)")
         fun `given valid cached token when getValidToken then return cached token without api call`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""
-                                {
-                                    "access_token": "cached-token-xyz",
-                                    "expires_in": 3600,
-                                    "token_type": "bearer"
-                                }
-                            """.trimIndent())
-                    )
-            )
+            stubResponse(200, """
+                {
+                    "access_token": "cached-token-xyz",
+                    "expires_in": 3600,
+                    "token_type": "bearer"
+                }
+            """.trimIndent())
             val firstToken = twitchAuthClient.getValidToken()
 
             // When
@@ -242,21 +197,13 @@ class TwitchAuthClientTest {
         @DisplayName("여러 번 호출해도 캐시된 토큰 재사용")
         fun `given cached token when getValidToken called multiple times then reuse cached token`() {
             // Given
-            wireMockServer.stubFor(
-                post(urlEqualTo(TOKEN_ENDPOINT))
-                    .willReturn(
-                        aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", "application/json")
-                            .withBody("""
-                                {
-                                    "access_token": "cached-token",
-                                    "expires_in": 3600,
-                                    "token_type": "bearer"
-                                }
-                            """.trimIndent())
-                    )
-            )
+            stubResponse(200, """
+                {
+                    "access_token": "cached-token",
+                    "expires_in": 3600,
+                    "token_type": "bearer"
+                }
+            """.trimIndent())
 
             // When
             repeat(5) { twitchAuthClient.getValidToken() }
@@ -264,5 +211,23 @@ class TwitchAuthClientTest {
             // Then
             wireMockServer.verify(1, postRequestedFor(urlEqualTo(TOKEN_ENDPOINT)))
         }
+    }
+
+    /**
+     * wireMockServer 반환 정보 세팅하는 함수
+     *
+     * @param status
+     * @param body
+     */
+    private fun stubResponse(status : Int, body : String = "") {
+        wireMockServer.stubFor(
+            post(urlEqualTo(TOKEN_ENDPOINT))
+                .willReturn(
+                    aResponse()
+                        .withStatus(status)     // http 상태 코드
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                )
+        )
     }
 }
