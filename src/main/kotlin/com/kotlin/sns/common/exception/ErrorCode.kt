@@ -58,5 +58,11 @@ enum class ErrorCode(
     // --- 콘텐츠 관련 오류 ---
     CONTENT_NOT_FOUND("CT001", HttpStatus.NOT_FOUND, "해당 콘텐츠를 찾을 수 없습니다. (ID: {0})"),
 
-    ; 
+    // --- 외부 API 관련 오류 ---
+    TWITCH_AUTH_FAILED("EX001", HttpStatus.UNAUTHORIZED, "Twitch OAuth 인증에 실패했습니다."),
+    TWITCH_AUTH_SERVER_ERROR("EX002", HttpStatus.INTERNAL_SERVER_ERROR, "Twitch OAuth 서버 오류가 발생했습니다."),
+    IGDB_API_FAILED("EX003", HttpStatus.BAD_REQUEST, "IGDB API 호출에 실패했습니다."),
+    IGDB_API_SERVER_ERROR("EX004", HttpStatus.INTERNAL_SERVER_ERROR, "IGDB API 서버 오류가 발생했습니다."),
+
+    ;
 }

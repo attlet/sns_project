@@ -3,7 +3,8 @@ package com.kotlin.sns.infrastructure.external.twitch
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-import com.kotlin.sns.infrastructure.external.twitch.exception.TwitchAuthException
+import com.kotlin.sns.common.exception.CustomException
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.infrastructure.external.twitch.Impl.TwitchAuthClientImpl
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -107,41 +108,44 @@ class TwitchAuthClientTest {
 
         @Test
         @DisplayName("잘못된 Client ID로 401 에러 발생")
-        fun `given invalid client id when getAccessToken then throw TwitchAuthException`() {
+        fun `given invalid client id when getAccessToken then throw CustomException with TWITCH_AUTH_FAILED`() {
             // Given
             stubResponse(401, """{"status": 401, "message": "invalid client"}""")
 
             // When & Then
-            // 401 오류로 WebClientResponseException 발생 catch -> 이후 TwitchAuthException으로 throw
-            val exception = assertThrows<TwitchAuthException> {
+            val exception = assertThrows<CustomException> {
                 twitchAuthClient.getAccessToken()
             }
 
-            assertTrue(exception.message?.contains("401") == true)
+            assertEquals(ErrorCode.TWITCH_AUTH_FAILED, exception.errorCode)
         }
 
         @Test
         @DisplayName("잘못된 Client Secret으로 403 에러 발생")
-        fun `given invalid client secret when getAccessToken then throw TwitchAuthException`() {
+        fun `given invalid client secret when getAccessToken then throw CustomException with TWITCH_AUTH_FAILED`() {
             // Given
             stubResponse(403, """{"status": 403, "message": "invalid client secret"}""")
 
             // When & Then
-            assertThrows<TwitchAuthException> {
+            val exception = assertThrows<CustomException> {
                 twitchAuthClient.getAccessToken()
             }
+
+            assertEquals(ErrorCode.TWITCH_AUTH_FAILED, exception.errorCode)
         }
 
         @Test
         @DisplayName("서버 오류 시 예외 발생")
-        fun `given server error when getAccessToken then throw TwitchAuthException`() {
+        fun `given server error when getAccessToken then throw CustomException with TWITCH_AUTH_SERVER_ERROR`() {
             // Given
             stubResponse(500, "Internal Server Error")
 
             // When & Then
-            assertThrows<TwitchAuthException> {
+            val exception = assertThrows<CustomException> {
                 twitchAuthClient.getAccessToken()
             }
+
+            assertEquals(ErrorCode.TWITCH_AUTH_SERVER_ERROR, exception.errorCode)
         }
     }
 
@@ -216,15 +220,15 @@ class TwitchAuthClientTest {
     /**
      * wireMockServer 반환 정보 세팅하는 함수
      *
-     * @param status
-     * @param body
+     * @param status : 예상 http 상태 코드
+     * @param body   : 예상 json body
      */
     private fun stubResponse(status : Int, body : String = "") {
         wireMockServer.stubFor(
             post(urlEqualTo(TOKEN_ENDPOINT))
                 .willReturn(
                     aResponse()
-                        .withStatus(status)     // http 상태 코드
+                        .withStatus(status)
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)
                 )

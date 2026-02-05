@@ -1,8 +1,9 @@
 package com.kotlin.sns.infrastructure.external.twitch.Impl
 
+import com.kotlin.sns.common.exception.CustomException
+import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.infrastructure.external.twitch.TwitchAuthClient
 import com.kotlin.sns.infrastructure.external.twitch.dto.TwitchTokenResponse
-import com.kotlin.sns.infrastructure.external.twitch.exception.TwitchAuthException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
@@ -41,7 +42,7 @@ class TwitchAuthClientImpl(
      * 새로운 액세스 토큰을 발급받습니다.
      *
      * @return TwitchTokenResponse 토큰 정보
-     * @throws TwitchAuthException 인증 실패 시
+     * @throws CustomException 인증 실패 시 (TWITCH_AUTH_FAILED, TWITCH_AUTH_SERVER_ERROR)
      */
     override fun getAccessToken(): TwitchTokenResponse {
         logger.debug { "Requesting new Twitch access token" }
@@ -59,7 +60,7 @@ class TwitchAuthClientImpl(
                 .retrieve()                                                    // 요청 실행 및 응답 처리 시작. 4xx/5xx 결과면 WebClientResponseException 발생
                 .bodyToMono(TwitchTokenResponse::class.java)                   // 응답 body를 TwitchTokenResponse로 역직렬화
                 .block()
-                ?: throw TwitchAuthException("Empty response from Twitch OAuth server")
+                ?: throw CustomException(ErrorCode.TWITCH_AUTH_SERVER_ERROR)
 
             // 캐시 업데이트
             cachedToken = response.accessToken
@@ -71,15 +72,19 @@ class TwitchAuthClientImpl(
 
         } catch (e: WebClientResponseException) {
             logger.error(e) { "Failed to obtain Twitch access token: ${e.statusCode} - ${e.responseBodyAsString}" }
-            throw TwitchAuthException(
-                "Failed to obtain Twitch access token: ${e.statusCode.value()} - ${e.responseBodyAsString}",
-                e
-            )
-        } catch (e: TwitchAuthException) {
+
+            val errorCode = if (e.statusCode.is5xxServerError) {
+                ErrorCode.TWITCH_AUTH_SERVER_ERROR
+            } else {
+                ErrorCode.TWITCH_AUTH_FAILED
+            }
+
+            throw CustomException(errorCode, e)
+        } catch (e: CustomException) {
             throw e
         } catch (e: Exception) {
             logger.error(e) { "Unexpected error while obtaining Twitch access token" }
-            throw TwitchAuthException("Unexpected error while obtaining Twitch access token: ${e.message}", e)
+            throw CustomException(ErrorCode.TWITCH_AUTH_SERVER_ERROR, e)
         }
     }
 
