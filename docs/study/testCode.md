@@ -1,12 +1,8 @@
-=============================================================================
-                        테스트 코드 기술 정리
-=============================================================================
 
-## TwitchAuthClientTest에서 사용된 기술
 
------------------------------------------------------------------------------
-1. WireMock (HTTP Mock Server)
------------------------------------------------------------------------------
+# TwitchAuthClientTest에서 사용된 기술
+
+## 1. WireMock (HTTP Mock Server)
 - 라이브러리: com.github.tomakehurst.wiremock
 - 용도: 외부 HTTP API를 모킹하여 실제 서버 없이 테스트 수행
 
@@ -15,6 +11,18 @@
 - wireMockConfig().dynamicPort(): 사용 가능한 포트를 동적으로 할당
 - stubFor(): 특정 요청에 대한 응답 정의
 - verify(): API 호출이 예상대로 발생했는지 검증
+
+### 사전 set up
+```kotlin
+@BeforeAll
+public setup(){
+    wireMockServer = WireMockServer(wireMockConfig.dynamicPort()) // 
+    wireMockServer.start()
+}
+
+```
+- dynamicPort 설정을 통해 os 가 빈 포트를 테스트 시 자동으로 할당
+- 병렬 테스트 안전하게 하기 위함
 
 ### 사용 예시
 ```kotlin
