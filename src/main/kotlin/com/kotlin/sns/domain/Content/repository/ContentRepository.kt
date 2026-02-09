@@ -21,4 +21,12 @@ interface ContentRepository : JpaRepository<Content, Long>, ContentRepositoryCus
      * @return 페이징된 콘텐츠 목록
      */
     fun findByIsDeletedFalse(pageable: Pageable): Page<Content>
+
+    /**
+     * IGDB ID로 삭제되지 않은 콘텐츠 조회
+     *
+     * @param igdbId IGDB 게임 ID
+     * @return 해당 IGDB ID의 콘텐츠, 없으면 null
+     */
+    fun findByIgdbIdAndIsDeletedFalse(igdbId: Long): Content?
 }

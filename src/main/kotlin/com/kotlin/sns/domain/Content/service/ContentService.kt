@@ -64,4 +64,13 @@ interface ContentService {
      * @throws CustomException 콘텐츠가 존재하지 않을 경우
      */
     fun delete(contentId: Long)
+
+    /**
+     * IGDB 게임을 Content로 임포트
+     *
+     * @param igdbId IGDB 게임 ID
+     * @return 생성된 콘텐츠 정보
+     * @throws CustomException IGDB에서 게임을 찾을 수 없는 경우
+     */
+    fun importGameFromIgdb(igdbId: Long): ResponseContentDto
 }

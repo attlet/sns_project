@@ -9,6 +9,8 @@ import com.kotlin.sns.domain.Content.dto.response.ResponseContentDto
 import com.kotlin.sns.domain.Content.mapper.ContentMapper
 import com.kotlin.sns.domain.Content.repository.ContentRepository
 import com.kotlin.sns.domain.Content.service.ContentService
+import com.kotlin.sns.infrastructure.external.igdb.IgdbClient
+import com.kotlin.sns.infrastructure.external.igdb.mapper.IgdbMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -20,10 +22,12 @@ import org.springframework.transaction.annotation.Transactional
  * 콘텐츠(게임/만화/애니) CRUD 및 검색 기능을 제공한다.
  *
  * @property contentRepository 콘텐츠 레포지토리
+ * @property igdbClient IGDB API 클라이언트
  */
 @Service
 class ContentServiceImpl(
-    private val contentRepository: ContentRepository
+    private val contentRepository: ContentRepository,
+    private val igdbClient: IgdbClient
 ) : ContentService {
 
     /**
@@ -125,5 +129,31 @@ class ContentServiceImpl(
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
 
         content.isDeleted = true
+    }
+
+    /**
+     * IGDB 게임을 Content로 임포트
+     *
+     * IGDB API에서 게임 정보를 조회한 후, Content 엔티티로 변환하여 저장한다.
+     *
+     * @param igdbId IGDB 게임 ID
+     * @return 생성된 콘텐츠 정보
+     * @throws CustomException IGDB에서 게임을 찾을 수 없는 경우
+     */
+    @Transactional
+    override fun importGameFromIgdb(igdbId: Long): ResponseContentDto {
+        val existing = contentRepository.findByIgdbIdAndIsDeletedFalse(igdbId)
+        if (existing != null) {
+            return ContentMapper.toDto(existing)
+        }
+
+        val igdbGameDto = igdbClient.getGameById(igdbId)
+            ?: throw CustomException(ErrorCode.IGDB_GAME_NOT_FOUND)
+
+        val createDto = IgdbMapper.toCreateContentDto(igdbGameDto)
+        val content = ContentMapper.toEntity(createDto)
+        val saved = contentRepository.save(content)
+
+        return ContentMapper.toDto(saved)
     }
 }

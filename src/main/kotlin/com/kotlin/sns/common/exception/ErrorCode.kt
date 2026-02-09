@@ -63,6 +63,7 @@ enum class ErrorCode(
     TWITCH_AUTH_SERVER_ERROR("EX002", HttpStatus.INTERNAL_SERVER_ERROR, "Twitch OAuth 서버 오류가 발생했습니다."),
     IGDB_API_FAILED("EX003", HttpStatus.BAD_REQUEST, "IGDB API 호출에 실패했습니다."),
     IGDB_API_SERVER_ERROR("EX004", HttpStatus.INTERNAL_SERVER_ERROR, "IGDB API 서버 오류가 발생했습니다."),
+    IGDB_GAME_NOT_FOUND("EX005", HttpStatus.NOT_FOUND, "IGDB에서 해당 게임을 찾을 수 없습니다. (ID: {0})"),
 
     ;
 }
