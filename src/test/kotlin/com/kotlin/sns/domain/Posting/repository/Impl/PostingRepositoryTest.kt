@@ -4,7 +4,7 @@ import com.kotlin.sns.domain.Posting.repository.PostingRepository
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 
 @DataJpaTest
-class postingRepositoryTest(
+class PostingRepositoryTest(
     private val postingRepository : PostingRepository
 ) {
 
