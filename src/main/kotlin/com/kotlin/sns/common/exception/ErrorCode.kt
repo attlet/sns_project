@@ -65,5 +65,10 @@ enum class ErrorCode(
     IGDB_API_SERVER_ERROR("EX004", HttpStatus.INTERNAL_SERVER_ERROR, "IGDB API 서버 오류가 발생했습니다."),
     IGDB_GAME_NOT_FOUND("EX005", HttpStatus.NOT_FOUND, "IGDB에서 해당 게임을 찾을 수 없습니다. (ID: {0})"),
 
+    // --- 리뷰 관련 오류 ---
+    REVIEW_NOT_FOUND("RV001", HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다. (ID: {0})"),
+    DUPLICATE_REVIEW("RV002", HttpStatus.CONFLICT, "이미 해당 작품에 대한 평가가 존재합니다."),
+    INVALID_RATING("RV003", HttpStatus.BAD_REQUEST, "별점은 1~5 사이의 값이어야 합니다."),
+
     ;
 }
