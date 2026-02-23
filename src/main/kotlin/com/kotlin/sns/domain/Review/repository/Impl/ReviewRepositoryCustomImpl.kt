@@ -9,8 +9,8 @@ import com.kotlin.sns.domain.Review.repository.ReviewRepositoryCustom
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 
 /**
@@ -51,13 +51,13 @@ class ReviewRepositoryCustomImpl(
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        val total = jpaQueryFactory
-            .select(qReview.count())
-            .from(qReview)
-            .where(builder)
-            .fetchOne() ?: 0L
-
-        return PageImpl(results, pageable, total)
+        return PageableExecutionUtils.getPage(results, pageable) {
+            jpaQueryFactory
+                .select(qReview.count())
+                .from(qReview)
+                .where(builder)
+                .fetchOne() ?: 0L
+        }
     }
 
     /**
@@ -83,13 +83,13 @@ class ReviewRepositoryCustomImpl(
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        val total = jpaQueryFactory
-            .select(qReview.count())
-            .from(qReview)
-            .where(builder)
-            .fetchOne() ?: 0L
-
-        return PageImpl(results, pageable, total)
+        return PageableExecutionUtils.getPage(results, pageable) {
+            jpaQueryFactory
+                .select(qReview.count())
+                .from(qReview)
+                .where(builder)
+                .fetchOne() ?: 0L
+        }
     }
 
     /**
