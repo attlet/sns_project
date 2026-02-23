@@ -2,6 +2,8 @@ package com.kotlin.sns.domain.Review.repository
 
 import com.kotlin.sns.domain.Review.entity.Review
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 /**
@@ -18,7 +20,8 @@ interface ReviewRepository : JpaRepository<Review, Long>, ReviewRepositoryCustom
      * @param id Review ID
      * @return 해당 Review, 없으면 null
      */
-    fun findByIdAndIsDeletedFalse(id: Long): Review?
+    @Query("SELECT r FROM Review r WHERE r.id = :id AND r.isDeleted = false")
+    fun findActiveById(@Param("id") id: Long): Review?
 
     /**
      * Member + Content 조합으로 삭제되지 않은 Review 조회 (중복 방지용)
@@ -29,5 +32,6 @@ interface ReviewRepository : JpaRepository<Review, Long>, ReviewRepositoryCustom
      * @param contentId 콘텐츠 ID
      * @return 해당 Review, 없으면 null
      */
-    fun findByMemberIdAndContentIdAndIsDeletedFalse(memberId: Long, contentId: Long): Review?
+    @Query("SELECT r FROM Review r WHERE r.member.id = :memberId AND r.content.id = :contentId AND r.isDeleted = false")
+    fun findActiveByMemberAndContent(@Param("memberId") memberId: Long, @Param("contentId") contentId: Long): Review?
 }

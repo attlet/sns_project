@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageRequest
 import com.kotlin.sns.domain.Content.repository.Impl.ContentRepositoryTestConfig
 
 /**
@@ -120,7 +121,7 @@ class ReviewRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findByIdAndIsDeletedFalse 테스트")
+    @DisplayName("findActiveById 테스트")
     inner class FindByIdAndIsDeletedFalseTest {
 
         @Test
@@ -137,7 +138,7 @@ class ReviewRepositoryTest {
             )
 
             // when
-            val found = reviewRepository.findByIdAndIsDeletedFalse(saved.id)
+            val found = reviewRepository.findActiveById(saved.id)
 
             // then
             assertThat(found).isNotNull
@@ -159,7 +160,7 @@ class ReviewRepositoryTest {
             )
 
             // when
-            val found = reviewRepository.findByIdAndIsDeletedFalse(saved.id)
+            val found = reviewRepository.findActiveById(saved.id)
 
             // then
             assertThat(found).isNull()
@@ -169,7 +170,7 @@ class ReviewRepositoryTest {
         @DisplayName("존재하지 않는 ID 조회 시 null 반환")
         fun findNonExistentReviewReturnsNull() {
             // when
-            val found = reviewRepository.findByIdAndIsDeletedFalse(999L)
+            val found = reviewRepository.findActiveById(999L)
 
             // then
             assertThat(found).isNull()
@@ -177,7 +178,7 @@ class ReviewRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findByMemberIdAndContentIdAndIsDeletedFalse 테스트")
+    @DisplayName("findActiveByMemberAndContent 테스트")
     inner class FindByMemberIdAndContentIdAndIsDeletedFalseTest {
 
         @Test
@@ -194,7 +195,7 @@ class ReviewRepositoryTest {
             )
 
             // when
-            val found = reviewRepository.findByMemberIdAndContentIdAndIsDeletedFalse(
+            val found = reviewRepository.findActiveByMemberAndContent(
                 savedMember.id, savedContent.id
             )
 
@@ -208,10 +209,155 @@ class ReviewRepositoryTest {
         @DisplayName("존재하지 않는 조합 조회 시 null 반환")
         fun findNonExistentCombinationReturnsNull() {
             // when
-            val found = reviewRepository.findByMemberIdAndContentIdAndIsDeletedFalse(999L, 999L)
+            val found = reviewRepository.findActiveByMemberAndContent(999L, 999L)
 
             // then
             assertThat(found).isNull()
+        }
+    }
+
+    @Nested
+    @DisplayName("findReviewsByMember 테스트")
+    inner class FindReviewsByMemberTest {
+
+        @Test
+        @DisplayName("특정 Member의 Review 목록 페이징 조회 성공")
+        fun findReviewsByMember_WithPaging() {
+            // given
+            val content2 = contentRepository.save(
+                Content(
+                    type = ContentType.GAME,
+                    title = "Dark Souls",
+                    description = "어두운 RPG",
+                    releaseYear = 2011
+                )
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
+            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.DROPPED))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByMember(savedMember.id, null, pageable)
+
+            // then
+            assertThat(result.content).hasSize(2)
+            assertThat(result.totalElements).isEqualTo(2)
+            assertThat(result.content).allMatch { it.member.id == savedMember.id }
+        }
+
+        @Test
+        @DisplayName("삭제된 Review는 목록에서 제외됨")
+        fun findReviewsByMember_ExcludesDeleted() {
+            // given
+            val content2 = contentRepository.save(
+                Content(
+                    type = ContentType.GAME,
+                    title = "Dark Souls",
+                    description = "어두운 RPG",
+                    releaseYear = 2011
+                )
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
+            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.DROPPED, isDeleted = true))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByMember(savedMember.id, null, pageable)
+
+            // then
+            assertThat(result.content).hasSize(1)
+            assertThat(result.content[0].isDeleted).isFalse()
+        }
+
+        @Test
+        @DisplayName("status=FAVORITE 필터 적용 시 FAVORITE 리뷰만 반환")
+        fun findReviewsByMember_WithStatusFilter() {
+            // given
+            val content2 = contentRepository.save(
+                Content(
+                    type = ContentType.GAME,
+                    title = "Dark Souls",
+                    description = "어두운 RPG",
+                    releaseYear = 2011
+                )
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE))
+            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.DROPPED))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByMember(savedMember.id, ReviewStatus.FAVORITE, pageable)
+
+            // then
+            assertThat(result.content).hasSize(1)
+            assertThat(result.content[0].status).isEqualTo(ReviewStatus.FAVORITE)
+        }
+
+        @Test
+        @DisplayName("status=null이면 모든 상태의 리뷰 반환")
+        fun findReviewsByMember_WithNullStatus_ReturnsAll() {
+            // given
+            val content2 = contentRepository.save(
+                Content(
+                    type = ContentType.GAME,
+                    title = "Dark Souls",
+                    description = "어두운 RPG",
+                    releaseYear = 2011
+                )
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE))
+            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.WISHLIST))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByMember(savedMember.id, null, pageable)
+
+            // then
+            assertThat(result.content).hasSize(2)
+        }
+    }
+
+    @Nested
+    @DisplayName("findReviewsByContent 테스트")
+    inner class FindReviewsByContentTest {
+
+        @Test
+        @DisplayName("특정 Content의 Review 목록 페이징 조회 성공")
+        fun findReviewsByContent_WithPaging() {
+            // given
+            val member2 = memberRepository.save(
+                Member(userId = "user2", name = "유저2", email = "user2@test.com", pw = "pw456")
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
+            reviewRepository.save(Review(member = member2, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByContent(savedContent.id, pageable)
+
+            // then
+            assertThat(result.content).hasSize(2)
+            assertThat(result.totalElements).isEqualTo(2)
+            assertThat(result.content).allMatch { it.content.id == savedContent.id }
+        }
+
+        @Test
+        @DisplayName("삭제된 Review는 Content 목록에서 제외됨")
+        fun findReviewsByContent_ExcludesDeleted() {
+            // given
+            val member2 = memberRepository.save(
+                Member(userId = "user2", name = "유저2", email = "user2@test.com", pw = "pw456")
+            )
+            reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
+            reviewRepository.save(Review(member = member2, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE, isDeleted = true))
+            val pageable = PageRequest.of(0, 10)
+
+            // when
+            val result = reviewRepository.findReviewsByContent(savedContent.id, pageable)
+
+            // then
+            assertThat(result.content).hasSize(1)
+            assertThat(result.content[0].isDeleted).isFalse()
         }
     }
 }

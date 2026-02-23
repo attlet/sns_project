@@ -41,7 +41,7 @@ class ReviewServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun getReviewById(reviewId: Long): ResponseReviewDto {
-        val review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+        val review = reviewRepository.findActiveById(reviewId)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
         return ReviewMapper.toDto(review)
@@ -90,7 +90,7 @@ class ReviewServiceImpl(
     override fun createReview(request: RequestCreateReviewDto): ResponseReviewDto {
         validateRating(request.rating)
 
-        val existingReview = reviewRepository.findByMemberIdAndContentIdAndIsDeletedFalse(request.memberId, request.contentId)
+        val existingReview = reviewRepository.findActiveByMemberAndContent(request.memberId, request.contentId)
         if (existingReview != null) {
             throw CustomException(ErrorCode.DUPLICATE_REVIEW)
         }
@@ -119,7 +119,7 @@ class ReviewServiceImpl(
      */
     @Transactional
     override fun updateReview(request: RequestUpdateReviewDto): ResponseReviewDto {
-        val review = reviewRepository.findByIdAndIsDeletedFalse(request.reviewId)
+        val review = reviewRepository.findActiveById(request.reviewId)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
         request.rating?.let {
@@ -142,7 +142,7 @@ class ReviewServiceImpl(
      */
     @Transactional
     override fun deleteReview(reviewId: Long) {
-        val review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+        val review = reviewRepository.findActiveById(reviewId)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
         review.isDeleted = true
