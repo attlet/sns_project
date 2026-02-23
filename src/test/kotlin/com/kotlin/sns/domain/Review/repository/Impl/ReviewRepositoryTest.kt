@@ -177,11 +177,11 @@ class ReviewRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findByMemberIdAndContentId 테스트")
-    inner class FindByMemberIdAndContentIdTest {
+    @DisplayName("findByMemberIdAndContentIdAndIsDeletedFalse 테스트")
+    inner class FindByMemberIdAndContentIdAndIsDeletedFalseTest {
 
         @Test
-        @DisplayName("Member + Content 조합으로 Review 조회 성공")
+        @DisplayName("Member + Content 조합으로 삭제되지 않은 Review 조회 성공")
         fun findByMemberAndContent() {
             // given
             reviewRepository.save(
@@ -194,7 +194,7 @@ class ReviewRepositoryTest {
             )
 
             // when
-            val found = reviewRepository.findByMemberIdAndContentId(
+            val found = reviewRepository.findByMemberIdAndContentIdAndIsDeletedFalse(
                 savedMember.id, savedContent.id
             )
 
@@ -208,7 +208,7 @@ class ReviewRepositoryTest {
         @DisplayName("존재하지 않는 조합 조회 시 null 반환")
         fun findNonExistentCombinationReturnsNull() {
             // when
-            val found = reviewRepository.findByMemberIdAndContentId(999L, 999L)
+            val found = reviewRepository.findByMemberIdAndContentIdAndIsDeletedFalse(999L, 999L)
 
             // then
             assertThat(found).isNull()

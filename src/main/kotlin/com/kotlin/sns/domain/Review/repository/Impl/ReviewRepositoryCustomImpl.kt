@@ -1,5 +1,6 @@
 package com.kotlin.sns.domain.Review.repository.Impl
 
+import com.kotlin.sns.domain.Content.entity.QContent
 import com.kotlin.sns.domain.Member.entity.QMember
 import com.kotlin.sns.domain.Review.entity.QReview
 import com.kotlin.sns.domain.Review.entity.Review
@@ -26,6 +27,7 @@ class ReviewRepositoryCustomImpl(
 
     private val qReview = QReview.review
     private val qMember = QMember.member
+    private val qContent = QContent.content
 
     /**
      * 특정 Member의 삭제되지 않은 Review 목록 조회 (동적 status 필터, 페이징)
@@ -42,6 +44,7 @@ class ReviewRepositoryCustomImpl(
 
         val results = jpaQueryFactory
             .selectFrom(qReview)
+            .join(qReview.content, qContent).fetchJoin()
             .where(builder)
             .orderBy(qReview.createdDt.desc())
             .offset(pageable.offset)
