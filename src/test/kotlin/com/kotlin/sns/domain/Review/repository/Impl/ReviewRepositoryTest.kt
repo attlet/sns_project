@@ -93,18 +93,14 @@ class ReviewRepositoryTest {
         @Test
         @DisplayName("모든 필드를 포함한 Review 저장 성공")
         fun saveReviewWithAllFields() {
-            // given
-            val syncTime = java.time.Instant.now()
+            // given — externalRating/playtime/syncedAt은 리팩토링 후 ExternalLibraryRecord로 분리됨
             val review = Review(
                 member = savedMember,
                 content = savedContent,
                 rating = 5,
                 status = ReviewStatus.FAVORITE,
                 comment = "역대급 명작",
-                source = ReviewSource.STEAM,
-                externalRating = 9.5,
-                playtime = 12000,
-                syncedAt = syncTime
+                source = ReviewSource.STEAM
             )
 
             // when
@@ -114,9 +110,8 @@ class ReviewRepositoryTest {
             assertThat(saved.id).isNotEqualTo(0L)
             assertThat(saved.comment).isEqualTo("역대급 명작")
             assertThat(saved.source).isEqualTo(ReviewSource.STEAM)
-            assertThat(saved.externalRating).isEqualTo(9.5)
-            assertThat(saved.playtime).isEqualTo(12000)
-            assertThat(saved.syncedAt).isEqualTo(syncTime)
+            assertThat(saved.rating).isEqualTo(5)
+            assertThat(saved.status).isEqualTo(ReviewStatus.FAVORITE)
         }
     }
 
