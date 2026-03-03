@@ -6,6 +6,7 @@ import com.kotlin.sns.domain.Recommendation.dto.response.RecommendationType
 import com.kotlin.sns.domain.Recommendation.dto.response.ResponseRecommendationDto
 import com.kotlin.sns.domain.Recommendation.repository.RecommendationQueryRepository
 import com.kotlin.sns.domain.Review.entity.QReview
+import com.querydsl.core.BooleanBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
 
@@ -32,54 +33,38 @@ class RecommendationQueryRepositoryImpl(
     /**
      * 인기도 기반 콘텐츠 조회
      *
-     * 1. 내가 평가한 content_id 목록 조회
-     * 2. LEFT JOIN review (isDeleted=false, rating IS NOT NULL)
-     * 3. type 필터, 미평가 콘텐츠 필터, HAVING COUNT >= 1
-     * 4. AVG(rating) DESC, COUNT DESC 정렬
+     * 내가 평가하지 않은 콘텐츠 중 AVG(rating) DESC, COUNT DESC 순으로 반환한다.
      */
     override fun findPopularContents(memberId: Long, type: ContentType?, limit: Int): List<ResponseRecommendationDto> {
-        val myContentIds = jpaQueryFactory
-            .select(qReview.content.id)
-            .from(qReview)
-            .where(qReview.member.id.eq(memberId), qReview.isDeleted.isFalse)
-            .fetch()
-            .filterNotNull()
+        val myContentIds = fetchMyRatedContentIds(memberId)
+        val avgRating = qReview.rating.avg()
+        val reviewCount = qReview.count()
 
-        val avgRatingExpr = qReview.rating.avg()
-        val countExpr = qReview.count()
-
-        val conditions = listOfNotNull(
-            qContent.isDeleted.isFalse,
-            type?.let { qContent.type.eq(it) },
-            if (myContentIds.isEmpty()) null else qContent.id.notIn(myContentIds)
-        )
-
-        val results = jpaQueryFactory
-            .select(qContent.id, qContent.title, qContent.type, qContent.thumbnailUrl, avgRatingExpr, countExpr)
+        return jpaQueryFactory
+            .select(qContent.id, qContent.title, qContent.type, qContent.thumbnailUrl, avgRating, reviewCount)
             .from(qContent)
             .leftJoin(qReview).on(
                 qReview.content.id.eq(qContent.id),
                 qReview.isDeleted.isFalse,
                 qReview.rating.isNotNull
             )
-            .where(*conditions.toTypedArray())
+            .where(buildPopularConditions(myContentIds, type))
             .groupBy(qContent.id)
-            .having(countExpr.gt(0))
-            .orderBy(avgRatingExpr.desc(), countExpr.desc())
+            .having(reviewCount.gt(0))
+            .orderBy(avgRating.desc(), reviewCount.desc())
             .limit(limit.toLong())
             .fetch()
-
-        return results.map {
-            ResponseRecommendationDto(
-                contentId = it.get(qContent.id)!!,
-                title = it.get(qContent.title)!!,
-                type = it.get(qContent.type)!!,
-                thumbnailUrl = it.get(qContent.thumbnailUrl),
-                avgRating = it.get(avgRatingExpr) ?: 0.0,
-                reviewCount = it.get(countExpr)?.toInt() ?: 0,
-                recommendationType = RecommendationType.POPULAR
-            )
-        }
+            .map {
+                ResponseRecommendationDto(
+                    contentId = it.get(qContent.id)!!,
+                    title = it.get(qContent.title)!!,
+                    type = it.get(qContent.type)!!,
+                    thumbnailUrl = it.get(qContent.thumbnailUrl),
+                    avgRating = it.get(avgRating) ?: 0.0,
+                    reviewCount = it.get(reviewCount)?.toInt() ?: 0,
+                    recommendationType = RecommendationType.POPULAR
+                )
+            }
     }
 
     /**
@@ -90,16 +75,7 @@ class RecommendationQueryRepositoryImpl(
      * Step 3. 유사 사용자들의 고평점(rating >= CF_RECOMMEND_RATING) 콘텐츠 중 내 미평가 반환
      */
     override fun findCfContents(memberId: Long, type: ContentType?, limit: Int): List<ResponseRecommendationDto> {
-        val myContentIds = jpaQueryFactory
-            .select(qReview.content.id)
-            .from(qReview)
-            .where(
-                qReview.member.id.eq(memberId),
-                qReview.rating.goe(CF_MIN_RATING),
-                qReview.isDeleted.isFalse
-            )
-            .fetch()
-            .filterNotNull()
+        val myContentIds = fetchMyRatedContentIds(memberId, minRating = CF_MIN_RATING)
 
         if (myContentIds.isEmpty()) return emptyList()
 
@@ -121,17 +97,11 @@ class RecommendationQueryRepositoryImpl(
 
         if (similarUserIds.isEmpty()) return emptyList()
 
-        val avgRatingExpr = qReview.rating.avg()
-        val countExpr = qReview.count()
+        val avgRating = qReview.rating.avg()
+        val reviewCount = qReview.count()
 
-        val conditions = listOfNotNull(
-            qContent.isDeleted.isFalse,
-            qContent.id.notIn(myContentIds),
-            type?.let { qContent.type.eq(it) }
-        )
-
-        val results = jpaQueryFactory
-            .select(qContent.id, qContent.title, qContent.type, qContent.thumbnailUrl, avgRatingExpr, countExpr)
+        return jpaQueryFactory
+            .select(qContent.id, qContent.title, qContent.type, qContent.thumbnailUrl, avgRating, reviewCount)
             .from(qContent)
             .join(qReview).on(
                 qReview.content.id.eq(qContent.id),
@@ -139,22 +109,67 @@ class RecommendationQueryRepositoryImpl(
                 qReview.rating.goe(CF_RECOMMEND_RATING),
                 qReview.isDeleted.isFalse
             )
-            .where(*conditions.toTypedArray())
+            .where(buildCfConditions(myContentIds, type))
             .groupBy(qContent.id)
-            .orderBy(avgRatingExpr.desc(), countExpr.desc())
+            .orderBy(avgRating.desc(), reviewCount.desc())
             .limit(limit.toLong())
             .fetch()
-
-        return results.map {
-            ResponseRecommendationDto(
-                contentId = it.get(qContent.id)!!,
-                title = it.get(qContent.title)!!,
-                type = it.get(qContent.type)!!,
-                thumbnailUrl = it.get(qContent.thumbnailUrl),
-                avgRating = it.get(avgRatingExpr) ?: 0.0,
-                reviewCount = it.get(countExpr)?.toInt() ?: 0,
-                recommendationType = RecommendationType.COLLABORATIVE_FILTERING
-            )
-        }
+            .map {
+                ResponseRecommendationDto(
+                    contentId = it.get(qContent.id)!!,
+                    title = it.get(qContent.title)!!,
+                    type = it.get(qContent.type)!!,
+                    thumbnailUrl = it.get(qContent.thumbnailUrl),
+                    avgRating = it.get(avgRating) ?: 0.0,
+                    reviewCount = it.get(reviewCount)?.toInt() ?: 0,
+                    recommendationType = RecommendationType.COLLABORATIVE_FILTERING
+                )
+            }
     }
+
+    /**
+     * 내가 평가한 콘텐츠 ID 목록 조회
+     *
+     * @param minRating null이면 rating 조건 없음, 값이 있으면 rating >= minRating 필터 적용
+     */
+    private fun fetchMyRatedContentIds(memberId: Long, minRating: Int? = null): List<Long> =
+        jpaQueryFactory
+            .select(qReview.content.id)
+            .from(qReview)
+            .where(
+                BooleanBuilder()
+                    .and(qReview.member.id.eq(memberId))
+                    .and(qReview.isDeleted.isFalse)
+                    .apply { minRating?.let { and(qReview.rating.goe(it)) } }
+            )
+            .fetch()
+            .filterNotNull()
+
+    /**
+     * 인기도 쿼리 WHERE 조건 빌더
+     *
+     * - isDeleted=false 고정
+     * - type이 null이 아니면 타입 필터 추가
+     * - 내가 평가한 콘텐츠가 있으면 NOT IN 조건 추가
+     */
+    private fun buildPopularConditions(myContentIds: List<Long>, type: ContentType?): BooleanBuilder =
+        BooleanBuilder().apply {
+            and(qContent.isDeleted.isFalse)
+            type?.let { and(qContent.type.eq(it)) }
+            if (myContentIds.isNotEmpty()) and(qContent.id.notIn(myContentIds))
+        }
+
+    /**
+     * 협업 필터링 쿼리 WHERE 조건 빌더
+     *
+     * - isDeleted=false 고정
+     * - 내가 이미 평가한 콘텐츠 NOT IN 고정
+     * - type이 null이 아니면 타입 필터 추가
+     */
+    private fun buildCfConditions(myContentIds: List<Long>, type: ContentType?): BooleanBuilder =
+        BooleanBuilder().apply {
+            and(qContent.isDeleted.isFalse)
+            and(qContent.id.notIn(myContentIds))
+            type?.let { and(qContent.type.eq(it)) }
+        }
 }
