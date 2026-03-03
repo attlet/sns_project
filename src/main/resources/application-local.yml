@@ -76,3 +76,13 @@ sse:
               - user:email
 
 
+
+external:
+  steam:
+    api-key: ${STEAM_API_KEY}
+    base-url: https://api.steampowered.com
+  rating:
+    thresholds:
+      tier2Max: 599
+      tier3Max: 2999
+      tier4Max: 11999

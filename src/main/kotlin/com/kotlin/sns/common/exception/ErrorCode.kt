@@ -70,5 +70,9 @@ enum class ErrorCode(
     DUPLICATE_REVIEW("RV002", HttpStatus.CONFLICT, "이미 해당 작품에 대한 평가가 존재합니다."),
     INVALID_RATING("RV003", HttpStatus.BAD_REQUEST, "별점은 1~5 사이의 값이어야 합니다."),
 
+    // --- Steam 연동 관련 오류 ---
+    STEAM_API_FAILED("ST001", HttpStatus.BAD_GATEWAY, "Steam API 호출에 실패했습니다."),
+    STEAM_ID_NOT_LINKED("ST002", HttpStatus.BAD_REQUEST, "Steam ID가 연결되지 않은 회원입니다."),
+
     ;
 }

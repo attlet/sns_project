@@ -10,7 +10,7 @@ import java.time.Instant
  * @property id 리뷰 ID
  * @property memberId 평가자 ID
  * @property contentId 작품 ID
- * @property rating 별점 (1~5)
+ * @property rating 별점 (1~5, Steam 미플레이 등 일부 케이스에서 null 가능)
  * @property status 작품 상태
  * @property comment 한줄평
  * @property source 데이터 출처
@@ -20,7 +20,7 @@ data class ResponseReviewDto(
     val id: Long,
     val memberId: Long,
     val contentId: Long,
-    val rating: Int,
+    val rating: Int?,
     val status: ReviewStatus,
     val comment: String?,
     val source: ReviewSource,

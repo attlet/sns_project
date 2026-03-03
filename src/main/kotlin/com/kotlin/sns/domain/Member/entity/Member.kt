@@ -62,7 +62,10 @@ class Member(
     var githubAvatarUrl: String? = null,
     @Column(length = 1000)
     var githubAccessToken: String? = null,
-    var commitStreak: Int = 0
+    var commitStreak: Int = 0,
+
+    // Steam 연동 정보
+    var steamId: String? = null
 
 ) : BaseEntity(), UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

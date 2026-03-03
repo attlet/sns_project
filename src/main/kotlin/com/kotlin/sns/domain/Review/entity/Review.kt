@@ -13,23 +13,20 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
-import java.time.Instant
 
 /**
  * 작품 평가(Review) 엔티티
  *
  * 사용자(Member)가 작품(Content)에 대해 남긴 평가 정보를 관리한다.
  * 하나의 Member는 하나의 Content에 대해 하나의 Review만 가질 수 있다.
+ * 외부 플랫폼 동기화 원본 메타데이터(playtime, externalRating, syncedAt)는 ExternalLibraryRecord로 분리됨.
  *
  * @property member 평가자
  * @property content 평가 대상 작품
- * @property rating 별점 (1~5)
+ * @property rating 별점 (1~5, MANUAL 경로에서는 non-null; nullable은 외부 연동 확장성 대비)
  * @property status 작품 상태 (PLAYING, PLAYED, DROPPED, WISHLIST, FAVORITE)
  * @property comment 한줄평 (선택, 최대 200자)
  * @property source 데이터 출처 (기본값: MANUAL)
- * @property externalRating 외부 플랫폼 원본 점수
- * @property playtime 게임 플레이 시간 (분 단위)
- * @property syncedAt 마지막 외부 동기화 시간
  * @property isDeleted 삭제 여부 (Soft Delete)
  */
 @Entity
@@ -56,8 +53,7 @@ class Review(
     @JoinColumn(name = "content_id", nullable = false)
     var content: Content,
 
-    @Column(nullable = false)
-    var rating: Int,
+    var rating: Int?,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -69,12 +65,6 @@ class Review(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     var source: ReviewSource = ReviewSource.MANUAL,
-
-    var externalRating: Double? = null,
-
-    var playtime: Int? = null,
-
-    var syncedAt: Instant? = null,
 
     @Column(nullable = false)
     var isDeleted: Boolean = false
