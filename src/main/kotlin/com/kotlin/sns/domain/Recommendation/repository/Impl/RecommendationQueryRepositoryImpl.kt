@@ -2,6 +2,7 @@ package com.kotlin.sns.domain.Recommendation.repository.Impl
 
 import com.kotlin.sns.domain.Content.entity.ContentType
 import com.kotlin.sns.domain.Content.entity.QContent
+import com.kotlin.sns.domain.Recommendation.config.RecommendationProperties
 import com.kotlin.sns.domain.Recommendation.dto.response.RecommendationType
 import com.kotlin.sns.domain.Recommendation.dto.response.ResponseRecommendationDto
 import com.kotlin.sns.domain.Recommendation.repository.RecommendationQueryRepository
@@ -14,21 +15,16 @@ import org.springframework.stereotype.Repository
  * 추천 시스템 QueryDSL 구현체
  *
  * @property jpaQueryFactory QueryDSL 쿼리 팩토리
+ * @property props 추천 알고리즘 튜닝 파라미터 (application.yml `recommendation.cf`)
  */
 @Repository
 class RecommendationQueryRepositoryImpl(
-    private val jpaQueryFactory: JPAQueryFactory
+    private val jpaQueryFactory: JPAQueryFactory,
+    private val props: RecommendationProperties
 ) : RecommendationQueryRepository {
 
     private val qContent = QContent.content
     private val qReview = QReview.review
-
-    companion object {
-        const val SIMILAR_USER_K = 10L
-        const val SIMILAR_USER_MIN_CO_COUNT = 3L
-        const val CF_MIN_RATING = 3
-        const val CF_RECOMMEND_RATING = 4
-    }
 
     /**
      * 인기도 기반 콘텐츠 조회
@@ -75,23 +71,29 @@ class RecommendationQueryRepositoryImpl(
      * Step 3. 유사 사용자들의 고평점(rating >= CF_RECOMMEND_RATING) 콘텐츠 중 내 미평가 반환
      */
     override fun findCfContents(memberId: Long, type: ContentType?, limit: Int): List<ResponseRecommendationDto> {
-        val myContentIds = fetchMyRatedContentIds(memberId, minRating = CF_MIN_RATING)
+        // [Step 1] 내가 rating >= CF_MIN_RATING 으로 평가한 콘텐츠 ID 수집
+        // 평가 이력이 없으면 유사 사용자를 찾을 수 없으므로 즉시 빈 목록 반환
+        val myContentIds = fetchMyRatedContentIds(memberId, minRating = props.minRating)
 
         if (myContentIds.isEmpty()) return emptyList()
 
+        // [Step 2] 유사 사용자 조회
+        // 내가 평가한 콘텐츠 중 rating >= CF_MIN_RATING 으로 평가한 타 유저를 그룹화한다.
+        // 공통 콘텐츠 수(co-count) >= SIMILAR_USER_MIN_CO_COUNT 인 유저만 유사 사용자로 판단하며,
+        // co-count 내림차순으로 정렬해 상위 K명만 추출한다.
         val similarUserIds = jpaQueryFactory
             .select(qReview.member.id)
             .from(qReview)
             .where(
-                qReview.content.id.`in`(myContentIds),
-                qReview.rating.goe(CF_MIN_RATING),
-                qReview.member.id.ne(memberId),
+                qReview.content.id.`in`(myContentIds),              // 내가 평가한 콘텐츠를 평가한 유저
+                qReview.rating.goe(props.minRating),                 // 최소 평점 이상만 유사도 계산에 포함
+                qReview.member.id.ne(memberId),                      // 본인 제외
                 qReview.isDeleted.isFalse
             )
             .groupBy(qReview.member.id)
-            .having(qReview.count().goe(SIMILAR_USER_MIN_CO_COUNT))
-            .orderBy(qReview.count().desc())
-            .limit(SIMILAR_USER_K)
+            .having(qReview.count().goe(props.similarUserMinCoCount)) // 공통 콘텐츠 수 임계값 필터
+            .orderBy(qReview.count().desc())                          // 공통 콘텐츠가 많을수록 유사도 높음
+            .limit(props.similarUserK)                                // 상위 K명만 추출
             .fetch()
             .filterNotNull()
 
@@ -100,18 +102,21 @@ class RecommendationQueryRepositoryImpl(
         val avgRating = qReview.rating.avg()
         val reviewCount = qReview.count()
 
+        // [Step 3] 유사 사용자의 고평점 콘텐츠 조회
+        // 유사 사용자들이 rating >= CF_RECOMMEND_RATING 으로 평가한 콘텐츠를 JOIN 조건으로 필터링한다.
+        // WHERE 절에서 내가 이미 평가한 콘텐츠(myContentIds)를 제외하고 미평가 콘텐츠만 반환한다.
         return jpaQueryFactory
             .select(qContent.id, qContent.title, qContent.type, qContent.thumbnailUrl, avgRating, reviewCount)
             .from(qContent)
             .join(qReview).on(
                 qReview.content.id.eq(qContent.id),
-                qReview.member.id.`in`(similarUserIds),
-                qReview.rating.goe(CF_RECOMMEND_RATING),
+                qReview.member.id.`in`(similarUserIds),          // 유사 사용자의 리뷰만 JOIN
+                qReview.rating.goe(props.recommendRating),        // 추천 기준 평점 이상만 포함
                 qReview.isDeleted.isFalse
             )
-            .where(buildCfConditions(myContentIds, type))
+            .where(buildCfConditions(myContentIds, type))    // 미평가 + 삭제되지 않은 콘텐츠 필터
             .groupBy(qContent.id)
-            .orderBy(avgRating.desc(), reviewCount.desc())
+            .orderBy(avgRating.desc(), reviewCount.desc())   // 유사 사용자 사이 평균 평점 높은 순
             .limit(limit.toLong())
             .fetch()
             .map {

@@ -2,4 +2,11 @@ spring:
   profiles:
     active: local  #local/dev/prod
 
+recommendation:
+  cf:
+    similar-user-k: 10
+    similar-user-min-co-count: 3
+    min-rating: 3
+    recommend-rating: 4
+
 
