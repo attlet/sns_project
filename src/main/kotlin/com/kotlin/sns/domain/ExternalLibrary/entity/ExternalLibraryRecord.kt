@@ -14,6 +14,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 import java.time.Instant
 
 /**
@@ -31,6 +33,8 @@ import java.time.Instant
  * @property isDeleted 삭제 여부 (Soft Delete)
  */
 @Entity
+@SQLDelete(sql = "UPDATE external_library_record SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 @Table(
     name = "external_library_record",
     uniqueConstraints = [
@@ -63,9 +67,6 @@ class ExternalLibraryRecord(
     var externalRating: Double? = null,
 
     @Column(nullable = false)
-    var syncedAt: Instant,
-
-    @Column(nullable = false)
-    var isDeleted: Boolean = false
+    var syncedAt: Instant
 
 ) : BaseEntity()

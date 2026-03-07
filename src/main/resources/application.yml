@@ -2,6 +2,11 @@ spring:
   profiles:
     active: local  #local/dev/prod
 
+
+# similarUserK 유사 사용자 최대 추출 수 (상위 K명)
+# similarUserMinCoCount 유사 사용자로 인정하기 위한 최소 공통 콘텐츠 수
+# minRating 유사도 계산에 포함할 최소 평점
+# recommendRating 추천 기준 최소 평점 (유사 사용자가 이 점수 이상 준 콘텐츠만 추천)
 recommendation:
   cf:
     similar-user-k: 10
