@@ -41,7 +41,7 @@ class ReviewServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun getReviewById(reviewId: Long): ResponseReviewDto {
-        val review = reviewRepository.findActiveById(reviewId)
+        val review = reviewRepository.findById(reviewId).orElse(null)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
         return ReviewMapper.toDto(review)
@@ -99,7 +99,6 @@ class ReviewServiceImpl(
             .orElseThrow { CustomException(ErrorCode.MEMBER_NOT_FOUND) }
 
         val content = contentRepository.findById(request.contentId)
-            .filter { !it.isDeleted }
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
 
         val review = ReviewMapper.toEntity(request, member, content)
@@ -119,7 +118,7 @@ class ReviewServiceImpl(
      */
     @Transactional
     override fun updateReview(request: RequestUpdateReviewDto): ResponseReviewDto {
-        val review = reviewRepository.findActiveById(request.reviewId)
+        val review = reviewRepository.findById(request.reviewId).orElse(null)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
         request.rating?.let {
@@ -135,17 +134,17 @@ class ReviewServiceImpl(
     /**
      * 리뷰 삭제 (Soft Delete)
      *
-     * 실제로 데이터를 삭제하지 않고 isDeleted 플래그를 true로 변경한다.
+     * @SQLDelete에 의해 실제 DELETE 대신 is_deleted = true UPDATE가 실행된다.
      *
      * @param reviewId 삭제할 리뷰 ID
-     * @throws CustomException 리뷰가 존재하지 않거나 이미 삭제된 경우
+     * @throws CustomException 리뷰가 존재하지 않는 경우
      */
     @Transactional
     override fun deleteReview(reviewId: Long) {
-        val review = reviewRepository.findActiveById(reviewId)
+        val review = reviewRepository.findById(reviewId).orElse(null)
             ?: throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
 
-        review.isDeleted = true
+        reviewRepository.delete(review)
     }
 
     /**

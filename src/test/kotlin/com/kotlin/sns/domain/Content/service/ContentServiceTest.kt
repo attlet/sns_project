@@ -100,12 +100,9 @@ class ContentServiceTest {
         @Test
         @DisplayName("삭제된 콘텐츠 조회 - 실패")
         fun findById_DeletedContent() {
-            // Given
+            // Given - @SQLRestriction으로 인해 삭제된 콘텐츠는 findById에서 빈 Optional 반환
             val contentId = 1L
-            val deletedContent: Content = mockk(relaxed = true) {
-                every { isDeleted } returns true
-            }
-            every { contentRepository.findById(contentId) } returns Optional.of(deletedContent)
+            every { contentRepository.findById(contentId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
@@ -140,7 +137,7 @@ class ContentServiceTest {
                 steamAppId = null, igdbId = null, malId = null, anilistId = null
             )
 
-            every { contentRepository.findByIsDeletedFalse(pageable) } returns page
+            every { contentRepository.findAll(pageable) } returns page
             every { ContentMapper.toDto(content1) } returns responseDto1
             every { ContentMapper.toDto(content2) } returns responseDto2
 
@@ -150,7 +147,7 @@ class ContentServiceTest {
             // Then
             assertEquals(2, result.content.size)
             assertEquals(2, result.totalElements)
-            verify(exactly = 1) { contentRepository.findByIsDeletedFalse(pageable) }
+            verify(exactly = 1) { contentRepository.findAll(pageable) }
         }
 
         @Test
@@ -160,7 +157,7 @@ class ContentServiceTest {
             val pageable = PageRequest.of(0, 10)
             val emptyPage = PageImpl<Content>(emptyList(), pageable, 0)
 
-            every { contentRepository.findByIsDeletedFalse(pageable) } returns emptyPage
+            every { contentRepository.findAll(pageable) } returns emptyPage
 
             // When
             val result = contentService.findAll(pageable)
@@ -383,13 +380,10 @@ class ContentServiceTest {
         @Test
         @DisplayName("삭제된 콘텐츠 수정 - 실패")
         fun update_DeletedContent() {
-            // Given
+            // Given - @SQLRestriction으로 인해 삭제된 콘텐츠는 findById에서 빈 Optional 반환
             val contentId = 1L
             val request = RequestUpdateContentDto(contentId = contentId, title = "New Title")
-            val deletedContent: Content = mockk(relaxed = true) {
-                every { isDeleted } returns true
-            }
-            every { contentRepository.findById(contentId) } returns Optional.of(deletedContent)
+            every { contentRepository.findById(contentId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
@@ -408,16 +402,15 @@ class ContentServiceTest {
         fun delete_Success() {
             // Given
             val contentId = 1L
-            val content: Content = mockk(relaxed = true) {
-                every { isDeleted } returns false
-            }
+            val content: Content = mockk(relaxed = true)
             every { contentRepository.findById(contentId) } returns Optional.of(content)
+            every { contentRepository.delete(content) } just Runs
 
             // When
             contentService.delete(contentId)
 
             // Then
-            verify { content.isDeleted = true }
+            verify(exactly = 1) { contentRepository.delete(content) }
             verify(exactly = 1) { contentRepository.findById(contentId) }
         }
 
@@ -436,14 +429,11 @@ class ContentServiceTest {
         }
 
         @Test
-        @DisplayName("이미 삭제된 콘텐츠 삭제 - 실패")
+        @DisplayName("존재하지 않는 콘텐츠 삭제 시 재삭제 - 실패")
         fun delete_AlreadyDeleted() {
-            // Given
+            // Given - @SQLRestriction으로 이미 삭제된 콘텐츠는 findById에서 빈 Optional 반환
             val contentId = 1L
-            val deletedContent: Content = mockk(relaxed = true) {
-                every { isDeleted } returns true
-            }
-            every { contentRepository.findById(contentId) } returns Optional.of(deletedContent)
+            every { contentRepository.findById(contentId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
@@ -487,7 +477,7 @@ class ContentServiceTest {
                 steamAppId = null, igdbId = igdbId, malId = null, anilistId = null
             )
 
-            every { contentRepository.findByIgdbIdAndIsDeletedFalse(igdbId) } returns null
+            every { contentRepository.findByIgdbId(igdbId) } returns null
             every { igdbClient.getGameById(igdbId) } returns igdbGameDto
             every { IgdbMapper.toCreateContentDto(igdbGameDto) } returns createDto
             every { ContentMapper.toEntity(createDto) } returns content
@@ -513,7 +503,7 @@ class ContentServiceTest {
         fun importGameFromIgdb_NotFound() {
             // Given
             val igdbId = 999999L
-            every { contentRepository.findByIgdbIdAndIsDeletedFalse(igdbId) } returns null
+            every { contentRepository.findByIgdbId(igdbId) } returns null
             every { igdbClient.getGameById(igdbId) } returns null
 
             // When & Then
@@ -538,7 +528,7 @@ class ContentServiceTest {
                 steamAppId = null, igdbId = igdbId, malId = null, anilistId = null
             )
 
-            every { contentRepository.findByIgdbIdAndIsDeletedFalse(igdbId) } returns existingContent
+            every { contentRepository.findByIgdbId(igdbId) } returns existingContent
             every { ContentMapper.toDto(existingContent) } returns responseDto
 
             // When

@@ -62,9 +62,6 @@ class ContentRepositoryCustomImpl(
     private fun buildSearchCondition(searchDto: RequestSearchContentDto): BooleanBuilder {
         val builder = BooleanBuilder()
 
-        // 삭제되지 않은 콘텐츠만
-        builder.and(qContent.isDeleted.eq(false))
-
         // 제목 키워드 검색 (대소문자 무시)
         searchDto.keyword?.let {
             builder.and(qContent.title.containsIgnoreCase(it))

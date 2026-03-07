@@ -13,6 +13,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 
 /**
  * 작품 평가(Review) 엔티티
@@ -30,6 +32,8 @@ import jakarta.persistence.UniqueConstraint
  * @property isDeleted 삭제 여부 (Soft Delete)
  */
 @Entity
+@SQLDelete(sql = "UPDATE review SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 @Table(
     name = "review",
     uniqueConstraints = [
@@ -64,9 +68,6 @@ class Review(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var source: ReviewSource = ReviewSource.MANUAL,
-
-    @Column(nullable = false)
-    var isDeleted: Boolean = false
+    var source: ReviewSource = ReviewSource.MANUAL
 
 ) : BaseEntity()

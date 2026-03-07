@@ -1,8 +1,6 @@
 package com.kotlin.sns.domain.Content.repository
 
 import com.kotlin.sns.domain.Content.entity.Content
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
@@ -15,18 +13,10 @@ import org.springframework.stereotype.Repository
 interface ContentRepository : JpaRepository<Content, Long>, ContentRepositoryCustom {
 
     /**
-     * 삭제되지 않은 콘텐츠 목록 조회 (페이징)
-     *
-     * @param pageable 페이징 정보
-     * @return 페이징된 콘텐츠 목록
-     */
-    fun findByIsDeletedFalse(pageable: Pageable): Page<Content>
-
-    /**
-     * IGDB ID로 삭제되지 않은 콘텐츠 조회
+     * IGDB ID로 콘텐츠 조회 (@SQLRestriction으로 삭제된 항목 자동 제외)
      *
      * @param igdbId IGDB 게임 ID
      * @return 해당 IGDB ID의 콘텐츠, 없으면 null
      */
-    fun findByIgdbIdAndIsDeletedFalse(igdbId: Long): Content?
+    fun findByIgdbId(igdbId: Long): Content?
 }

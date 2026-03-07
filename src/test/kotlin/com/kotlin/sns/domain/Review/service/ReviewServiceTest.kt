@@ -69,7 +69,7 @@ class ReviewServiceTest {
                 createdDt = Instant.now()
             )
 
-            every { reviewRepository.findActiveById(reviewId) } returns review
+            every { reviewRepository.findById(reviewId) } returns Optional.of(review)
             every { ReviewMapper.toDto(review) } returns responseDto
 
             // When
@@ -85,7 +85,7 @@ class ReviewServiceTest {
                 { assertEquals("재밌었다", result.comment) },
                 { assertEquals(ReviewSource.MANUAL, result.source) }
             )
-            verify(exactly = 1) { reviewRepository.findActiveById(reviewId) }
+            verify(exactly = 1) { reviewRepository.findById(reviewId) }
         }
 
         @Test
@@ -93,14 +93,14 @@ class ReviewServiceTest {
         fun getReviewById_NotFound() {
             // Given
             val reviewId = 999L
-            every { reviewRepository.findActiveById(reviewId) } returns null
+            every { reviewRepository.findById(reviewId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
                 reviewService.getReviewById(reviewId)
             }
             assertEquals(ErrorCode.REVIEW_NOT_FOUND, exception.errorCode)
-            verify(exactly = 1) { reviewRepository.findActiveById(reviewId) }
+            verify(exactly = 1) { reviewRepository.findById(reviewId) }
         }
 
         @Test
@@ -108,14 +108,14 @@ class ReviewServiceTest {
         fun getReviewById_DeletedReview() {
             // Given
             val reviewId = 1L
-            every { reviewRepository.findActiveById(reviewId) } returns null
+            every { reviewRepository.findById(reviewId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
                 reviewService.getReviewById(reviewId)
             }
             assertEquals(ErrorCode.REVIEW_NOT_FOUND, exception.errorCode)
-            verify(exactly = 1) { reviewRepository.findActiveById(reviewId) }
+            verify(exactly = 1) { reviewRepository.findById(reviewId) }
         }
     }
 
@@ -237,7 +237,6 @@ class ReviewServiceTest {
 
             every { reviewRepository.findActiveByMemberAndContent(1L, 10L) } returns null
             every { memberRepository.findById(1L) } returns Optional.of(member)
-            every { content.isDeleted } returns false
             every { contentRepository.findById(10L) } returns Optional.of(content)
             every { ReviewMapper.toEntity(request, member, content) } returns review
             every { reviewRepository.save(review) } returns review
@@ -325,7 +324,7 @@ class ReviewServiceTest {
                 source = ReviewSource.MANUAL, createdDt = Instant.now()
             )
 
-            every { reviewRepository.findActiveById(1L) } returns review
+            every { reviewRepository.findById(1L) } returns Optional.of(review)
             every { ReviewMapper.toDto(review) } returns responseDto
 
             // When
@@ -346,7 +345,7 @@ class ReviewServiceTest {
             // Given
             val request = RequestUpdateReviewDto(reviewId = 999L, rating = 5)
 
-            every { reviewRepository.findActiveById(999L) } returns null
+            every { reviewRepository.findById(999L) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
@@ -362,7 +361,7 @@ class ReviewServiceTest {
             val request = RequestUpdateReviewDto(reviewId = 1L, rating = 0)
             val review: Review = mockk(relaxed = true)
 
-            every { reviewRepository.findActiveById(1L) } returns review
+            every { reviewRepository.findById(1L) } returns Optional.of(review)
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {
@@ -377,7 +376,7 @@ class ReviewServiceTest {
     inner class DeleteReviewTest {
 
         @Test
-        @DisplayName("리뷰 삭제 성공 - isDeleted=true로 변경")
+        @DisplayName("리뷰 삭제 성공 - repository.delete 호출 확인")
         fun deleteReview_Success() {
             // Given
             val reviewId = 1L
@@ -385,13 +384,14 @@ class ReviewServiceTest {
             val content: Content = mockk(relaxed = true)
             val review = Review(member = member, content = content, rating = 4, status = ReviewStatus.PLAYED)
 
-            every { reviewRepository.findActiveById(reviewId) } returns review
+            every { reviewRepository.findById(reviewId) } returns Optional.of(review)
+            every { reviewRepository.delete(review) } just Runs
 
             // When
             reviewService.deleteReview(reviewId)
 
             // Then
-            assertTrue(review.isDeleted)
+            verify(exactly = 1) { reviewRepository.delete(review) }
         }
 
         @Test
@@ -400,7 +400,7 @@ class ReviewServiceTest {
             // Given
             val reviewId = 999L
 
-            every { reviewRepository.findActiveById(reviewId) } returns null
+            every { reviewRepository.findById(reviewId) } returns Optional.empty()
 
             // When & Then
             val exception = assertThrows(CustomException::class.java) {

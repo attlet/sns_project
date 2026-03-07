@@ -5,10 +5,13 @@ import com.kotlin.sns.domain.Comment.dto.response.ResponseCommentDto
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Posting.entity.Posting
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 
 
 @Entity
-@Table(name = "comment")
+@SQLDelete(sql = "UPDATE comment SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 data class Comment(
     var content : String,
 

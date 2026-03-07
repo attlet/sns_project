@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import jakarta.persistence.EntityManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
@@ -37,6 +38,9 @@ class ReviewRepositoryTest {
 
     @Autowired
     lateinit var contentRepository: ContentRepository
+
+    @Autowired
+    lateinit var entityManager: EntityManager
 
     private lateinit var savedMember: Member
     private lateinit var savedContent: Content
@@ -133,7 +137,7 @@ class ReviewRepositoryTest {
             )
 
             // when
-            val found = reviewRepository.findActiveById(saved.id)
+            val found = reviewRepository.findById(saved.id).orElse(null)
 
             // then
             assertThat(found).isNotNull
@@ -149,13 +153,14 @@ class ReviewRepositoryTest {
                     member = savedMember,
                     content = savedContent,
                     rating = 3,
-                    status = ReviewStatus.DROPPED,
-                    isDeleted = true
-                )
+                    status = ReviewStatus.DROPPED
+                ).apply { isDeleted = true }
             )
+            entityManager.flush()
+            entityManager.clear()
 
             // when
-            val found = reviewRepository.findActiveById(saved.id)
+            val found = reviewRepository.findById(saved.id).orElse(null)
 
             // then
             assertThat(found).isNull()
@@ -165,7 +170,7 @@ class ReviewRepositoryTest {
         @DisplayName("존재하지 않는 ID 조회 시 null 반환")
         fun findNonExistentReviewReturnsNull() {
             // when
-            val found = reviewRepository.findActiveById(999L)
+            val found = reviewRepository.findById(999L).orElse(null)
 
             // then
             assertThat(found).isNull()
@@ -253,7 +258,7 @@ class ReviewRepositoryTest {
                 )
             )
             reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
-            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.DROPPED, isDeleted = true))
+            reviewRepository.save(Review(member = savedMember, content = content2, rating = 3, status = ReviewStatus.DROPPED).apply { isDeleted = true })
             val pageable = PageRequest.of(0, 10)
 
             // when
@@ -344,7 +349,7 @@ class ReviewRepositoryTest {
                 Member(userId = "user2", name = "유저2", email = "user2@test.com", pw = "pw456")
             )
             reviewRepository.save(Review(member = savedMember, content = savedContent, rating = 4, status = ReviewStatus.PLAYED))
-            reviewRepository.save(Review(member = member2, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE, isDeleted = true))
+            reviewRepository.save(Review(member = member2, content = savedContent, rating = 5, status = ReviewStatus.FAVORITE).apply { isDeleted = true })
             val pageable = PageRequest.of(0, 10)
 
             // when

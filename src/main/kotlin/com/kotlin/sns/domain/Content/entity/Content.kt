@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
+import org.hibernate.annotations.SQLRestriction
 
 /**
  * 게임/만화/애니를 통합 관리하는 Content 엔티티
@@ -23,6 +25,8 @@ import jakarta.persistence.Table
  * @property isDeleted 삭제 여부 (Soft Delete)
  */
 @Entity
+@SQLDelete(sql = "UPDATE content SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 @Table(
     name = "content",
     indexes = [
@@ -56,9 +60,6 @@ class Content(
     var malId: Long? = null,
 
     @Column(unique = true)
-    var anilistId: Long? = null,
-
-    @Column(nullable = false)
-    var isDeleted: Boolean = false
+    var anilistId: Long? = null
 
 ) : BaseEntity()

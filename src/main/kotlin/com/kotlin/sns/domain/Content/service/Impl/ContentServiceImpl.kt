@@ -40,7 +40,6 @@ class ContentServiceImpl(
     @Transactional(readOnly = true)
     override fun findById(contentId: Long): ResponseContentDto {
         val content = contentRepository.findById(contentId)
-            .filter { !it.isDeleted }
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
 
         return ContentMapper.toDto(content)
@@ -56,7 +55,7 @@ class ContentServiceImpl(
      */
     @Transactional(readOnly = true)
     override fun findAll(pageable: Pageable): Page<ResponseContentDto> {
-        return contentRepository.findByIsDeletedFalse(pageable)
+        return contentRepository.findAll(pageable)
             .map { ContentMapper.toDto(it) }
     }
 
@@ -98,7 +97,6 @@ class ContentServiceImpl(
     @Transactional
     override fun update(request: RequestUpdateContentDto): ResponseContentDto {
         val content = contentRepository.findById(request.contentId)
-            .filter { !it.isDeleted }
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
 
         request.type?.let { content.type = it }
@@ -117,18 +115,17 @@ class ContentServiceImpl(
     /**
      * 콘텐츠 삭제 (Soft Delete)
      *
-     * 실제로 데이터를 삭제하지 않고 isDeleted 플래그를 true로 변경한다.
+     * @SQLDelete에 의해 실제 DELETE 대신 is_deleted = true UPDATE가 실행된다.
      *
      * @param contentId 삭제할 콘텐츠 ID
-     * @throws CustomException 콘텐츠가 존재하지 않거나 이미 삭제된 경우
+     * @throws CustomException 콘텐츠가 존재하지 않는 경우
      */
     @Transactional
     override fun delete(contentId: Long) {
         val content = contentRepository.findById(contentId)
-            .filter { !it.isDeleted }
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
 
-        content.isDeleted = true
+        contentRepository.delete(content)
     }
 
     /**
@@ -142,7 +139,7 @@ class ContentServiceImpl(
      */
     @Transactional
     override fun importGameFromIgdb(igdbId: Long): ResponseContentDto {
-        val existing = contentRepository.findByIgdbIdAndIsDeletedFalse(igdbId)
+        val existing = contentRepository.findByIgdbId(igdbId)
         if (existing != null) {
             return ContentMapper.toDto(existing)
         }

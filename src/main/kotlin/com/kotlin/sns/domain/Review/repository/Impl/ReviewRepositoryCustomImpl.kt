@@ -72,7 +72,6 @@ class ReviewRepositoryCustomImpl(
     override fun findReviewsByContent(contentId: Long, pageable: Pageable): Page<Review> {
         val builder = BooleanBuilder()
             .and(qReview.content.id.eq(contentId))
-            .and(qReview.isDeleted.isFalse)
 
         val results = jpaQueryFactory
             .selectFrom(qReview)
@@ -102,7 +101,6 @@ class ReviewRepositoryCustomImpl(
     private fun buildMemberCondition(memberId: Long, status: ReviewStatus?): BooleanBuilder {
         val builder = BooleanBuilder()
             .and(qReview.member.id.eq(memberId))
-            .and(qReview.isDeleted.isFalse)
 
         status?.let { builder.and(qReview.status.eq(it)) }
 

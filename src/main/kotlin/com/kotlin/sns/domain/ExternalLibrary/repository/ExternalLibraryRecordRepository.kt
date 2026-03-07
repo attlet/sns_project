@@ -26,7 +26,7 @@ interface ExternalLibraryRecordRepository : JpaRepository<ExternalLibraryRecord,
     @Query(
         "SELECT r FROM ExternalLibraryRecord r " +
         "WHERE r.member.id = :memberId AND r.content.id = :contentId " +
-        "AND r.source = :source AND r.isDeleted = false"
+        "AND r.source = :source"
     )
     fun findActiveByMemberAndContentAndSource(
         @Param("memberId") memberId: Long,
