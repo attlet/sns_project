@@ -37,6 +37,14 @@ class IgdbClientImpl(
         private const val STEAM_CATEGORY = 1
         private const val DEFAULT_SEARCH_LIMIT = 10
     }
+
+    /**
+     * 키워드로 게임을 검색
+     *
+     * @param query 검색 키워드
+     * @return 검색 결과 목록
+     * @throws CustomException API 호출 실패 시 (IGDB_API_FAILED, IGDB_API_SERVER_ERROR)
+     */
     override fun searchGames(query: String): List<IgdbSearchResultDto> {
         val token = twitchAuthClient.getValidToken()
         val requestBody = buildSearchQuery(query)
@@ -63,6 +71,13 @@ class IgdbClientImpl(
             .block() ?: emptyList()
     }
 
+    /**
+     * IGDB ID로 게임 상세 정보를 조회
+     *
+     * @param id IGDB 게임 ID
+     * @return 게임 상세 정보, 존재하지 않으면 null
+     * @throws CustomException API 호출 실패 시 (IGDB_API_FAILED, IGDB_API_SERVER_ERROR)
+     */
     override fun getGameById(id: Long): IgdbGameDto? {
         val token = twitchAuthClient.getValidToken()
         val requestBody = buildDetailQuery(id)
@@ -90,6 +105,16 @@ class IgdbClientImpl(
         return results.firstOrNull()?.toGameDto()
     }
 
+    /**
+     * Steam AppID로 IGDB 게임 상세 정보를 조회
+     *
+     * IGDB external_games 엔드포인트를 통해 Steam AppID → IGDB game ID를 매핑한 후,
+     * 해당 게임의 상세 정보를 반환
+     *
+     * @param steamAppId Steam 게임 AppID
+     * @return 게임 상세 정보, 매핑된 게임이 없으면 null
+     * @throws CustomException API 호출 실패 시 (IGDB_API_FAILED, IGDB_API_SERVER_ERROR)
+     */
     override fun getGameBySteamAppId(steamAppId: Long): IgdbGameDto? {
         val token = twitchAuthClient.getValidToken()
         val requestBody = buildSteamQuery(steamAppId)

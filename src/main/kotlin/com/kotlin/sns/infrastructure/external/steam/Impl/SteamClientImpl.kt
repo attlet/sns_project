@@ -15,6 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient
  * WebClient를 사용하여 Steam GetOwnedGames API를 호출한다.
  * 4xx/5xx 응답은 모두 STEAM_API_FAILED 예외로 변환한다.
  *
+ * 동기화 시, 사용자가 보유한 steam 게임은 content로, steam 리뷰들은 review로 매핑된다.
+ *
  * @property webClient HTTP 클라이언트
  * @property apiKey Steam Web API Key
  */

@@ -7,8 +7,8 @@ import com.kotlin.sns.domain.Content.entity.Content
 import com.kotlin.sns.domain.Content.entity.ContentType
 import com.kotlin.sns.domain.Content.repository.ContentRepository
 import com.kotlin.sns.domain.Content.service.ContentService
-import com.kotlin.sns.domain.ExternalLibrary.entity.ExternalLibraryRecord
-import com.kotlin.sns.domain.ExternalLibrary.repository.ExternalLibraryRecordRepository
+import com.kotlin.sns.domain.ExternalLibrary.entity.PlatformActivityRecord
+import com.kotlin.sns.domain.ExternalLibrary.repository.PlatformActivityRecordRepository
 import com.kotlin.sns.domain.ExternalLibrary.service.ExternalLibrarySyncService
 import com.kotlin.sns.domain.ExternalLibrary.service.Impl.ExternalLibrarySyncServiceImpl
 import com.kotlin.sns.domain.Member.entity.Member
@@ -45,7 +45,7 @@ class SteamSyncTest {
     private val steamClient: SteamClient = mockk()
     private val igdbClient: IgdbClient = mockk()
     private val contentService: ContentService = mockk()
-    private val externalLibraryRecordRepository: ExternalLibraryRecordRepository = mockk()
+    private val platformActivityRecordRepository: PlatformActivityRecordRepository = mockk()
     private val steamRatingConverter = SteamRatingConverter(
         SteamRatingProperties(SteamRatingProperties.Thresholds(599, 2999, 11999))
     )
@@ -63,7 +63,7 @@ class SteamSyncTest {
         syncService = ExternalLibrarySyncServiceImpl(
             memberRepository, contentRepository, contentService,
             steamClient, igdbClient, steamRatingConverter,
-            externalLibraryRecordRepository, reviewRepository
+            platformActivityRecordRepository, reviewRepository
         )
     }
 
@@ -96,7 +96,7 @@ class SteamSyncTest {
     inner class CreateNewReviewTest {
 
         @Test
-        @DisplayName("기존 STEAM Review 없을 때 ExternalLibraryRecord + Review 신규 생성")
+        @DisplayName("기존 STEAM Review 없을 때 PlatformActivityRecord + Review 신규 생성")
         fun `given no existing record when syncSteamLibrary then create record and review`() {
             // Given
             val member = memberWithSteamId(STEAM_ID)
@@ -109,9 +109,9 @@ class SteamSyncTest {
             )
             stubIgdbContentResolution(content)
             every {
-                externalLibraryRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
+                platformActivityRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
             } returns null
-            every { externalLibraryRecordRepository.save(any()) } returns mockk(relaxed = true)
+            every { platformActivityRecordRepository.save(any()) } returns mockk(relaxed = true)
             every {
                 reviewRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
             } returns null
@@ -120,9 +120,9 @@ class SteamSyncTest {
             // When
             val result = syncService.syncSteamLibrary(MEMBER_ID)
 
-            // Then: ExternalLibraryRecord 저장 검증
-            val recordSlot = slot<ExternalLibraryRecord>()
-            verify(exactly = 1) { externalLibraryRecordRepository.save(capture(recordSlot)) }
+            // Then: PlatformActivityRecord 저장 검증
+            val recordSlot = slot<PlatformActivityRecord>()
+            verify(exactly = 1) { platformActivityRecordRepository.save(capture(recordSlot)) }
             assertAll(
                 { assertEquals(ReviewSource.STEAM, recordSlot.captured.source) },
                 { assertEquals(4500, recordSlot.captured.playtimeMinutes) },
@@ -158,7 +158,7 @@ class SteamSyncTest {
             val content: Content = mockk(relaxed = true)
             every { content.id } returns CONTENT_ID
 
-            val existingRecord: ExternalLibraryRecord = mockk(relaxed = true)
+            val existingRecord: PlatformActivityRecord = mockk(relaxed = true)
             every { existingRecord.playtimeMinutes = any() } just Runs
             every { existingRecord.externalRating = any() } just Runs
             every { existingRecord.syncedAt = any() } just Runs
@@ -174,7 +174,7 @@ class SteamSyncTest {
             )
             stubIgdbContentResolution(content)
             every {
-                externalLibraryRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
+                platformActivityRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
             } returns existingRecord
             every {
                 reviewRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
@@ -184,7 +184,7 @@ class SteamSyncTest {
             val result = syncService.syncSteamLibrary(MEMBER_ID)
 
             // Then: save 호출 없음, 필드 직접 갱신 확인
-            verify(exactly = 0) { externalLibraryRecordRepository.save(any()) }
+            verify(exactly = 0) { platformActivityRecordRepository.save(any()) }
             verify(exactly = 0) { reviewRepository.save(any()) }
             assertAll(
                 { assertEquals(5, existingReview.rating) },             // 15000분 → rating=5
@@ -196,14 +196,14 @@ class SteamSyncTest {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Test 6: playtime=0 → Review 생성 안 함 (ExternalLibraryRecord만 저장)
+    // Test 6: playtime=0 → Review 생성 안 함 (PlatformActivityRecord만 저장)
     // ─────────────────────────────────────────────────────────
     @Nested
     @DisplayName("Test 6: playtime=0 → Review 생성 안 함")
     inner class NoReviewForUnplayedGameTest {
 
         @Test
-        @DisplayName("playtime=0인 게임은 ExternalLibraryRecord만 저장하고 Review는 생성하지 않음")
+        @DisplayName("playtime=0인 게임은 PlatformActivityRecord만 저장하고 Review는 생성하지 않음")
         fun `given playtime 0 when syncSteamLibrary then save record only without review`() {
             // Given
             val member = memberWithSteamId(STEAM_ID)
@@ -216,15 +216,15 @@ class SteamSyncTest {
             )
             stubIgdbContentResolution(content)
             every {
-                externalLibraryRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
+                platformActivityRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, CONTENT_ID, ReviewSource.STEAM)
             } returns null
-            every { externalLibraryRecordRepository.save(any()) } returns mockk(relaxed = true)
+            every { platformActivityRecordRepository.save(any()) } returns mockk(relaxed = true)
 
             // When
             val result = syncService.syncSteamLibrary(MEMBER_ID)
 
-            // Then: ExternalLibraryRecord 저장, Review 저장 없음
-            verify(exactly = 1) { externalLibraryRecordRepository.save(any()) }
+            // Then: PlatformActivityRecord 저장, Review 저장 없음
+            verify(exactly = 1) { platformActivityRecordRepository.save(any()) }
             verify(exactly = 0) { reviewRepository.save(any()) }
             assertAll(
                 { assertEquals(1, result.synced) },
@@ -284,9 +284,9 @@ class SteamSyncTest {
             every { contentService.create(any()) } returns contentDto
             every { contentRepository.findById(20L) } returns Optional.of(content)
             every {
-                externalLibraryRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, 20L, ReviewSource.STEAM)
+                platformActivityRecordRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, 20L, ReviewSource.STEAM)
             } returns null
-            every { externalLibraryRecordRepository.save(any()) } returns mockk(relaxed = true)
+            every { platformActivityRecordRepository.save(any()) } returns mockk(relaxed = true)
             every {
                 reviewRepository.findActiveByMemberAndContentAndSource(MEMBER_ID, 20L, ReviewSource.STEAM)
             } returns null
@@ -297,7 +297,7 @@ class SteamSyncTest {
 
             // Then: 게임명 + GAME 타입으로 Content 생성 검증
             verify { contentService.create(match { it.type == ContentType.GAME && it.title == "Indie Game" }) }
-            verify(exactly = 1) { externalLibraryRecordRepository.save(any()) }
+            verify(exactly = 1) { platformActivityRecordRepository.save(any()) }
             verify(exactly = 1) { reviewRepository.save(any()) }
         }
     }

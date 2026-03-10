@@ -21,7 +21,7 @@ import org.hibernate.annotations.SQLRestriction
  *
  * 사용자(Member)가 작품(Content)에 대해 남긴 평가 정보를 관리한다.
  * 하나의 Member는 하나의 Content에 대해 하나의 Review만 가질 수 있다.
- * 외부 플랫폼 동기화 원본 메타데이터(playtime, externalRating, syncedAt)는 ExternalLibraryRecord로 분리됨.
+ * 외부 플랫폼 동기화 원본 메타데이터(playtime, externalRating, syncedAt)는 PlatformActivityRecord로 분리됨.
  *
  * @property member 평가자
  * @property content 평가 대상 작품

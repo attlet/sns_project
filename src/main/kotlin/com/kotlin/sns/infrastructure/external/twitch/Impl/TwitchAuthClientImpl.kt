@@ -17,6 +17,7 @@ private val logger = KotlinLogging.logger {}
  * Twitch OAuth 인증 클라이언트 구현체
  *
  * Twitch API를 통해 OAuth 토큰을 발급받고 관리합니다.
+ * igdb 연동 시 사용 시 토큰 사용
  * 토큰 캐싱 및 자동 갱신 기능을 제공합니다.
  *
  * @property webClient WebClient 인스턴스

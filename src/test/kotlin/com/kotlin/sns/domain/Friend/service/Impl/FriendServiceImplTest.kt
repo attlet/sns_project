@@ -24,6 +24,7 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.util.ReflectionTestUtils
 import java.util.*
 
 @SpringBootTest
@@ -55,8 +56,8 @@ class FriendServiceImplTest {
         val receiverId = 2L
         val sender = Member("senderId", "sender", "sender@test.com", "password", roles = mutableListOf("USER"))
         val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = mutableListOf("USER"))
-        sender.id = senderId
-        receiver.id = receiverId
+        ReflectionTestUtils.setField(sender, "id", senderId)
+        ReflectionTestUtils.setField(receiver, "id", receiverId)
 
         val request = RequestCreateFriendDto(sender.id!!, receiver.id!!)
 
@@ -110,11 +111,11 @@ class FriendServiceImplTest {
     fun updateFriend_Success() {
         // given
         val sender = Member("senderId", "sender", "sender@test.com", "password", roles = mutableListOf("USER"))
-        sender.id = 1L
+        ReflectionTestUtils.setField(sender, "id", 1L)
         val receiver = Member("receiverId", "receiver", "receiver@test.com", "password", roles = mutableListOf("USER"))
-        receiver.id = 2L
+        ReflectionTestUtils.setField(receiver, "id", 2L)
         val friend = Friend(sender, receiver, FriendApplyStatusEnum.PENDING)
-        friend.id = 1L
+        ReflectionTestUtils.setField(friend, "id", 1L)
         val request = RequestUpdateFriendDto(friend.id!!, sender.id!!, receiver.id!!, FriendApplyStatusEnum.ACCEPT)
 
         whenever(memberRepository.findById(sender.id!!)).thenReturn(Optional.of(sender))

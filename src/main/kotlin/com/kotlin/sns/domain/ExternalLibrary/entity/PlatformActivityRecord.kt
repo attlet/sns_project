@@ -19,9 +19,9 @@ import org.hibernate.annotations.SQLRestriction
 import java.time.Instant
 
 /**
- * 외부 라이브러리 동기화 레코드 엔티티
+ * 외부 플랫폼 활동 기록 엔티티
  *
- * Steam, MAL, AniList 등 외부 플랫폼에서 동기화한 원본 메타데이터를 보관한다.
+ * Steam, MAL, AniList 등 외부 플랫폼에서 동기화한 사용자 활동 데이터를 보관한다.
  * Review 엔티티에서 분리된 외부 플랫폼 전용 데이터(playtime, externalRating, syncedAt)를 관리한다.
  *
  * @property member 소유 회원
@@ -33,23 +33,23 @@ import java.time.Instant
  * @property isDeleted 삭제 여부 (Soft Delete)
  */
 @Entity
-@SQLDelete(sql = "UPDATE external_library_record SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE platform_activity_record SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 @Table(
-    name = "external_library_record",
+    name = "platform_activity_record",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_external_library_member_content_source",
+            name = "uk_platform_activity_member_content_source",
             columnNames = ["member_id", "content_id", "source"]
         )
     ],
     indexes = [
-        Index(name = "idx_external_library_member", columnList = "member_id"),
-        Index(name = "idx_external_library_content", columnList = "content_id"),
-        Index(name = "idx_external_library_source", columnList = "source")
+        Index(name = "idx_platform_activity_member", columnList = "member_id"),
+        Index(name = "idx_platform_activity_content", columnList = "content_id"),
+        Index(name = "idx_platform_activity_source", columnList = "source")
     ]
 )
-class ExternalLibraryRecord(
+class PlatformActivityRecord(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     var member: Member,

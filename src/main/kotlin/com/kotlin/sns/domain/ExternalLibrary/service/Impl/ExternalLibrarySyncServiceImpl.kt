@@ -7,9 +7,10 @@ import com.kotlin.sns.domain.Content.entity.Content
 import com.kotlin.sns.domain.Content.entity.ContentType
 import com.kotlin.sns.domain.Content.repository.ContentRepository
 import com.kotlin.sns.domain.Content.service.ContentService
-import com.kotlin.sns.domain.ExternalLibrary.entity.ExternalLibraryRecord
-import com.kotlin.sns.domain.ExternalLibrary.repository.ExternalLibraryRecordRepository
+import com.kotlin.sns.domain.ExternalLibrary.entity.PlatformActivityRecord
+import com.kotlin.sns.domain.ExternalLibrary.repository.PlatformActivityRecordRepository
 import com.kotlin.sns.domain.ExternalLibrary.service.ExternalLibrarySyncService
+import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Review.dto.response.SteamSyncResultDto
 import com.kotlin.sns.domain.Review.entity.Review
@@ -36,7 +37,7 @@ import java.time.Instant
  * @property steamClient
  * @property igdbClient
  * @property steamRatingConverter
- * @property externalLibraryRecordRepository
+ * @property platformActivityRecordRepository
  * @property reviewRepository
  */
 @Service
@@ -47,7 +48,7 @@ class ExternalLibrarySyncServiceImpl(
     private val steamClient: SteamClient,
     private val igdbClient: IgdbClient,
     private val steamRatingConverter: SteamRatingConverter,
-    private val externalLibraryRecordRepository: ExternalLibraryRecordRepository,
+    private val platformActivityRecordRepository: PlatformActivityRecordRepository,
     private val reviewRepository: ReviewRepository
 ) : ExternalLibrarySyncService {
 
@@ -65,18 +66,15 @@ class ExternalLibrarySyncServiceImpl(
      */
     @Transactional
     override fun syncSteamLibrary(memberId: Long): SteamSyncResultDto {
-
         // 1. member 조회
         val member = memberRepository.findById(memberId)
             .orElseThrow { CustomException(ErrorCode.MEMBER_NOT_FOUND) }
 
         // 2. member의 steam id 조회, null 체크
-        val steamId = member.steamId
-            ?: throw CustomException(ErrorCode.STEAM_ID_NOT_LINKED)
+        val steamId = member.steamId ?: throw CustomException(ErrorCode.STEAM_ID_NOT_LINKED)
 
         // 3. 해당 사용자의 steam id 기반으로 소유한 게임 목록 조회
         val games = steamClient.getOwnedGames(steamId)
-
         var created = 0
         var updated = 0
 
@@ -85,50 +83,12 @@ class ExternalLibrarySyncServiceImpl(
             val content = resolveContent(game)
 
             // 5. ExternalLibraryRecord upsert — 모든 게임의 동기화 메타데이터 저장
-            val existingRecord = externalLibraryRecordRepository.findActiveByMemberAndContentAndSource(
-                member.id, content.id, ReviewSource.STEAM
-            )
-            if (existingRecord == null) {
-                externalLibraryRecordRepository.save(
-                    ExternalLibraryRecord(
-                        member = member,
-                        content = content,
-                        source = ReviewSource.STEAM,
-                        playtimeMinutes = game.playtimeMinutes,
-                        externalRating = null,  // Steam API는 별도 평점 미제공
-                        syncedAt = Instant.now()
-                    )
-                )
-            } else {
-                existingRecord.playtimeMinutes = game.playtimeMinutes
-                existingRecord.externalRating = null  // Steam API는 별도 평점 미제공
-                existingRecord.syncedAt = Instant.now()
-            }
+            upsertPlatformActivityRecord(member, content, game.playtimeMinutes)
 
             // 6. playtime == 0인 미플레이 게임은 Review를 생성하지 않음 (소유만 기록)
-            if (game.playtimeMinutes == 0) continue
-
-            // 7. 사용자가 해당 content를 플레이한 시간을 기준으로 rating을 계산
-            val rating = steamRatingConverter.convert(game.playtimeMinutes)
-
-            // 8. Review upsert — 실제 플레이한 게임만 평가 데이터 저장
-            val existingReview = reviewRepository.findActiveByMemberAndContentAndSource(
-                member.id, content.id, ReviewSource.STEAM
-            )
-            if (existingReview == null) {
-                reviewRepository.save(
-                    Review(
-                        member = member,
-                        content = content,
-                        rating = rating,
-                        status = ReviewStatus.PLAYED,
-                        source = ReviewSource.STEAM
-                    )
-                )
-                created++
-            } else {
-                existingReview.rating = rating
-                updated++
+            if (game.playtimeMinutes > 0) {
+                // 7. Review upsert — 실제 플레이한 게임만 평가 데이터 저장
+                if (upsertReview(member, content, game.playtimeMinutes)) created++ else updated++
             }
         }
 
@@ -151,5 +111,57 @@ class ExternalLibrarySyncServiceImpl(
 
         return contentRepository.findById(contentDto.id)
             .orElseThrow { CustomException(ErrorCode.CONTENT_NOT_FOUND) }
+    }
+
+    /**
+     * ExternalLibraryRecord upsert — 모든 소유 게임의 동기화 메타데이터 저장.
+     * Steam API는 별도 평점을 제공하지 않으므로 externalRating은 항상 null.
+     */
+    private fun upsertPlatformActivityRecord(member: Member, content: Content, playtimeMinutes: Int) {
+        val existing = platformActivityRecordRepository.findActiveByMemberAndContentAndSource(
+            member.id, content.id, ReviewSource.STEAM
+        )
+        if (existing == null) {
+            platformActivityRecordRepository.save(
+                PlatformActivityRecord(
+                    member = member,
+                    content = content,
+                    source = ReviewSource.STEAM,
+                    playtimeMinutes = playtimeMinutes,
+                    externalRating = null,
+                    syncedAt = Instant.now()
+                )
+            )
+        } else {
+            existing.playtimeMinutes = playtimeMinutes
+            existing.syncedAt = Instant.now()
+        }
+    }
+
+    /**
+     * Review upsert — 플레이한 게임(playtime > 0)만 호출.
+     *
+     * @return true = 신규 생성, false = 기존 업데이트
+     */
+    private fun upsertReview(member: Member, content: Content, playtimeMinutes: Int): Boolean {
+        val rating = steamRatingConverter.convert(playtimeMinutes)
+        val existing = reviewRepository.findActiveByMemberAndContentAndSource(
+            member.id, content.id, ReviewSource.STEAM
+        )
+        return if (existing == null) {
+            reviewRepository.save(
+                Review(
+                    member = member,
+                    content = content,
+                    rating = rating,
+                    status = ReviewStatus.PLAYED,
+                    source = ReviewSource.STEAM
+                )
+            )
+            true
+        } else {
+            existing.rating = rating
+            false
+        }
     }
 }

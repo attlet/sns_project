@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ErrorCode
 import com.kotlin.sns.infrastructure.external.twitch.Impl.TwitchAuthClientImpl
+import com.kotlin.sns.infrastructure.external.twitch.TwitchAuthClient
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.springframework.web.reactive.function.client.WebClient

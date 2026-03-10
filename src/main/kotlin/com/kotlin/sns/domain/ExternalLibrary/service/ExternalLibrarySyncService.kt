@@ -12,9 +12,9 @@ interface ExternalLibrarySyncService {
     /**
      * Steam 라이브러리 동기화
      *
-     * Member의 Steam 보유 게임을 가져와 ExternalLibraryRecord와 Review를 일괄 생성/업데이트한다.
+     * Member의 Steam 보유 게임을 가져와 PlatformActivityRecord와 Review를 일괄 생성/업데이트한다.
      * - playtime > 0인 게임만 Review 생성 (실제 플레이한 게임)
-     * - playtime == 0인 게임은 ExternalLibraryRecord만 저장 (소유 기록)
+     * - playtime == 0인 게임은 PlatformActivityRecord만 저장 (소유 기록)
      *
      * @param memberId 동기화 대상 회원 ID
      * @return 동기화 결과 (전체/생성/업데이트 수)

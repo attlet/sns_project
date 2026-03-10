@@ -97,7 +97,7 @@ class ReviewRepositoryTest {
         @Test
         @DisplayName("모든 필드를 포함한 Review 저장 성공")
         fun saveReviewWithAllFields() {
-            // given — externalRating/playtime/syncedAt은 리팩토링 후 ExternalLibraryRecord로 분리됨
+            // given — externalRating/playtime/syncedAt은 리팩토링 후 PlatformActivityRecord로 분리됨
             val review = Review(
                 member = savedMember,
                 content = savedContent,
