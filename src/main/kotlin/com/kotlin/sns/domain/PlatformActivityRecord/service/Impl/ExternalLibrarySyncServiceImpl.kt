@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.ExternalLibrary.service.Impl
+package com.kotlin.sns.domain.PlatformActivityRecord.service.Impl
 
 import com.kotlin.sns.common.exception.CustomException
 import com.kotlin.sns.common.exception.ErrorCode
@@ -7,9 +7,9 @@ import com.kotlin.sns.domain.Content.entity.Content
 import com.kotlin.sns.domain.Content.entity.ContentType
 import com.kotlin.sns.domain.Content.repository.ContentRepository
 import com.kotlin.sns.domain.Content.service.ContentService
-import com.kotlin.sns.domain.ExternalLibrary.entity.PlatformActivityRecord
-import com.kotlin.sns.domain.ExternalLibrary.repository.PlatformActivityRecordRepository
-import com.kotlin.sns.domain.ExternalLibrary.service.ExternalLibrarySyncService
+import com.kotlin.sns.domain.PlatformActivityRecord.entity.PlatformActivityRecord
+import com.kotlin.sns.domain.PlatformActivityRecord.repository.PlatformActivityRecordRepository
+import com.kotlin.sns.domain.PlatformActivityRecord.service.ExternalLibrarySyncService
 import com.kotlin.sns.domain.Member.entity.Member
 import com.kotlin.sns.domain.Member.repository.MemberRepository
 import com.kotlin.sns.domain.Review.dto.response.SteamSyncResultDto

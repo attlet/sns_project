@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.ExternalLibrary.entity
+package com.kotlin.sns.domain.PlatformActivityRecord.entity
 
 import com.kotlin.sns.common.entity.BaseEntity
 import com.kotlin.sns.domain.Content.entity.Content

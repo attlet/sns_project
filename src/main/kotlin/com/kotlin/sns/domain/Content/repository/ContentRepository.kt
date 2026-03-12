@@ -19,4 +19,12 @@ interface ContentRepository : JpaRepository<Content, Long>, ContentRepositoryCus
      * @return 해당 IGDB ID의 콘텐츠, 없으면 null
      */
     fun findByIgdbId(igdbId: Long): Content?
+
+    /**
+     * Steam App ID로 콘텐츠 조회 (@SQLRestriction으로 삭제된 항목 자동 제외)
+     *
+     * @param steamAppId Steam 게임 App ID
+     * @return 해당 Steam App ID의 콘텐츠, 없으면 null
+     */
+    fun findBySteamAppId(steamAppId: Long): Content?
 }

@@ -1,6 +1,6 @@
-package com.kotlin.sns.domain.ExternalLibrary.repository
+package com.kotlin.sns.domain.PlatformActivityRecord.repository
 
-import com.kotlin.sns.domain.ExternalLibrary.entity.PlatformActivityRecord
+import com.kotlin.sns.domain.PlatformActivityRecord.entity.PlatformActivityRecord
 import com.kotlin.sns.domain.Review.entity.ReviewSource
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

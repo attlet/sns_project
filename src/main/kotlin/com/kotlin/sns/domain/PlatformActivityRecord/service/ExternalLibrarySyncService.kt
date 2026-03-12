@@ -1,4 +1,4 @@
-package com.kotlin.sns.domain.ExternalLibrary.service
+package com.kotlin.sns.domain.PlatformActivityRecord.service
 
 import com.kotlin.sns.domain.Review.dto.response.SteamSyncResultDto
 
