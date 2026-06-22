@@ -56,14 +56,6 @@ class Member(
     @ElementCollection(fetch = FetchType.EAGER)
     var roles: MutableList<String> = mutableListOf(),
 
-    // Github 연동 정보
-    val githubId: Long? = null,
-    var githubUsername: String? = null,
-    var githubAvatarUrl: String? = null,
-    @Column(length = 1000)
-    var githubAccessToken: String? = null,
-    var commitStreak: Int = 0,
-
     // Steam 연동 정보
     var steamId: String? = null
 
